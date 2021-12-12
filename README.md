@@ -1,4 +1,4 @@
-<h3>Allowed functions</h3>
+<h3>Allowed functions:</h3>
 <a href="https://www.bogotobogo.com/cplusplus/sockets_server_client.php" target="_blank">Sockets - server & client</a><br>
 <a href="https://www.gta.ufrj.br/ensino/eel878/sockets/htonsman.html" target="_blank">htons(), htonl(), ntohs(), ntohl()</a><br>
 <a href="https://www.tutorialspoint.com/unix_system_calls/_newselect.htm" target="_blank">select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO</a><br>
@@ -14,3 +14,8 @@
 <a href="https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-setsockopt-set-options-associated-socket" target="_blank">setsockopt()</a><br>
 <a href="https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-getsockname-get-name-socket" target="_blank">getsockname()</a><br>
 <a href="https://www.ibm.com/docs/en/zvse/6.2?topic=SSB27H_6.2.0/fa2ti_call_fcntl.html" target="_blank">fcntl()</a><br>
+
+<h3>Server setup</h3>
+<a href="https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa" target="_blank">How to build a simple HTTP server</a><br>
+<a href="https://ncona.com/2019/04/building-a-simple-server-with-cpp/" target="_blank">Simple server with C++</a><br>
+<a href="https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm" target="_blank">C++ Web Programming</a><br>
