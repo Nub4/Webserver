@@ -1,8 +1,5 @@
-# Webserver
-
-<h2>Allowed functions</h2>\
-Sockets - server & client:\
-https://www.bogotobogo.com/cplusplus/sockets_server_client.php \
+<h2>Allowed functions</h2>
+<a href="https://www.bogotobogo.com/cplusplus/sockets_server_client.php" target="_blank">Sockets - server & client</a>
 
 htons(), htonl(), ntohs(), ntohl():\
 https://www.gta.ufrj.br/ensino/eel878/sockets/htonsman.html \
