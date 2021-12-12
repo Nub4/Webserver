@@ -1,4 +1,4 @@
-<h2>Allowed functions</h2>
+<h3>Allowed functions</h3>
 <a href="https://www.bogotobogo.com/cplusplus/sockets_server_client.php" target="_blank">Sockets - server & client</a><br>
 <a href="https://www.gta.ufrj.br/ensino/eel878/sockets/htonsman.html" target="_blank">htons(), htonl(), ntohs(), ntohl()</a><br>
 <a href="https://www.tutorialspoint.com/unix_system_calls/_newselect.htm" target="_blank">select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO</a><br>
