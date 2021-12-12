@@ -6,30 +6,11 @@
 <a href="https://suchprogramming.com/epoll-in-3-easy-steps/" target="_blank">epoll() (epoll_create, epoll_ctl, epoll_wait)</a><br>
 <a href="https://wiki.netbsd.org/tutorials/kqueue_tutorial/" target="_blank">kqueue() (kqueue, kevent)</a><br>
 <a href="https://www.geeksforgeeks.org/socket-programming-cc/" target="_blank">socket()</a><br>
-
-
-
-
-accept():\
-https://www.ibm.com/docs/en/zos/2.3.0?topic=functions-accept-accept-new-connection-socket \
-
-listen():\
-https://www.ibm.com/docs/en/zos/2.4.0?topic=functions-listen-prepare-server-incoming-client-requests \
-
-send():\
-https://www.ibm.com/docs/en/zos/2.1.0?topic=functions-send-send-data-socket \
-
-recv():\
-https://www.ibm.com/docs/en/zos/2.3.0?topic=functions-recv-receive-data-socket \
-
-inet_addr():\
-https://pubs.opengroup.org/onlinepubs/009695399/functions/inet_addr.html \
-
-setsockopt():\
-https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-setsockopt-set-options-associated-socket \
-
-getsockname():\
-https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-getsockname-get-name-socket \
-
-fcntl():\
-https://www.ibm.com/docs/en/zvse/6.2?topic=SSB27H_6.2.0/fa2ti_call_fcntl.html \
+<a href="https://www.ibm.com/docs/en/zos/2.3.0?topic=functions-accept-accept-new-connection-socket" target="_blank">accept()</a><br>
+<a href="https://www.ibm.com/docs/en/zos/2.4.0?topic=functions-listen-prepare-server-incoming-client-requests" target="_blank">listen()</a><br>
+<a href="https://www.ibm.com/docs/en/zos/2.1.0?topic=functions-send-send-data-socket" target="_blank">send()</a><br>
+<a href="https://www.ibm.com/docs/en/zos/2.3.0?topic=functions-recv-receive-data-socket" target="_blank">recv()</a><br>
+<a href="https://pubs.opengroup.org/onlinepubs/009695399/functions/inet_addr.html" target="_blank">inet_addr()</a><br>
+<a href="https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-setsockopt-set-options-associated-socket" target="_blank">setsockopt()</a><br>
+<a href="https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-getsockname-get-name-socket" target="_blank">getsockname()</a><br>
+<a href="https://www.ibm.com/docs/en/zvse/6.2?topic=SSB27H_6.2.0/fa2ti_call_fcntl.html" target="_blank">fcntl()</a><br>
