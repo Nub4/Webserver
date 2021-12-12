@@ -1,23 +1,14 @@
 <h2>Allowed functions</h2>
 <a href="https://www.bogotobogo.com/cplusplus/sockets_server_client.php" target="_blank">Sockets - server & client</a>
+<a href="https://www.gta.ufrj.br/ensino/eel878/sockets/htonsman.html" target="_blank">htons(), htonl(), ntohs(), ntohl()</a>
+<a href="https://www.tutorialspoint.com/unix_system_calls/_newselect.htm" target="_blank">select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO</a>
+<a href="http://www.unixguide.net/unix/programming/2.1.2.shtml" target="_blank">poll()</a>
+<a href="https://suchprogramming.com/epoll-in-3-easy-steps/" target="_blank">epoll() (epoll_create, epoll_ctl, epoll_wait)</a>
+<a href="https://wiki.netbsd.org/tutorials/kqueue_tutorial/" target="_blank">kqueue() (kqueue, kevent)</a>
+<a href="https://www.geeksforgeeks.org/socket-programming-cc/" target="_blank">socket()</a>
 
-htons(), htonl(), ntohs(), ntohl():\
-https://www.gta.ufrj.br/ensino/eel878/sockets/htonsman.html \
 
-select(), FD_SET, FD_CLR, FD_ISSET, FD_ZERO:\
-https://www.tutorialspoint.com/unix_system_calls/_newselect.htm \
 
-poll():\
-http://www.unixguide.net/unix/programming/2.1.2.shtml \
-
-epoll() (epoll_create, epoll_ctl, epoll_wait):\
-https://suchprogramming.com/epoll-in-3-easy-steps/ \
-
-kqueue() (kqueue, kevent):\
-https://wiki.netbsd.org/tutorials/kqueue_tutorial/ \
-
-socket():\
-https://www.geeksforgeeks.org/socket-programming-cc/ \
 
 accept():\
 https://www.ibm.com/docs/en/zos/2.3.0?topic=functions-accept-accept-new-connection-socket \
