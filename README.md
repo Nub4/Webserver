@@ -1,6 +1,6 @@
 # Webserver
 
-# Allowed functions
+<h2>Allowed functions</h2>\
 Sockets - server & client:\
 https://www.bogotobogo.com/cplusplus/sockets_server_client.php \
 
