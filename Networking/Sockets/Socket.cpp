@@ -15,9 +15,6 @@ ft::Socket::~Socket() {}
 
 struct sockaddr_in  ft::Socket::getAddress() { return _address; }
 int                 ft::Socket::getSock() { return _sock; }
-int                 ft::Socket::getConnection() { return _connection; }
-
-void                ft::Socket::setConnection(int connection) { _connection = connection; }
 
 void    ft::Socket::testConnection(int item)
 {

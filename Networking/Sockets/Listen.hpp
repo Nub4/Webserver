@@ -13,6 +13,9 @@ namespace ft
 
             void    startListening();
 
+            int     getListening();
+            int     getBacklog();
+
         private:
             int _backlog;
             int _listening;

@@ -11,7 +11,11 @@ namespace ft
             Bind(int domain, int service, int protocol, int port, u_long interface);
             ~Bind();
 
-            int connectToNetwork(int sock, struct sockaddr_in address);  
+            int     getBind();  
+
+        private:
+            int     _binding;
+            void    connectToNetwork(int sock, struct sockaddr_in address);
     };
 }
 

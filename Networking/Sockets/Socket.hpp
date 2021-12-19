@@ -15,16 +15,17 @@ namespace ft
 
             struct sockaddr_in  getAddress();
             int                 getSock();
-            int                 getConnection();
 
-            void                setConnection(int item);
-
-            virtual int connectToNetwork(int sock, struct sockaddr_in address) = 0;
-            void        testConnection(int item);
+            // This function connects to the network using either bind() or connect() from sys/socket.h
+            virtual void        connectToNetwork(int sock, struct sockaddr_in address) = 0;
+            void                testConnection(int item);
 
         private:
-            int                 _connection;
+            // Once instantiad, sock contains the address od a socket object on the network.
+            // this should be a non-negative number.
             int                 _sock;
+            // The address variable is a struct that contains information about the protocol, type, and interface
+            // of a given socket. These parameters are specified and set in the constructor.
             struct sockaddr_in  _address;
     };
 }
