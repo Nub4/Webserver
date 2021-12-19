@@ -5,7 +5,7 @@
 
 namespace ft
 {
-    class Listen
+    class Listen : public Bind
     {
         public:
             Listen(int domain, int service, int protocol, int port, u_long interface, int backlog);
