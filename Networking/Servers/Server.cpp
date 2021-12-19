@@ -6,3 +6,5 @@ ft::Server::Server(int domain, int service, int protocol, int port, u_long inter
 }
 
 ft::Server::~Server() { delete _socket; }
+
+ft::Listen  *ft::Server::getSocket() { return _socket; }

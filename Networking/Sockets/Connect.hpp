@@ -11,7 +11,7 @@ namespace ft
             Connect(int domain, int service, int protocol, int port, u_long interface);
             ~Connect();
 
-            int connectToNetwork(int sock, struct sockaddr_in address);
+            void connectToNetwork(int sock, struct sockaddr_in address);
     };
 }
 

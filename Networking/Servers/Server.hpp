@@ -2,6 +2,7 @@
 # define SERVER_HPP
 
 # include "../ft_libc_network.hpp"
+# include <unistd.h>
 
 namespace ft
 {
@@ -11,6 +12,8 @@ namespace ft
             Server(int domain, int service, int protocol, int port, u_long interface, int backlog);
             ~Server();
 
+            virtual void    launch() = 0;
+            Listen          *getSocket();
 
         private:
             Listen          *_socket;
