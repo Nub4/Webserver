@@ -9,7 +9,7 @@ namespace ft
     {
         public:
             Listen(int domain, int service, int protocol, int port, u_long interface, int backlog);
-            ~Listen();
+            virtual ~Listen();
 
             void    startListening();
 
