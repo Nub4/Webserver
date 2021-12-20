@@ -8,7 +8,7 @@ SRCS := Socket.cpp \
 		Bind.cpp \
 		Listen.cpp
 
-SRCS2 := Server_test.cpp \
+SRCS2 := main.cpp \
 		 Server.cpp \
 		 TestServer.cpp
 
