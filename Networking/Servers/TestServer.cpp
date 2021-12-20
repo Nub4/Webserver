@@ -20,7 +20,8 @@ void    ft::TestServer::_handle()
 
 void    ft::TestServer::_response()
 {
-    char *hello = "Hello from Server";
+    char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 22\n\nHello world! I'm here!";
+   // char *hello = "Hello from Server";
     write(_newSocket, hello, strlen(hello));
     close(_newSocket);
 }
