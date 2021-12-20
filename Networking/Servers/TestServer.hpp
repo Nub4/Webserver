@@ -21,7 +21,7 @@ namespace ft
             void    launch();
 
         private:
-            char    _buffer[3000] = {0};
+            char    _buffer[30000];
             int     _newSocket;
             void    _accept();
             void    _handle();
