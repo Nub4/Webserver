@@ -28,7 +28,7 @@ void    TestServer::_response()
     {
         if (parsed[1].size() != 1)
         {
-            std::ifstream f("./" + parsed[1]);
+            std::ifstream f("./Pages/" + parsed[1]);
             if (f.good())
             {
                 std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
@@ -39,7 +39,7 @@ void    TestServer::_response()
         }
         else
         {
-            std::ifstream f("./default.html");
+            std::ifstream f("./Pages/default.html");
             if (f.good())
             {
                 std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
