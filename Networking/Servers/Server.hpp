@@ -16,7 +16,6 @@ class Server
     private:
         Listen          *_socket;
         virtual void    _accept() = 0;
-        virtual void    _handle() = 0;
         virtual void    _response() = 0;
 };
 

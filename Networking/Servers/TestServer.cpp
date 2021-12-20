@@ -11,13 +11,9 @@ void    TestServer::_accept()
     read(_newSocket, _buffer, 30000);
 }
 
-void    TestServer::_handle()
-{
-    std::cout << _buffer << std::endl;
-}
-
 void    TestServer::_response()
 {
+    std::cout << _buffer << std::endl;
     std::istringstream iss(_buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
@@ -76,7 +72,6 @@ void    TestServer::launch()
     {
         std::cout << "======= WAITING ======\n";
         _accept();
-        _handle();
         _response();
         std::cout << "======= DONE ======\n";
     }
