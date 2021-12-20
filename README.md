@@ -19,5 +19,4 @@
 
 <h3>Server setup</h3>
 <a href="https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa" target="_blank">How to build a simple HTTP server</a><br>
-<a href="https://ncona.com/2019/04/building-a-simple-server-with-cpp/" target="_blank">Simple server with C++</a><br>
 <a href="https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm" target="_blank">C++ Web Programming</a><br>
