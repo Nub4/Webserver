@@ -21,7 +21,7 @@ void    TestServer::_response()
     std::istringstream iss(_buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
-    std::string content = "Hello world! This is my default page :)";
+    std::string content;
     int errorCode = 200;
 
     if (parsed.size() >= 3 && parsed[0] == "GET")
@@ -29,6 +29,17 @@ void    TestServer::_response()
         if (parsed[1].size() != 1)
         {
             std::ifstream f("./" + parsed[1]);
+            if (f.good())
+            {
+                std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+                content = str;
+                errorCode = 200;
+            }
+            f.close();
+        }
+        else
+        {
+            std::ifstream f("./default.html");
             if (f.good())
             {
                 std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
