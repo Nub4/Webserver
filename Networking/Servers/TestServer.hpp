@@ -2,6 +2,12 @@
 # define TESTSERVER_HPP
 
 # include "Server.hpp"
+# include <istream>
+# include <sstream>
+# include <fstream>
+# include <vector>
+# include <streambuf>
+# include <iterator>
 
 namespace ft
 {
@@ -11,6 +17,7 @@ namespace ft
             TestServer();
             ~TestServer();
 
+            void    sendToClient(const char *msg, int len);
             void    launch();
 
         private:
