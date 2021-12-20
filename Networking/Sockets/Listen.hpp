@@ -3,23 +3,19 @@
 
 # include "Bind.hpp"
 
-namespace ft
+class Listen : public Bind
 {
-    class Listen : public Bind
-    {
-        public:
-            Listen(int domain, int service, int protocol, int port, u_long interface, int backlog);
-            virtual ~Listen();
+    public:
+        Listen(int domain, int service, int protocol, int port, u_long interface, int backlog);
+        virtual ~Listen();
 
-            void    startListening();
+        void    startListening();
+        int     getListening();
+        int     getBacklog();
 
-            int     getListening();
-            int     getBacklog();
-
-        private:
-            int _backlog;
-            int _listening;
-    };
-}
+    private:
+        int _backlog;
+        int _listening;
+};
 
 #endif

@@ -1,11 +1,9 @@
 #include "TestServer.hpp"
 
-ft::TestServer::TestServer()
+TestServer::TestServer()
 : Server(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 10) { launch(); }
 
-ft::TestServer::~TestServer() {}
-
-void    ft::TestServer::_accept()
+void    TestServer::_accept()
 {
     struct sockaddr_in address = getSocket()->getAddress();
     int addrlen = sizeof(address);
@@ -13,12 +11,12 @@ void    ft::TestServer::_accept()
     read(_newSocket, _buffer, 30000);
 }
 
-void    ft::TestServer::_handle()
+void    TestServer::_handle()
 {
     std::cout << _buffer << std::endl;
 }
 
-void    ft::TestServer::_response()
+void    TestServer::_response()
 {
     std::istringstream iss(_buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
@@ -55,13 +53,13 @@ void    ft::TestServer::_response()
     sendToClient(output.c_str(), size);
 }
 
-void    ft::TestServer::sendToClient(const char *msg, int len)
+void    TestServer::sendToClient(const char *msg, int len)
 {
     write(_newSocket, msg, len);
     close(_newSocket);
 }
 
-void    ft::TestServer::launch()
+void    TestServer::launch()
 {
     while (1)
     {

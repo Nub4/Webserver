@@ -1,26 +1,23 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "../ft_libc_network.hpp"
+# include "../libc_network.hpp"
 # include <unistd.h>
 
-namespace ft
+class Server
 {
-    class Server
-    {
-        public:
-            Server(int domain, int service, int protocol, int port, u_long interface, int backlog);
-            ~Server();
+    public:
+        Server(int domain, int service, int protocol, int port, u_long interface, int backlog);
+        ~Server();
 
-            virtual void    launch() = 0;
-            Listen          *getSocket();
+        virtual void    launch() = 0;
+        Listen          *getSocket();
 
-        private:
-            Listen          *_socket;
-            virtual void    _accept() = 0;
-            virtual void    _handle() = 0;
-            virtual void    _response() = 0;
-    };
-}
+    private:
+        Listen          *_socket;
+        virtual void    _accept() = 0;
+        virtual void    _handle() = 0;
+        virtual void    _response() = 0;
+};
 
 #endif

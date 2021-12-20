@@ -1,5 +1,5 @@
-#ifndef FT_LIBC_SOCKETS_HPP
-# define FT_LIBC_SOCKETS_HPP
+#ifndef LIBC_SOCKETS_HPP
+# define LIBC_SOCKETS_HPP
 
 # include "Socket.hpp"
 # include "Bind.hpp"

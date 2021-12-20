@@ -2,5 +2,6 @@
 
 int     main()
 {
-    ft::TestServer t;
+    TestServer t;
+    return 0;
 }

@@ -9,24 +9,20 @@
 # include <streambuf>
 # include <iterator>
 
-namespace ft
+class TestServer : public Server
 {
-    class TestServer : public Server
-    {
-        public:
-            TestServer();
-            ~TestServer();
+    public:
+        TestServer();
 
-            void    sendToClient(const char *msg, int len);
-            void    launch();
+        void    sendToClient(const char *msg, int len);
+        void    launch();
 
-        private:
-            char    _buffer[30000];
-            int     _newSocket;
-            void    _accept();
-            void    _handle();
-            void    _response();
-    };
-}
+    private:
+        char    _buffer[30000];
+        int     _newSocket;
+        void    _accept();
+        void    _handle();
+        void    _response();
+};
 
 #endif
