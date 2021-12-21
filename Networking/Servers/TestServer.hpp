@@ -2,12 +2,6 @@
 # define TESTSERVER_HPP
 
 # include "Server.hpp"
-# include <istream>
-# include <sstream>
-# include <fstream>
-# include <vector>
-# include <streambuf>
-# include <iterator>
 
 class TestServer : public Server
 {

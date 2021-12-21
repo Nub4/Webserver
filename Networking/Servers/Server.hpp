@@ -2,7 +2,6 @@
 # define SERVER_HPP
 
 # include "../../includes/libc.hpp"
-# include <unistd.h>
 
 class Server
 {

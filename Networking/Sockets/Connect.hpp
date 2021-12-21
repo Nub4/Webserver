@@ -8,7 +8,12 @@ class Connect : public Socket
     public:
         Connect(int domain, int service, int protocol, int port, u_long interface);
 
-        void connectToNetwork(int sock, struct sockaddr_in address);
+        void    setConnection(int con);
+        int     getConnection();
+        void    connectToNetwork(int sock, struct sockaddr_in address);
+
+    private:
+        int _connection;
 };
 
 #endif

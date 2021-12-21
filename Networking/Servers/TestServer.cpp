@@ -1,13 +1,18 @@
 #include "TestServer.hpp"
 
 TestServer::TestServer()
-: Server(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 10) { launch(); }
+: Server(AF_INET, SOCK_STREAM, 0, 3490, INADDR_ANY, 10) { launch(); }
 
 void    TestServer::_accept()
 {
     struct sockaddr_in address = getSocket()->getAddress();
     int addrlen = sizeof(address);
     _newSocket = accept(getSocket()->getSock(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+    if (_newSocket < 0)
+    {
+        perror("accept");
+        exit(EXIT_FAILURE);
+    }
     read(_newSocket, _buffer, 30000);
 }
 
@@ -62,7 +67,7 @@ void    TestServer::_response()
 
 void    TestServer::sendToClient(const char *msg, int len)
 {
-    write(_newSocket, msg, len);
+    send(_newSocket, msg, len, 0);
     close(_newSocket);
 }
 
@@ -75,4 +80,5 @@ void    TestServer::launch()
         _response();
         std::cout << "======= DONE ======\n";
     }
+    close(getSocket()->getSock());
 }
