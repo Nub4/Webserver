@@ -7,6 +7,8 @@ Connect::Connect(int domain, int service, int protocol, int port, u_long interfa
     testConnection(getConnection(), "connection");
 }
 
+Connect::~Connect() {}
+
 void    Connect::setConnection(int con) { _connection = con; }
 int     Connect::getConnection() { return _connection; }
 

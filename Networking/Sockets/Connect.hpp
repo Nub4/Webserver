@@ -7,6 +7,7 @@ class Connect : public Socket
 {
     public:
         Connect(int domain, int service, int protocol, int port, u_long interface);
+        virtual ~Connect();
 
         void    setConnection(int con);
         int     getConnection();
