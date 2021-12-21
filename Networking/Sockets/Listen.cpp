@@ -5,7 +5,7 @@ Listen::Listen(int domain, int service, int protocol, int port, u_long interface
 {
     _backlog = backlog;
     startListening();
-    testConnection(_listening);
+    testConnection(_listening, "listen");
 }
 
 Listen::~Listen() {}

@@ -7,17 +7,17 @@ Socket::Socket(int domain, int service, int protocol, int port, u_long interface
     _address.sin_addr.s_addr = htonl(interface);
     memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
     _sock = socket(domain, service, protocol);
-    testConnection(_sock);
+    testConnection(_sock, "sock");
 }
 
 struct sockaddr_in  Socket::getAddress() { return _address; }
 int                 Socket::getSock() { return _sock; }
 
-void    Socket::testConnection(int item)
+void    Socket::testConnection(int item, std::string s)
 {
     if (item < 0)
     {
-        perror("Failed to connect...");
+        std::cerr << s << std::endl;
         exit(EXIT_FAILURE);
     }
 }

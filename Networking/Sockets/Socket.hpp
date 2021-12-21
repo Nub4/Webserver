@@ -14,7 +14,7 @@ class Socket
         struct sockaddr_in  getAddress();
         int                 getSock();
         virtual void        connectToNetwork(int sock, struct sockaddr_in address) = 0;
-        void                testConnection(int item);
+        void                testConnection(int item, std::string s);
 
     private:
         int                 _sock;

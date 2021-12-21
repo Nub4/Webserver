@@ -4,7 +4,7 @@ Connect::Connect(int domain, int service, int protocol, int port, u_long interfa
 : Socket(domain, service, protocol, port, interface)
 {
     setConnection(connectToNetwork(getSock(), getAddress()));
-    testConnection(getConnection());
+    testConnection(getConnection(), "connection");
 }
 
 void    Connect::setConnection(int con) { _connection = con; }

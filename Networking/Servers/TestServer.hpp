@@ -12,7 +12,7 @@ class TestServer : public Server
         void    launch();
 
         template<typename T>
-        void    testConnection(T item);
+        void    testConnection(T item, std::string s);
 
     private:
         char    _buffer[30000];
