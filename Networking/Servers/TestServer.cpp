@@ -47,6 +47,20 @@ void    TestServer::_response()
         }
     }
 
+    std::ifstream f("./Pages/" + parsed[1]);
+    if (!f.good())
+    {
+        std::ifstream f2("./Pages/error.html");
+        if (f2.good())
+        {
+            std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
+            content = str;
+            errorCode = 404;
+        }
+        f2.close();
+    }
+    f.close();
+
     std::ostringstream oss;
     oss << "HTTP/1.1 " << errorCode << " OK\r\n";
     oss << "Cache-Control: no-cache, private\r\n";
@@ -64,12 +78,12 @@ void    TestServer::_response()
 void    TestServer::sendToClient(const char *msg, int len)
 {
     int bytes_sending;
-    size_t bytes_sent;
+ //   size_t bytes_sent;
 
     bytes_sending = send(_newSocket, msg, len, 0);
     testConnection(bytes_sending);
-    bytes_sent = recv(_newSocket, (void *)msg, len, 0);
-    testConnection((int)bytes_sent);
+  //  bytes_sent = recv(_newSocket, (void *)msg, len, 0);
+  //  testConnection((int)bytes_sent);
     close(_newSocket);
 }
 
