@@ -8,11 +8,7 @@ void    TestServer::_accept()
     struct sockaddr_in address = getSocket()->getAddress();
     int addrlen = sizeof(address);
     _newSocket = accept(getSocket()->getSock(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
-    if (_newSocket < 0)
-    {
-        perror("accept");
-        exit(EXIT_FAILURE);
-    }
+    testConnection(_newSocket);
     read(_newSocket, _buffer, 30000);
 }
 
@@ -67,8 +63,24 @@ void    TestServer::_response()
 
 void    TestServer::sendToClient(const char *msg, int len)
 {
-    send(_newSocket, msg, len, 0);
+    int bytes_sending;
+    size_t bytes_sent;
+
+    bytes_sending = send(_newSocket, msg, len, 0);
+    testConnection(bytes_sending);
+    bytes_sent = recv(_newSocket, (void *)msg, len, 0);
+    testConnection((int)bytes_sent);
     close(_newSocket);
+}
+
+template<typename T>
+void    TestServer::testConnection(T item)
+{
+    if (item < 0)
+    {
+        perror("Connection failed...");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void    TestServer::launch()

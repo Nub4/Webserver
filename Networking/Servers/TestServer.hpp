@@ -11,6 +11,9 @@ class TestServer : public Server
         void    sendToClient(const char *msg, int len);
         void    launch();
 
+        template<typename T>
+        void    testConnection(T item);
+
     private:
         char    _buffer[30000];
         int     _newSocket;
