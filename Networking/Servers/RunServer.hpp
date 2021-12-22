@@ -1,0 +1,19 @@
+#ifndef RUNSERVER_HPP
+# define RUNSERVER_HPP
+
+# include "../../includes/libc.hpp"
+
+class RunServer : public Socket
+{
+    public:
+        RunServer(int server_fd, struct sockaddr_in address);
+
+    private:
+        char    _buffer[30000];
+        int     _newSocket;
+        void    _accept(int server_fd, struct sockaddr_in address);
+        void    _response(int server_fd);
+        void    _sendToClient(const char *msg, int len);
+};
+
+#endif
