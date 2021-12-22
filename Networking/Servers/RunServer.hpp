@@ -9,11 +9,13 @@ class RunServer : public Socket
         RunServer(int server_fd, struct sockaddr_in address);
 
     private:
-        char    _buffer[30000];
-        int     _newSocket;
-        void    _accept(int server_fd, struct sockaddr_in address);
-        void    _response(int server_fd);
-        void    _sendToClient(const char *msg, int len);
+        char        _buffer[30000];
+        int         _newSocket;
+        std::string _content;
+        int         _errorCode;
+        void        _accept(int server_fd, struct sockaddr_in address);
+        void        _handler(int server_fd);
+        void        _sendToClient();
 };
 
 #endif

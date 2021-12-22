@@ -6,11 +6,10 @@
 class RunClient : public Socket
 {
     public:
-        RunClient(int server_fd);
+        RunClient(int server_fd, char *str);
 
     private:
         char        _buffer[1024];
-        std::string _userInput;
 };
 
 #endif

@@ -5,7 +5,7 @@ RunServer::RunServer(int server_fd, struct sockaddr_in address)
     while (1)
     {
         _accept(server_fd, address);
-        _response(server_fd);
+        _handler(server_fd);
     }
 }
 
@@ -16,7 +16,7 @@ void    RunServer::_accept(int server_fd, struct sockaddr_in address)
     testConnection(_newSocket, "new socket");
 }
 
-void    RunServer::_response(int server_fd)
+void    RunServer::_handler(int server_fd)
 {
     if (!fork())
     {
@@ -25,9 +25,7 @@ void    RunServer::_response(int server_fd)
         std::cout << _buffer << std::endl;
         std::istringstream iss(_buffer);
         std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-
-        std::string content;
-        int errorCode = 200;
+        _errorCode = 200;
 
         if (parsed.size() >= 3 && parsed[0] == "GET")
         {
@@ -40,16 +38,16 @@ void    RunServer::_response(int server_fd)
                     if (f2.good())
                     {
                         std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
-                        content = str;
-                        errorCode = 404;
+                        _content = str;
+                        _errorCode = 404;
                     }
                     f2.close();
                 }
                 else
                 {
                     std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-                    content = str;
-                    errorCode = 200;
+                    _content = str;
+                    _errorCode = 200;
                 }
                 f.close();
             }
@@ -59,35 +57,32 @@ void    RunServer::_response(int server_fd)
                 if (f.good())
                 {
                     std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-                    content = str;
-                    errorCode = 200;
+                    _content = str;
+                    _errorCode = 200;
                 }
                 f.close();
             }
         }
-
-        std::ostringstream oss;
-        oss << "HTTP/1.1 " << errorCode << " OK\r\n";
-        oss << "Cache-Control: no-cache, private\r\n";
-        oss << "Content-type: text/html\r\n";
-        oss << "Content-Length: " << content.size() << "\r\n";
-        oss << "\r\n";
-        oss << content;
-
-        std::string output = oss.str();
-        int size = output.size();
-
-        _sendToClient(output.c_str(), size);
+        _sendToClient();
     }
     close(_newSocket);
     
 }
 
-void    RunServer::_sendToClient(const char *msg, int len)
+void    RunServer::_sendToClient()
 {
-    int bytes_sending;
+    std::ostringstream oss;
+    oss << "HTTP/1.1 " << _errorCode << " OK\r\n";
+    oss << "Cache-Control: no-cache, private\r\n";
+    oss << "Content-type: text/html\r\n";
+    oss << "Content-Length: " << _content.size() << "\r\n";
+    oss << "\r\n";
+    oss << _content;
 
-    bytes_sending = send(_newSocket, msg, len, 0);
+    std::string output = oss.str();
+    int size = output.size();
+
+    int bytes_sending = send(_newSocket, output.c_str(), size, 0);
     testConnection(bytes_sending, "send");
     close(_newSocket);
     exit(0);
