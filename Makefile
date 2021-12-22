@@ -9,7 +9,7 @@ SRCS := Socket.cpp \
 		Listen.cpp \
 		Address.cpp
 
-SRCS2 := main.cpp \
+SRCS2 := server.cpp \
 		 RunServer.cpp
 
 OBJ_DIR := objs
@@ -40,7 +40,7 @@ $(OBJ_DIR2)/%.o: $(SRCS_DIR2)/%.cpp
 
 $(NAME): $(OBJ_DIR) $(OBJECTS) $(OBJ_DIR2) $(OBJECTS2)
 	@echo "\033[1;33mBuilding Webserv..\033[0m"
-	@${CXX} ${CXXFLAGS} -o ${NAME} ${OBJECTS} $(OBJECTS2)
+	@${CXX} ${CXXFLAGS} -o server ${OBJECTS} $(OBJECTS2)
 	@echo "\033[1;32mDONE!\033[0m"
 
 clean:
@@ -50,7 +50,7 @@ clean:
 
 fclean: clean
 	@echo "\033[1;31mRemoving launch file..\033[0m"
-	@${RM} ${NAME}
+	@${RM} server
 
 re: fclean all
 
