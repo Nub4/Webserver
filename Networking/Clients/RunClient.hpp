@@ -9,7 +9,8 @@ class RunClient : public Socket
         RunClient(int server_fd);
 
     private:
-        char    _buffer[1024];
+        char        _buffer[1024];
+        std::string _userInput;
 };
 
 #endif

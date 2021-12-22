@@ -13,6 +13,7 @@ void    Socket::testConnection(int item, std::string str)
     if (item < 0)
     {
         std::cerr << str << std::endl;
+        close(getSocket());
         exit(1);
     }
 }

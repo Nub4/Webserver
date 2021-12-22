@@ -4,10 +4,8 @@ RunServer::RunServer(int server_fd, struct sockaddr_in address)
 {
     while (1)
     {
-        std::cout << "======= WAITING ======\n";
         _accept(server_fd, address);
         _response(server_fd);
-        std::cout << "======= DONE ======\n";
     }
 }
 
@@ -36,7 +34,18 @@ void    RunServer::_response(int server_fd)
             if (parsed[1].size() != 1)
             {
                 std::ifstream f("./Pages/" + parsed[1]);
-                if (f.good())
+                if (!f.good())
+                {
+                    std::ifstream f2("./Pages/error.html");
+                    if (f2.good())
+                    {
+                        std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
+                        content = str;
+                        errorCode = 404;
+                    }
+                    f2.close();
+                }
+                else
                 {
                     std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
                     content = str;
@@ -57,20 +66,6 @@ void    RunServer::_response(int server_fd)
             }
         }
 
-        std::ifstream f("./Pages/" + parsed[1]);
-        if (!f.good())
-        {
-            std::ifstream f2("./Pages/error.html");
-            if (f2.good())
-            {
-                std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
-                content = str;
-                errorCode = 404;
-            }
-            f2.close();
-        }
-        f.close();
-
         std::ostringstream oss;
         oss << "HTTP/1.1 " << errorCode << " OK\r\n";
         oss << "Cache-Control: no-cache, private\r\n";
@@ -85,6 +80,7 @@ void    RunServer::_response(int server_fd)
         _sendToClient(output.c_str(), size);
     }
     close(_newSocket);
+    
 }
 
 void    RunServer::_sendToClient(const char *msg, int len)

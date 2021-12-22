@@ -4,7 +4,7 @@
 # include "../../includes/libc.hpp"
 # include "Socket.hpp"
 
-class Address
+class Address : public Socket
 {
     public:
         Address(std::string str);

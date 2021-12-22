@@ -5,6 +5,15 @@
 # include <sys/types.h>
 # include <netinet/in.h>
 # include <iostream>
+# include <string>
+# include <unistd.h>
+# include <istream>
+# include <sstream>
+# include <fstream>
+# include <vector>
+# include <streambuf>
+# include <iterator>
+# include <arpa/inet.h>
 
 class Socket
 {

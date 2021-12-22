@@ -18,6 +18,7 @@ Address::Address(std::string str)
         if (inet_pton(AF_INET, "127.0.0.1", &_serv_addr.sin_addr) <= 0)
         {
             std::cerr << "\nInvalid address/ Address not supported\n";
+            close(getSocket());
             exit(1);
         }
     }
