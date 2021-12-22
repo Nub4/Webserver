@@ -5,7 +5,7 @@ int     main()
     // Create socket file descriptor
     Socket s(AF_INET, SOCK_STREAM, 0);
     // Create address structure
-    Address a;
+    Address a("server");
     // Bind file descriptor
     Bind b(s.getSocket(), a.getAddress());
     // Listen file descriptor

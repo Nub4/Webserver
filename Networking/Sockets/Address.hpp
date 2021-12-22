@@ -7,12 +7,15 @@
 class Address
 {
     public:
-        Address();
+        Address(std::string str);
 
         struct sockaddr_in  getAddress();
+        struct sockaddr_in  getServAddr();
 
     private:
         struct sockaddr_in  _address;
+        struct sockaddr_in  _serv_addr;
+
 };
 
 #endif

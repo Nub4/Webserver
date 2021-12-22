@@ -5,6 +5,7 @@
 # include "../Networking/Sockets/Bind.hpp"
 # include "../Networking/Sockets/Listen.hpp"
 # include "../Networking/Sockets/Address.hpp"
+# include "../Networking/Sockets/Connect.hpp"
 # include <unistd.h>
 # include <istream>
 # include <sstream>
@@ -12,6 +13,7 @@
 # include <vector>
 # include <streambuf>
 # include <iterator>
+# include <arpa/inet.h>
 
 # define PORT 3490
 # define BACKLOG 10
