@@ -22,10 +22,10 @@ class Socket
         Socket(int domain, int type, int protocol);
 
         int     getSocket();
-        void    testConnection(int item, std::string str);
 
-    private:
+    protected:
         int                 _socket;
+        void                testConnection(int item, std::string str);
 };
 
 #endif
