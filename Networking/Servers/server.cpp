@@ -5,6 +5,7 @@ Server::Server() {}
 void    Server::setup_server()
 {
     int yes = 1;
+    _fdmax = 0;
 
     // Socket file descriptor
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -27,36 +28,34 @@ void    Server::setup_server()
 void    Server::run_server()
 {
     fd_set readfds;
-    int fdmax;
 
     // Initialize my current set
     FD_ZERO(&readfds);
     FD_SET(_serverSocket, &readfds);
-    fdmax = _serverSocket;
+    _fdmax = _serverSocket;
 
     while (1)
     {
         fd_set copy = readfds;
-        _check(select(fdmax + 1, &copy, NULL, NULL, NULL), "select");
+        _check(select(_fdmax + 1, &copy, NULL, NULL, NULL), "select");
 
-        for (int i = 0; i <= fdmax; i++)
+        for (int i = 0; i <= _fdmax; i++)
         {
             if (FD_ISSET(i, &copy))
             {
                 if (i == _serverSocket)
                 {
-                    // accept a new connection
+                    // a new connection
                     int clientSocket = _accept();
                     FD_SET(clientSocket, &readfds);
-                    if (clientSocket > fdmax)
-                        fdmax = clientSocket;
+                    if (clientSocket > _fdmax)
+                        _fdmax = clientSocket;
                 }
                 else
                 {
-                    // accept a new message. 
+                    // send to the client. 
                     _handler(i);
-                    if (i == -1)
-                        FD_CLR(i, &readfds);
+                    FD_CLR(i, &readfds);
                 }
             }
         }

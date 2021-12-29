@@ -12,6 +12,7 @@ class Server
         void                setup_server();
 
     private:
+        int                 _fdmax;
         struct sockaddr_in  _address;
         int                 _serverSocket;
         void                _check(int a, std::string str);
