@@ -5,7 +5,6 @@ Server::Server() {}
 void    Server::setup_server()
 {
     int yes = 1;
-    int ss;
 
     // Socket file descriptor
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -18,14 +17,11 @@ void    Server::setup_server()
     memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
 
     // Binding
-    ss = setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
-    _check(ss, "setsockopt");
-    _bind = bind(_serverSocket, (struct sockaddr *)&_address, sizeof(_address));
-    _check(_bind, "bind");
+    _check(setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
+    _check(bind(_serverSocket, (struct sockaddr *)&_address, sizeof(_address)), "bind");
 
     // Listen
-    _listen = listen(_serverSocket, BACKLOG);
-    _check(_listen, "listen");
+    _check(listen(_serverSocket, BACKLOG), "listen");
 }
 
 void    Server::run_server()
