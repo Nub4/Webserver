@@ -8,8 +8,8 @@ void    Server::setup_server()
     int ss;
 
     // Socket file descriptor
-    _socket = socket(AF_INET, SOCK_STREAM, 0);
-    _check(_socket, "socket");
+    _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    _check(_serverSocket, "socket");
 
     // Initialize the address struct
     _address.sin_family = AF_INET;
@@ -18,45 +18,45 @@ void    Server::setup_server()
     memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
 
     // Binding
-    ss = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
+    ss = setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
     _check(ss, "setsockopt");
-    _bind = bind(_socket, (struct sockaddr *)&_address, sizeof(_address));
+    _bind = bind(_serverSocket, (struct sockaddr *)&_address, sizeof(_address));
     _check(_bind, "bind");
 
     // Listen
-    _listen = listen(_socket, BACKLOG);
+    _listen = listen(_serverSocket, BACKLOG);
     _check(_listen, "listen");
 }
 
 void    Server::run_server()
 {
-    fd_set current_sockets;
-    fd_set ready_sockets; // copy of current sockets
+    fd_set readfds;
+    fd_set tmp_readfds;
 
     // Initialize my current set
-    FD_ZERO(&current_sockets);
-    FD_SET(_socket, &current_sockets);
+    FD_ZERO(&readfds);
+    FD_SET(_serverSocket, &readfds);
  
     while (1)
     {
-        ready_sockets = current_sockets;
-        _check(select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL), "select");
+        tmp_readfds = readfds;
+        _check(select(FD_SETSIZE, &tmp_readfds, NULL, NULL, NULL), "select");
 
         for (int i = 0; i < FD_SETSIZE; i++)
         {
-            if (FD_ISSET(i, &ready_sockets))
+            if (FD_ISSET(i, &tmp_readfds))
             {
-                if (i == _socket)
+                if (i == _serverSocket)
                 {
                     // this is a new connection
                     int newSocket = _accept();
-                    FD_SET(newSocket, &current_sockets);
+                    FD_SET(newSocket, &readfds);
                 }
                 else
                 {
                     // do whatever do with connections.
                     _handler(i);
-                    FD_CLR(i, &current_sockets);
+                    FD_CLR(i, &readfds);
                 }
             }
         }
@@ -66,7 +66,7 @@ void    Server::run_server()
 int     Server::_accept()
 {
     int addrlen = sizeof(_address);
-    int newSocket = accept(_socket, (struct sockaddr *)&_address, (socklen_t *)&addrlen);
+    int newSocket = accept(_serverSocket, (struct sockaddr *)&_address, (socklen_t *)&addrlen);
     _check(newSocket, "new socket");
     return newSocket;
 }
@@ -75,7 +75,7 @@ void    Server::_handler(int newSocket)
 {
     if (!fork())
     {
-        close(_socket);
+        close(_serverSocket);
         //recv(_newSocket, _buffer, sizeof(_buffer), 0);
         read(newSocket, _buffer, sizeof(_buffer));//30000);
         std::cout << _buffer << std::endl;
@@ -149,8 +149,8 @@ void    Server::_check(int a, std::string str)
     if (a < 0)
     {
         std::cerr << str << std::endl;
-        if (_socket)
-            close(_socket);
+        if (_serverSocket)
+            close(_serverSocket);
         exit(1);
     }
 }

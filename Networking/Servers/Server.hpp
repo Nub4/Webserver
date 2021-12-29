@@ -13,7 +13,7 @@ class Server
 
     private:
         struct sockaddr_in  _address;
-        int                 _socket;
+        int                 _serverSocket;
         int                 _bind;
         int                 _listen;
         void                _check(int a, std::string str);
