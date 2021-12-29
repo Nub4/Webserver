@@ -18,12 +18,12 @@ class Server
         int                 _listen;
         void                _check(int a, std::string str);
         char                _buffer[30000];
-        int                 _newSocket;
+   //     int                 _newSocket;
         std::string         _content;
         int                 _errorCode;
-        void                _accept(int server_fd, struct sockaddr_in address);
-        void                _handler(int server_fd);
-        void                _sendToClient();
+        int                 _accept();
+        void                _handler(int newSocket);
+        void                _sendToClient(int newSocket);
 };
 
 #endif

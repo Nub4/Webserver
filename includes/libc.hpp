@@ -14,6 +14,8 @@
 # include <streambuf>
 # include <iterator>
 # include <arpa/inet.h>
+# include <sys/select.h>
+# include <sys/time.h>
 
 # define PORT 3490
 # define BACKLOG 10

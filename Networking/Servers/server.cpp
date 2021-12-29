@@ -30,27 +30,54 @@ void    Server::setup_server()
 
 void    Server::run_server()
 {
+    fd_set current_sockets;
+    fd_set ready_sockets; // copy of current sockets
+
+    // Initialize my current set
+    FD_ZERO(&current_sockets);
+    FD_SET(_socket, &current_sockets);
+ 
     while (1)
     {
-        _accept(_socket, _address);
-        _handler(_socket);
+        ready_sockets = current_sockets;
+        _check(select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL), "select");
+
+        for (int i = 0; i < FD_SETSIZE; i++)
+        {
+            if (FD_ISSET(i, &ready_sockets))
+            {
+                if (i == _socket)
+                {
+                    // this is a new connection
+                    int newSocket = _accept();
+                    FD_SET(newSocket, &current_sockets);
+                }
+                else
+                {
+                    // do whatever do with connections.
+                    _handler(i);
+                    FD_CLR(i, &current_sockets);
+                }
+            }
+        }
     }
 }
 
-void    Server::_accept(int server_fd, struct sockaddr_in address)
+int     Server::_accept()
 {
-    int addrlen = sizeof(address);
-    _newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
-    _check(_newSocket, "new socket");
+    int addrlen = sizeof(_address);
+    int newSocket = accept(_socket, (struct sockaddr *)&_address, (socklen_t *)&addrlen);
+    _check(newSocket, "new socket");
+    return newSocket;
 }
 
-void    Server::_handler(int server_fd)
+void    Server::_handler(int newSocket)
 {
     if (!fork())
     {
-        close(server_fd);
+        close(_socket);
         //recv(_newSocket, _buffer, sizeof(_buffer), 0);
-        read(_newSocket, _buffer, sizeof(_buffer));//30000);
+        read(newSocket, _buffer, sizeof(_buffer));//30000);
         std::cout << _buffer << std::endl;
         std::istringstream iss(_buffer);
         std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
@@ -92,13 +119,13 @@ void    Server::_handler(int server_fd)
                 f.close();
             }
         }
-        _sendToClient();
+        _sendToClient(newSocket);
     }
-    close(_newSocket);
+    close(newSocket);
     
 }
 
-void    Server::_sendToClient()
+void    Server::_sendToClient(int newSocket)
 {
     std::ostringstream oss;
     oss << "HTTP/1.1 " << _errorCode << " OK\r\n";
@@ -111,9 +138,9 @@ void    Server::_sendToClient()
     std::string output = oss.str();
     int size = output.size();
 
-    int bytes_sending = send(_newSocket, output.c_str(), size, 0);
+    int bytes_sending = send(newSocket, output.c_str(), size, 0);
     _check(bytes_sending, "send");
-    close(_newSocket);
+    close(newSocket);
     exit(0);
 }
 
