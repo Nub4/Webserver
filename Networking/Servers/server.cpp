@@ -45,8 +45,8 @@ void    Server::run_server()
                 if (i == _serverSocket)
                 {
                     // this is a new connection
-                    int newSocket = _accept();
-                    FD_SET(newSocket, &readfds);
+                    int clientSocket = _accept();
+                    FD_SET(clientSocket, &readfds);
                 }
                 else
                 {
@@ -62,18 +62,18 @@ void    Server::run_server()
 int     Server::_accept()
 {
     int addrlen = sizeof(_address);
-    int newSocket = accept(_serverSocket, (struct sockaddr *)&_address, (socklen_t *)&addrlen);
-    _check(newSocket, "new socket");
-    return newSocket;
+    int clientSocket = accept(_serverSocket, (struct sockaddr *)&_address, (socklen_t *)&addrlen);
+    _check(clientSocket, "new socket");
+    return clientSocket;
 }
 
-void    Server::_handler(int newSocket)
+void    Server::_handler(int clientSocket)
 {
     if (!fork())
     {
         close(_serverSocket);
         //recv(_newSocket, _buffer, sizeof(_buffer), 0);
-        read(newSocket, _buffer, sizeof(_buffer));//30000);
+        read(clientSocket, _buffer, sizeof(_buffer));//30000);
         std::cout << _buffer << std::endl;
         std::istringstream iss(_buffer);
         std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
@@ -115,13 +115,13 @@ void    Server::_handler(int newSocket)
                 f.close();
             }
         }
-        _sendToClient(newSocket);
+        _sendToClient(clientSocket);
     }
-    close(newSocket);
+    close(clientSocket);
     
 }
 
-void    Server::_sendToClient(int newSocket)
+void    Server::_sendToClient(int clientSocket)
 {
     std::ostringstream oss;
     oss << "HTTP/1.1 " << _errorCode << " OK\r\n";
@@ -134,9 +134,9 @@ void    Server::_sendToClient(int newSocket)
     std::string output = oss.str();
     int size = output.size();
 
-    int bytes_sending = send(newSocket, output.c_str(), size, 0);
+    int bytes_sending = send(clientSocket, output.c_str(), size, 0);
     _check(bytes_sending, "send");
-    close(newSocket);
+    close(clientSocket);
     exit(0);
 }
 

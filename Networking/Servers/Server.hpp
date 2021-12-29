@@ -19,8 +19,8 @@ class Server
         std::string         _content;
         int                 _errorCode;
         int                 _accept();
-        void                _handler(int newSocket);
-        void                _sendToClient(int newSocket);
+        void                _handler(int clientSocket);
+        void                _sendToClient(int clientSocket);
 };
 
 #endif
