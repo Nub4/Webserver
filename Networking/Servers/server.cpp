@@ -27,32 +27,36 @@ void    Server::setup_server()
 void    Server::run_server()
 {
     fd_set readfds;
-    fd_set tmp_readfds;
+    int fdmax;
 
     // Initialize my current set
     FD_ZERO(&readfds);
     FD_SET(_serverSocket, &readfds);
- 
+    fdmax = _serverSocket;
+
     while (1)
     {
-        tmp_readfds = readfds;
-        _check(select(FD_SETSIZE, &tmp_readfds, NULL, NULL, NULL), "select");
+        fd_set copy = readfds;
+        _check(select(fdmax + 1, &copy, NULL, NULL, NULL), "select");
 
-        for (int i = 0; i < FD_SETSIZE; i++)
+        for (int i = 0; i <= fdmax; i++)
         {
-            if (FD_ISSET(i, &tmp_readfds))
+            if (FD_ISSET(i, &copy))
             {
                 if (i == _serverSocket)
                 {
-                    // this is a new connection
+                    // accept a new connection
                     int clientSocket = _accept();
                     FD_SET(clientSocket, &readfds);
+                    if (clientSocket > fdmax)
+                        fdmax = clientSocket;
                 }
                 else
                 {
-                    // do whatever do with connections.
+                    // accept a new message. 
                     _handler(i);
-                    FD_CLR(i, &readfds);
+                    if (i == -1)
+                        FD_CLR(i, &readfds);
                 }
             }
         }
@@ -72,8 +76,8 @@ void    Server::_handler(int clientSocket)
     if (!fork())
     {
         close(_serverSocket);
-        //recv(_newSocket, _buffer, sizeof(_buffer), 0);
-        read(clientSocket, _buffer, sizeof(_buffer));//30000);
+        memset(_buffer, 0, sizeof(_buffer));
+        recv(clientSocket, _buffer, sizeof(_buffer), 0);
         std::cout << _buffer << std::endl;
         std::istringstream iss(_buffer);
         std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
