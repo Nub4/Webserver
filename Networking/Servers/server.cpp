@@ -17,8 +17,14 @@ void    Server::setup_server()
     _address.sin_addr.s_addr = htonl(INADDR_ANY);
     memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
 
-    // Binding
+    // Miss TIME_WAIT problems
     _check(setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
+    
+    // Set socket to non-blocking
+    int n = fcntl(_serverSocket, F_SETFL, O_NONBLOCK);
+    _check(n, "fcntl (F_SETFL)");
+
+    // Bind
     _check(bind(_serverSocket, (struct sockaddr *)&_address, sizeof(_address)), "bind");
 
     // Listen
@@ -28,6 +34,7 @@ void    Server::setup_server()
 void    Server::run_server()
 {
     fd_set readfds;
+
 
     // Initialize my current set
     FD_ZERO(&readfds);
