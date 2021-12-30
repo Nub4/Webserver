@@ -92,49 +92,48 @@ void    Parse::setConfs()
     while (n > 0)
     {
         count = _serverLineCount(temp, "{", "}");
+        while (std::getline(f, line))
+            if (line == "server")
+                break ;
+        temp.erase(0, strlen(line.c_str()));
         std::getline(f, line);
-        if (line == "server")
+        temp.erase(0, strlen(line.c_str()));
+        if (line == "{")
         {
-            temp.erase(0, strlen(line.c_str()));
-            std::getline(f, line);
-            temp.erase(0, strlen(line.c_str()));
-            if (line == "{")
+            while (std::getline(f, line) && count > 0)
             {
-                while (std::getline(f, line) && count > 0)
-                {
-                    temp.erase(0, strlen(line.c_str()));
-                    s.clear();
-                    std::istringstream ss(line);
-                    ss >> key;
-                    if (_is_validName(key) == true)
-                    {
-                        while (ss >> val)
-                            s.push_back(val);
-                        _conf_map.insert(std::pair<std::string, std::vector<std::string> >(key, s));
-                    }
-                    else
-                        std::cout << key << " is invalid setup name in config file\n";
-                    count--;
-                }
                 temp.erase(0, strlen(line.c_str()));
+                s.clear();
+                std::istringstream ss(line);
+                ss >> key;
+                if (_is_validName(key) == true)
+                {
+                    while (ss >> val)
+                        s.push_back(val);
+                    _conf_map.insert(std::pair<std::string, std::vector<std::string> >(key, s));
+                }
+                else
+                    std::cout << key << " is invalid setup name in config file\n";
+                count--;
             }
+            temp.erase(0, strlen(line.c_str()));
         }
         _conf_vect.push_back(_conf_map);
         _conf_map.clear();
         n--;
     }
 
-    // for (std::vector<std::map<std::string, std::vector<std::string> > >::iterator it = _conf_vect.begin(); it != _conf_vect.end(); it++)
-    // {
-    //     for (std::map<std::string, std::vector<std::string> >::iterator it2 = it->begin(); it2 != it->end(); it2++)
-    //     {
-    //         std::cout << it2->first << " ";
-    //         for (std::vector<std::string>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3++)
-    //             std::cout << *it3 << " ";
-    //         std::cout << std::endl;
-    //     }
-    //     std::cout << std::endl;
-    // }
+    for (std::vector<std::map<std::string, std::vector<std::string> > >::iterator it = _conf_vect.begin(); it != _conf_vect.end(); it++)
+    {
+        for (std::map<std::string, std::vector<std::string> >::iterator it2 = it->begin(); it2 != it->end(); it2++)
+        {
+            std::cout << it2->first << " ";
+            for (std::vector<std::string>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3++)
+                std::cout << *it3 << " ";
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
 }
 
 void    Parse::_error_manage(std::string str)
