@@ -9,6 +9,7 @@ Parse::Parse()
     _valid_names.push_back("client_body_size");
     _valid_names.push_back("methods");
     _valid_names.push_back("autoindex");
+    _valid_names.push_back("index");
 }
 
 void    Parse::setFile(char *conf)
@@ -30,18 +31,7 @@ void    Parse::setFile(char *conf)
     infile.close();
 }
 
-size_t  Parse::lineCount(std::string str)
-{
-    size_t i = -1;
-    size_t count = 0;
-
-    while (str[++i])
-        if (str[i] == '\n')
-            count++;
-    return count;
-}
-
-bool    Parse::is_validName(std::string name)
+bool    Parse::_is_validName(std::string name)
 {
     for (std::vector<std::string>::iterator it = _valid_names.begin(); it != _valid_names.end(); it++)
         if (name == *it)
@@ -49,33 +39,100 @@ bool    Parse::is_validName(std::string name)
     return false;
 }
 
-void    Parse::setMap()
+size_t  Parse::_serverLineCount(std::string str, std::string c, std::string z)
 {
-    std::istringstream f(_conf_file);
+    std::istringstream f(str);
+    int count = 0;
+    int mark = 0;
+    while (std::getline(f, str))
+    {
+        if (str == c)
+        {
+            while (std::getline(f, str))
+            {
+                if (str == z)
+                {
+                    mark = 1;
+                    break ;
+                }
+                count++;
+            }
+        }
+        if (mark == 1)
+            break ;
+    }
+    if (mark == 0)
+        return 0;
+    return count;
+}
+
+int     Parse::_countWord(std::string s, std::string word)
+{
+    std::istringstream f(s);
+    std::string line;
+    int n = 0;
+
+    while (std::getline(f, line))
+        if (line == word)
+            n++;
+    return n;
+}
+
+void    Parse::setConfs()
+{
+    std::string temp = _conf_file;
+    std::istringstream f(temp);
     std::string line;
     std::string val;
     std::string key;
     std::vector<std::string> s;
-    
-    while (std::getline(f, line))
+    int count;
+    int n = _countWord(temp, "server");
+
+    while (n > 0)
     {
-        s.clear();
-        std::istringstream ss(line);
-        ss >> key;
-        if (is_validName(key) == true)
+        count = _serverLineCount(temp, "{", "}");
+        std::getline(f, line);
+        if (line == "server")
         {
-            while (ss >> val)
-                s.push_back(val);
-            _conf_map.insert(std::pair<std::string, std::vector<std::string> >(key, s));
+            temp.erase(0, strlen(line.c_str()));
+            std::getline(f, line);
+            temp.erase(0, strlen(line.c_str()));
+            if (line == "{")
+            {
+                while (std::getline(f, line) && count > 0)
+                {
+                    temp.erase(0, strlen(line.c_str()));
+                    s.clear();
+                    std::istringstream ss(line);
+                    ss >> key;
+                    if (_is_validName(key) == true)
+                    {
+                        while (ss >> val)
+                            s.push_back(val);
+                        _conf_map.insert(std::pair<std::string, std::vector<std::string> >(key, s));
+                    }
+                    else
+                        std::cout << key << " is invalid setup name in config file\n";
+                    count--;
+                }
+                temp.erase(0, strlen(line.c_str()));
+            }
         }
-        else
-            std::cout << key << " is invalid setup name in config file\n";
+        _conf_vect.push_back(_conf_map);
+        _conf_map.clear();
+        n--;
     }
-    // for (std::map<std::string, std::vector<std::string> >::iterator it = _conf_map.begin(); it != _conf_map.end(); it++)
+
+    // for (std::vector<std::map<std::string, std::vector<std::string> > >::iterator it = _conf_vect.begin(); it != _conf_vect.end(); it++)
     // {
-    //     std::cout << it->first << " ";
-    //     for (std::vector<std::string>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-    //         std::cout << *it2 << " ";
+    //     for (std::map<std::string, std::vector<std::string> >::iterator it2 = it->begin(); it2 != it->end(); it2++)
+    //     {
+    //         std::cout << it2->first << " ";
+    //         for (std::vector<std::string>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3++)
+    //             std::cout << *it3 << " ";
+    //         std::cout << std::endl;
+    //     }
     //     std::cout << std::endl;
     // }
 }

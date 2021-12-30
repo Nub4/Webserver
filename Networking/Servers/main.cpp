@@ -13,7 +13,7 @@ int     main(int ac, char **av)
     Parse parse;
 
     parse.setFile(av[1]);
-    parse.setMap();
+    parse.setConfs();
 
     server.setup_server();
     server.run_server();

@@ -9,15 +9,17 @@ class Parse
         Parse();
 
         void    setFile(char *conf);
-        size_t      lineCount(std::string str);
-        bool        is_validName(std::string name);
-        void    setMap();
+        void    setConfs();
 
     private:
-        std::string                                         _conf_file;
-        void                                                _error_manage(std::string str);
-        std::vector<std::string>                            _valid_names;
-        std::map<std::string, std::vector<std::string> >    _conf_map;
+        std::vector<std::map<std::string, std::vector<std::string> > >  _conf_vect;
+        std::string                                                     _conf_file;
+        void                                                            _error_manage(std::string str);
+        std::vector<std::string>                                        _valid_names;
+        std::map<std::string, std::vector<std::string> >                _conf_map;
+        size_t                                                          _serverLineCount(std::string str, std::string c, std::string z);
+        bool                                                            _is_validName(std::string name);
+        int                                                             _countWord(std::string s, std::string word);
 };
 
 #endif
