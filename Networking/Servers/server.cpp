@@ -39,7 +39,6 @@ void    Server::run_server()
 {
     fd_set readfds;
 
-
     // Initialize my current set
     FD_ZERO(&readfds);
     FD_SET(_serverSocket, &readfds);
