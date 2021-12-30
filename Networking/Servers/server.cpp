@@ -2,6 +2,11 @@
 
 Server::Server() {}
 
+Server::~Server()
+{
+    close(_serverSocket);
+}
+
 void    Server::setup_server()
 {
     int yes = 1;
@@ -21,8 +26,7 @@ void    Server::setup_server()
     _check(setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
     
     // Set socket to non-blocking
-    int n = fcntl(_serverSocket, F_SETFL, O_NONBLOCK);
-    _check(n, "fcntl (F_SETFL)");
+    _check(fcntl(_serverSocket, F_SETFL, O_NONBLOCK), "fcntl (F_SETFL)");
 
     // Bind
     _check(bind(_serverSocket, (struct sockaddr *)&_address, sizeof(_address)), "bind");

@@ -2,12 +2,20 @@ NAME := Webserv
 
 SRCS_DIR := Networking/Servers
 
+SRCS_DIR2 := Networking/Parsing
+
 SRCS := main.cpp \
 		 Server.cpp
 
+SRCS2 := Parse.cpp
+
 OBJ_DIR := objs
 
+OBJ_DIR2 := objs2
+
 OBJECTS := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
+
+OBJECTS2 := $(addprefix $(OBJ_DIR2)/, $(SRCS2:.cpp=.o))
 
 CXX := clang++
 
@@ -20,18 +28,24 @@ all: $(NAME)
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 
+$(OBJ_DIR2):
+	@mkdir -p $(OBJ_DIR2)
+
 $(OBJ_DIR)/%.o: $(SRCS_DIR)/%.cpp
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(NAME): $(OBJ_DIR) $(OBJECTS)
+$(OBJ_DIR2)/%.o: $(SRCS_DIR2)/%.cpp
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(NAME): $(OBJ_DIR) $(OBJECTS) $(OBJ_DIR2) $(OBJECTS2)
 	@echo "\033[1;33mBuilding Webserv..\033[0m"
-	@${CXX} ${CXXFLAGS} -o server $(OBJECTS)
+	@${CXX} ${CXXFLAGS} -o server $(OBJECTS) $(OBJECTS2)
 	@echo "\033[1;32mDONE!\033[0m"
 
 clean:
 	@echo "\033[1;31mRemoving object files..\033[0m"
-	@${RM} $(OBJECTS)
-	@rm -rf ${OBJ_DIR}
+	@${RM} $(OBJECTS) $(OBJECTS2)
+	@rm -rf ${OBJ_DIR} ${OBJ_DIR2}
 
 fclean: clean
 	@echo "\033[1;31mRemoving launch file..\033[0m"

@@ -7,6 +7,7 @@ class Server
 {
     public:
         Server();
+        ~Server();
 
         void                run_server();
         void                setup_server();
@@ -16,7 +17,7 @@ class Server
         struct sockaddr_in  _address;
         int                 _serverSocket;
         void                _check(int a, std::string str);
-        char                _buffer[30000];
+        char                _buffer[BUFF_SIZE];
         std::string         _content;
         int                 _errorCode;
         int                 _accept();

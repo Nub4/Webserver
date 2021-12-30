@@ -17,8 +17,12 @@
 # include <sys/select.h>
 # include <sys/time.h>
 # include <fcntl.h>
+# include <map>
+# include <cstring>
+# include <list>
 
 # define PORT 3490
 # define BACKLOG 1024
+# define BUFF_SIZE 30000
 
 #endif
