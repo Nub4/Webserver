@@ -9,7 +9,6 @@ Parse::Parse()
     _valid_names.push_back("client_body_size");
     _valid_names.push_back("methods");
     _valid_names.push_back("autoindex");
-    _valid_names.push_back("index");
 }
 
 void    Parse::setFile(char *conf)
@@ -29,6 +28,14 @@ void    Parse::setFile(char *conf)
         _conf_file += "\n";
     }
     infile.close();
+}
+
+void    Parse::setBinaryFile(char *conf)
+{
+    std::string filename = conf;
+    std::string str = "/Users/minummin/Webserver/confs/" + filename;
+    std::ifstream infile(str, std::ios::binary);
+    std::vector<unsigned char> _binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 }
 
 bool    Parse::_is_validName(std::string name)

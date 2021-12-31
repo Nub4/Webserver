@@ -1,9 +1,9 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "../../includes/libc.hpp"
+# include "../Parsing/Parse.hpp"
 
-class Server
+class Server : public Parse
 {
     public:
         Server();

@@ -9,11 +9,13 @@ class Parse
         Parse();
 
         void    setFile(char *conf);
+        void    setBinaryFile(char *conf);
         void    setConfs();
 
-    private:
+    protected:
         std::vector<std::map<std::string, std::vector<std::string> > >  _serverBlocks;
         std::string                                                     _conf_file;
+        std::vector<unsigned char>                                      _binary_file;
         void                                                            _error_manage(std::string str);
         std::vector<std::string>                                        _valid_names;
         std::map<std::string, std::vector<std::string> >                _serverContent;
