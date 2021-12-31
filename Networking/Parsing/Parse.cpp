@@ -110,7 +110,7 @@ void    Parse::setConfs()
                 {
                     while (ss >> val)
                         s.push_back(val);
-                    _conf_map.insert(std::pair<std::string, std::vector<std::string> >(key, s));
+                    _serverContent.insert(std::pair<std::string, std::vector<std::string> >(key, s));
                 }
                 else
                     std::cout << key << " is invalid setup name in config file\n";
@@ -118,22 +118,22 @@ void    Parse::setConfs()
             }
             temp.erase(0, strlen(line.c_str()));
         }
-        _conf_vect.push_back(_conf_map);
-        _conf_map.clear();
+        _serverBlocks.push_back(_serverContent);
+        _serverContent.clear();
         n--;
     }
 
-    // for (std::vector<std::map<std::string, std::vector<std::string> > >::iterator it = _conf_vect.begin(); it != _conf_vect.end(); it++)
-    // {
-    //     for (std::map<std::string, std::vector<std::string> >::iterator it2 = it->begin(); it2 != it->end(); it2++)
-    //     {
-    //         std::cout << it2->first << " ";
-    //         for (std::vector<std::string>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3++)
-    //             std::cout << *it3 << " ";
-    //         std::cout << std::endl;
-    //     }
-    //     std::cout << std::endl;
-    // }
+    for (std::vector<std::map<std::string, std::vector<std::string> > >::iterator it = _serverBlocks.begin(); it != _serverBlocks.end(); it++)
+    {
+        for (std::map<std::string, std::vector<std::string> >::iterator it2 = it->begin(); it2 != it->end(); it2++)
+        {
+            std::cout << it2->first << " ";
+            for (std::vector<std::string>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3++)
+                std::cout << *it3 << " ";
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
 }
 
 void    Parse::_error_manage(std::string str)
