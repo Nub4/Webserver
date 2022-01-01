@@ -81,6 +81,7 @@ int     Parse::_parseServer(int start_pos)
 void    Parse::_get_conf(int start, int end)
 {
     struct serverBlock serv;
+    struct locationBlock loct;
     std::string temp = _conf_file;
     temp.erase(0, start);
     temp.erase(end - start, _conf_file.size() - (end - start));
@@ -133,6 +134,51 @@ void    Parse::_get_conf(int start, int end)
                     _msg_exit("configuration file error, methods");    
                 serv.methods.push_back(*it);
             }
+            else if (*(it - 1) == "location")
+            {
+                if (*(it + 1) != "{")
+                    _msg_exit("configuration file error, location");
+                loct.name = *it;
+                it++;
+                it++;
+                while (it != words.end())
+                {
+                    if (*it == "}")
+                        break ;
+                    if (_is_validLocationName(*it))
+                    {
+                        it++;
+                        if (*(it - 1) == "index")
+                        {
+                            for (; it->back() != ';' && it != words.end(); it++)
+                                loct.index.push_back(*it);  
+                            loct.index.push_back(*it);
+                        }
+                        else if (*(it - 1) == "autoindex")
+                        {
+                            if (it->back() != ';')
+                                _msg_exit("configuration file error, location autoindex");
+                            loct.autoindex = *it;
+                        }
+                        else if (*(it - 1) == "methods")
+                        {
+                            for (; it->back() != ';' && it != words.end(); it++)
+                            {
+                                if (*it != "GET" && *it != "POST" && *it != "DELETE")
+                                    _msg_exit("configuration file error, methods");
+                                loct.methods.push_back(*it);
+                            }
+                            if (*it != "GET;" && *it != "POST;" && *it != "DELETE;")
+                                _msg_exit("configuration file error, methods");    
+                            loct.methods.push_back(*it);
+                        }
+                    }
+                    else
+                        _msg_exit("configuration file error");
+                    it++;
+                }
+                serv.location.push_back(loct);
+           }
         }
         else
             _msg_exit("configuration file error");
@@ -151,6 +197,14 @@ void    Parse::_erase_separator()
         it2->pop_back();
         std::map<int, std::string>::reverse_iterator it3 = it->error_page.rbegin();
         it3->second.pop_back();
+        for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
+        {
+            it4->autoindex.pop_back();
+            std::vector<std::string>::iterator it5 = it4->index.end() - 1;
+            it5->pop_back();
+            std::vector<std::string>::iterator it6 = it4->methods.end() - 1;
+            it6->pop_back();
+        }
     }
 }
 
@@ -171,8 +225,22 @@ void    Parse::printStructs()
         std::cout << "error_page:  ";
         for (std::map<int, std::string>::iterator it3 = it->error_page.begin(); it3 != it->error_page.end(); it3++)
             std::cout << it3->first << " " << it3->second << std::endl;
+        
+        std::cout << "location: \n";
+        for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
+        {
+            std::cout << "  name:      " << it4->name << std::endl;
+            std::cout << "  autoindex: " << it4->autoindex << std::endl;
+            std::cout << "  methods:   ";
+            for (std::vector<std::string>::iterator it5 = it4->methods.begin(); it5 != it4->methods.end(); it5++)
+                std::cout << *it5 << " ";
+            std::cout << std::endl;
+            std::cout << "  index:     ";
+            for (std::vector<std::string>::iterator it6 = it4->index.begin(); it6 != it4->index.end(); it6++)
+                std::cout << *it6 << " ";
+            std::cout << std::endl;
+        }
         count++;
-
         std::cout << std::endl;
     }
 }
@@ -221,6 +289,14 @@ int	    Parse::_ft_isdigit(int c)
 bool    Parse::_is_validName(std::string name)
 {
     for (std::vector<std::string>::iterator it = _server_names.begin(); it != _server_names.end(); it++)
+        if (name == *it)
+            return true;
+    return false;
+}
+
+bool    Parse::_is_validLocationName(std::string name)
+{
+    for (std::vector<std::string>::iterator it = _location_names.begin(); it != _location_names.end(); it++)
         if (name == *it)
             return true;
     return false;

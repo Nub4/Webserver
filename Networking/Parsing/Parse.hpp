@@ -11,6 +11,7 @@ class Parse
             std::vector<std::string>    index;
             std::string                 autoindex;
             std::vector<std::string>    methods;
+            std::string                 name;
         };
 
         struct serverBlock
@@ -32,12 +33,14 @@ class Parse
         void    getConfigurationData();
 
     protected:
+        std::vector<locationBlock>  _locationContent;
         std::vector<serverBlock>    _serverContent;
         std::string                 _conf_file;
         std::vector<unsigned char>  _binary_file;
         std::vector<std::string>    _server_names;
         std::vector<std::string>    _location_names;
         bool                        _is_validName(std::string name);
+        bool                        _is_validLocationName(std::string name);
         int                         _ft_isprint(int c);
         int                         _checkClosingBracket(int pos);
         int                         _parseServer(int start_pos);
