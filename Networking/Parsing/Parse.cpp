@@ -14,7 +14,7 @@ Parse::Parse()
     _location_names.push_back("methods");
 }
 
-void    Parse::setFile(char *conf)
+void    Parse::readFile(char *conf)
 {
     std::string line;
     std::string filename = conf;
@@ -31,19 +31,21 @@ void    Parse::setFile(char *conf)
         _conf_file += "\n";
     }
     infile.close();
+}
 
+void    Parse::readBinaryFile(char *conf)
+{
+    std::string filename = conf;
+    std::string str = "/Users/mikkonumminen/Webserv/confs/" + filename;
+    std::ifstream infile(str, std::ios::binary);
+    std::vector<unsigned char> _binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+}
+
+void    Parse::getConfigurationData()
+{
     size_t pos = 0;
     while (pos != _conf_file.size() -1)
         pos = parseServer(pos);
-
-    printStructs();
- //  exit(1);
-}
-
-void    Parse::msg_exit(std::string s)
-{
-    std::cerr << s << std::endl;
-    exit(1);
 }
 
 int     Parse::parseServer(int start_pos)
@@ -74,22 +76,6 @@ int     Parse::parseServer(int start_pos)
     return server_end_pos;
 }
 
-int     Parse::isNumber(std::string str)
-{
-    for (size_t i = 0; i < str.size(); i++)
-        if (!ft_isdigit(str[i]))
-            return 0;
-    return 1;
-}
-
-int	    Parse::ft_isdigit(int c)
-{
-	if (c >= '0' && c <= '9')
-		return (1);
-	else
-		return (0);
-}
-
 void    Parse::get_conf(int start, int end)
 {
     struct serverBlock serv;
@@ -105,63 +91,46 @@ void    Parse::get_conf(int start, int end)
         if (_is_validName(*it))
         {
             s.clear();
-            if (*it == "listen")
+            it++;
+            if (*(it - 1) == "listen")
             {
-                it++;
-                if (it->back() == ';')
-                    serv.listen = *it;
-                else
+                if (it->back() != ';')
                     msg_exit("configuration file error, listen");
+                serv.listen = *it;
             }
-            if (*it == "server_name")
+            else if (*(it - 1) == "server_name")
             {
-                it++;
-                if (it->back() == ';')
-                    serv.server_name = *it;
-                else
+                if (it->back() != ';')
                     msg_exit("configuration file error, server_name");
+                serv.server_name = *it;
             }
-            if (*it == "error_page")
+            else if (*(it - 1) == "error_page")
             {
-                it++;
-                while (it->back() != ';' && it != words.end())
-                {
+                for (; it->back() != ';' && it != words.end(); it++)
                     s.push_back(*it);
-                    it++;
-                }
-                if (s.size() != 2 && !isNumber(s[0]))
+                if (s.size() != 1 || !isNumber(s[0]))
                     msg_exit("configuration file error, error_page");
                 s.push_back(*it);
                 serv.error_page.insert(std::pair<int, std::string>(atoi(s[0].c_str()), s[1]));
             }
-            if (*it == "autoindex")
+            else if (*(it - 1) == "autoindex")
             {
-                it++;
-                if (it->back() == ';')
-                    serv.autoindex = *it;
-                else
+                if (it->back() != ';')
                     msg_exit("configuration file error, autoindex");
+                serv.autoindex = *it;
             }
-            if (*it == "methods")
+            else if (*(it - 1) == "methods")
             {
-                it++;
-                while (it->back() != ';' && it != words.end())
+                for (; it->back() != ';' && it != words.end(); it++)
                 {
-                    if (*it == "GET" || *it == "POST" || *it == "DELETE")
-                        serv.methods.push_back(*it);
-                    else
+                    if (*it != "GET" && *it != "POST" && *it != "DELETE")
                         msg_exit("configuration file error, methods");
-                    it++;
-                }
-                if (*it == "GET;" || *it == "POST;" || *it == "DELETE;")
                     serv.methods.push_back(*it);
-                else
-                    msg_exit("configuration file error, methods");
+                }
+                if (*it != "GET;" && *it != "POST;" && *it != "DELETE;")
+                    msg_exit("configuration file error, methods");    
+                serv.methods.push_back(*it);
             }
-            // if (*it == "location")
-            // {
-                
-            // }
         }
         else
             msg_exit("configuration file error");
@@ -172,9 +141,10 @@ void    Parse::get_conf(int start, int end)
 void    Parse::printStructs()
 {
     int count = 1;
+    std::cout << std::endl;
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
     {
-        std::cout << count << " server block:\n";
+        std::cout << "--- " << count << " server block ---\n\n";
         std::cout << "listen: " << it->listen << std::endl;
         std::cout << "server_name: " << it->server_name << std::endl;
         std::cout << "autoindex: " << it->autoindex << std::endl;
@@ -186,6 +156,7 @@ void    Parse::printStructs()
         for (std::map<int, std::string>::iterator it3 = it->error_page.begin(); it3 != it->error_page.end(); it3++)
             std::cout << it3->first << " " << it3->second << std::endl;
         count++;
+
         std::cout << std::endl;
     }
 }
@@ -215,12 +186,20 @@ int     Parse::ft_isprint(int c)
 		return (0);
 }
 
-void    Parse::setBinaryFile(char *conf)
+int     Parse::isNumber(std::string str)
 {
-    std::string filename = conf;
-    std::string str = "/Users/mikkonumminen/Webserv/confs/" + filename;
-    std::ifstream infile(str, std::ios::binary);
-    std::vector<unsigned char> _binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+    for (size_t i = 0; i < str.size(); i++)
+        if (!ft_isdigit(str[i]))
+            return 0;
+    return 1;
+}
+
+int	    Parse::ft_isdigit(int c)
+{
+	if (c >= '0' && c <= '9')
+		return (1);
+	else
+		return (0);
 }
 
 bool    Parse::_is_validName(std::string name)
@@ -229,4 +208,10 @@ bool    Parse::_is_validName(std::string name)
         if (name == *it)
             return true;
     return false;
+}
+
+void    Parse::msg_exit(std::string s)
+{
+    std::cerr << s << std::endl;
+    exit(1);
 }

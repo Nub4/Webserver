@@ -26,8 +26,8 @@ class Parse
     public:
         Parse();
 
-        void    setFile(char *conf);
-        void    setBinaryFile(char *conf);
+        void    readFile(char *conf);
+        void    readBinaryFile(char *conf);
         int     ft_isprint(int c);
         int     checkClosingBracket(int pos);
         int     parseServer(int start_pos);
@@ -36,6 +36,7 @@ class Parse
         int     ft_isdigit(int c);
         int     isNumber(std::string str);
         void    printStructs();
+        void    getConfigurationData();
 
     protected:
         std::vector<serverBlock>    _serverContent;

@@ -14,7 +14,9 @@ int     main(int ac, char **av)
     Server server;
     Parse parse;
 
-    parse.setFile(av[1]);
+    parse.readFile(av[1]);
+    parse.getConfigurationData();
+    parse.printStructs();
 
     server.setup_server();
     server.run_server();
