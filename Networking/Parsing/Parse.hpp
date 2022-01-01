@@ -28,13 +28,6 @@ class Parse
 
         void    readFile(char *conf);
         void    readBinaryFile(char *conf);
-        int     ft_isprint(int c);
-        int     checkClosingBracket(int pos);
-        int     parseServer(int start_pos);
-        void    msg_exit(std::string s);
-        void    get_conf(int start, int end);
-        int     ft_isdigit(int c);
-        int     isNumber(std::string str);
         void    printStructs();
         void    getConfigurationData();
 
@@ -45,6 +38,15 @@ class Parse
         std::vector<std::string>    _server_names;
         std::vector<std::string>    _location_names;
         bool                        _is_validName(std::string name);
+        int                         _ft_isprint(int c);
+        int                         _checkClosingBracket(int pos);
+        int                         _parseServer(int start_pos);
+        void                        _msg_exit(std::string s);
+        void                        _get_conf(int start, int end);
+        int                         _ft_isdigit(int c);
+        int                         _isNumber(std::string str);
+        void                        _erase_separator();
+
 };
 
 #endif
