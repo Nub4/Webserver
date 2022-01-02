@@ -33,7 +33,6 @@ class Parse
         void    getConfigurationData();
 
     protected:
-        std::vector<locationBlock>  _locationContent;
         std::vector<serverBlock>    _serverContent;
         std::string                 _conf_file;
         std::vector<unsigned char>  _binary_file;
