@@ -228,20 +228,36 @@ void    Parse::_erase_separator()
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
     {
         if (!it->listen.empty())
+        {
             it->listen.pop_back();
+            if (it->listen.back() == ';')
+                _msg_exit("configuration file error");
+        }
         if (!it->server_name.empty())
+        {
             it->server_name.pop_back();
+            if (it->server_name.back() == ';')
+                _msg_exit("configuration file error");
+        }
         if (!it->autoindex.empty())
+        {
             it->autoindex.pop_back();
+            if (it->autoindex.back() == ';')
+                _msg_exit("configuration file error");
+        }
         if (!it->methods.empty())
         {
             std::vector<std::string>::iterator it2 = it->methods.end() - 1;
             it2->pop_back();
+            if (it2->back() == ';')
+                _msg_exit("configuration file error");
         }
         if (!it->error_page.empty())
         {
             std::map<int, std::string>::reverse_iterator it3 = it->error_page.rbegin();
             it3->second.pop_back();
+            if (it3->second.back() == ';')
+                _msg_exit("configuration file error");
         }
         if (!it->location.empty())
         {
@@ -250,16 +266,24 @@ void    Parse::_erase_separator()
                 if (it4->name.back() == '{')
                     it4->name.pop_back();
                 if (!it4->autoindex.empty())
+                {
                     it4->autoindex.pop_back();
+                    if (it4->autoindex.back() == ';')
+                        _msg_exit("configuration file error");
+                }
                 if (!it4->index.empty())
                 {
                     std::vector<std::string>::iterator it5 = it4->index.end() - 1;
                     it5->pop_back();
+                    if (it5->back() == ';')
+                        _msg_exit("configuration file error");
                 }
                 if (!it4->methods.empty())
                 {
                     std::vector<std::string>::iterator it6 = it4->methods.end() - 1;
                     it6->pop_back();
+                    if (it6->back() == ';')
+                        _msg_exit("configuration file error");
                 }
             }
         }
