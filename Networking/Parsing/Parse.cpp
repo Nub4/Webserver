@@ -323,6 +323,8 @@ void    Parse::printStructs()
     }
 }
 
+std::vector<Parse::serverBlock>    Parse::getServerContent() { return _serverContent; }
+
 int     Parse::_checkClosingBracket(int pos, std::string s)
 {
     int mark = 1;

@@ -2,10 +2,7 @@
 
 Server::Server() {}
 
-Server::~Server()
-{
-    close(_serverSocket);
-}
+Server::~Server() { close(_serverSocket); }
 
 void    Server::setup_server()
 {

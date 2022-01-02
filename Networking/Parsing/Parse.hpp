@@ -27,10 +27,11 @@ class Parse
     public:
         Parse();
 
-        void    readFile(char *conf, std::string path);
-        void    readBinaryFile(char *conf, std::string path);
-        void    printStructs();
-        void    getConfigurationData();
+        void                        readFile(char *conf, std::string path);
+        void                        readBinaryFile(char *conf, std::string path);
+        void                        printStructs();
+        void                        getConfigurationData();
+        std::vector<serverBlock>    getServerContent();
 
     protected:
         std::vector<serverBlock>    _serverContent;
