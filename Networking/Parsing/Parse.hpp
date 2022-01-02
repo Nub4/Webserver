@@ -39,16 +39,18 @@ class Parse
         std::vector<unsigned char>  _binary_file;
         std::vector<std::string>    _server_names;
         std::vector<std::string>    _location_names;
+        void                        _get_location(int start, int end, std::string temp, struct locationBlock *loct);
         bool                        _is_validName(std::string name);
         bool                        _is_validLocationName(std::string name);
         int                         _ft_isprint(int c);
-        int                         _checkClosingBracket(int pos);
+        int                         _checkClosingBracket(int pos, std::string s);
         int                         _parseServer(int start_pos);
         void                        _msg_exit(std::string s);
         void                        _get_conf(int start, int end);
         int                         _ft_isdigit(int c);
         int                         _isNumber(std::string str);
         void                        _erase_separator();
+        int                         _parseLocation(int start_pos, std::string temp, struct locationBlock *loct);
 
 };
 
