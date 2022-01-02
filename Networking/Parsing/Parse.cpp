@@ -20,11 +20,16 @@ void    Parse::readFile(char *conf, std::string path)
     std::string filename = conf;
     std::string str = path + "/confs/" + filename;
     std::ifstream infile;
+    int pos;
 
     infile.open(str);
     if (!infile.is_open())
         _msg_exit("Error: cannot open the file");
-    while (getline(infile, line)){
+    while (getline(infile, line))
+    {
+        pos = line.find('#', 0);
+        if (pos != -1)
+            line.erase(pos, line.size());
         _conf_file += line;
         _conf_file += "\n";
     }
@@ -119,7 +124,8 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
         {
             s.clear();
             it++;
-            if (*(it - 1) == "autoindex"){
+            if (*(it - 1) == "autoindex")
+            {
                 if (it->back() != ';')
                     _msg_exit("configuration file error, autoindex");
                 loct->autoindex = *it;
