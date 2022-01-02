@@ -14,11 +14,11 @@ Parse::Parse()
     _location_names.push_back("methods");
 }
 
-void    Parse::readFile(char *conf)
+void    Parse::readFile(char *conf, std::string path)
 {
     std::string line;
     std::string filename = conf;
-    std::string str = "/Users/mikkonumminen/Webserv/confs/" + filename;
+    std::string str = path + "/confs/" + filename;
     std::ifstream infile;
 
     infile.open(str);
@@ -32,10 +32,10 @@ void    Parse::readFile(char *conf)
     infile.close();
 }
 
-void    Parse::readBinaryFile(char *conf)
+void    Parse::readBinaryFile(char *conf, std::string path)
 {
     std::string filename = conf;
-    std::string str = "/Users/mikkonumminen/Webserv/confs/" + filename;
+    std::string str = path + "/confs/" + filename;
     std::ifstream infile(str, std::ios::binary);
     std::vector<unsigned char> _binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 }
@@ -81,6 +81,7 @@ void    Parse::_get_conf(int start, int end)
 {
     struct serverBlock serv;
     struct locationBlock loct;
+    int mark;
     std::string temp = _conf_file;
     temp.erase(0, start);
     temp.erase(end - start, _conf_file.size() - (end - start));
@@ -89,6 +90,7 @@ void    Parse::_get_conf(int start, int end)
     std::vector<std::string> s;
 
     for (std::vector<std::string>::iterator it = words.begin(); it != words.end(); it++){
+        mark = 0;
         if (_is_validName(*it)){
             s.clear();
             it++;
@@ -126,11 +128,14 @@ void    Parse::_get_conf(int start, int end)
                 serv.methods.push_back(*it);
             }
             else if (*(it - 1) == "location"){
-                if (*(it + 1) != "{")
+                if (it->back() == '{')
+                    mark = 1;
+                else if (*(it + 1) != "{")
                     _msg_exit("configuration file error, location");
                 loct.name = *it;
                 it++;
-                it++;
+                if (mark == 0)
+                    it++;
                 while (it != words.end()){
                     if (*it == "}")
                         break ;
@@ -138,7 +143,7 @@ void    Parse::_get_conf(int start, int end)
                         it++;
                         if (*(it - 1) == "index"){
                             for (; it->back() != ';' && it != words.end(); it++)
-                                loct.index.push_back(*it);  
+                                loct.index.push_back(*it);
                             loct.index.push_back(*it);
                         }
                         else if (*(it - 1) == "autoindex"){
@@ -189,6 +194,8 @@ void    Parse::_erase_separator()
         }
         if (!it->location.empty()){
             for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++){
+                if (it4->name.back() == '{')
+                    it4->name.pop_back();
                 if (!it4->autoindex.empty())
                     it4->autoindex.pop_back();
                 if (!it4->index.empty()){

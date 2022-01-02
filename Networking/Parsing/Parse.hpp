@@ -27,8 +27,8 @@ class Parse
     public:
         Parse();
 
-        void    readFile(char *conf);
-        void    readBinaryFile(char *conf);
+        void    readFile(char *conf, std::string path);
+        void    readBinaryFile(char *conf, std::string path);
         void    printStructs();
         void    getConfigurationData();
 
