@@ -49,6 +49,7 @@ void    Parse::getConfigurationData()
     size_t pos = 0;
     while (pos != _conf_file.size() -1)
         pos = _parseServer(pos);
+    _checkServerValues();
     _erase_separator();
 }
 
@@ -125,29 +126,17 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
             s.clear();
             it++;
             if (*(it - 1) == "autoindex")
-            {
-                if (it->back() != ';')
-                    _msg_exit("configuration file error, autoindex");
                 loct->autoindex = *it;
-            }
             else if (*(it - 1) == "methods")
             {
                 for (; it->back() != ';' && it != words.end(); it++)
-                {
-                    if (*it != "GET" && *it != "POST" && *it != "DELETE")
-                        _msg_exit("configuration file error, methods");
                     loct->methods.push_back(*it);
-                }
-                if (*it != "GET;" && *it != "POST;" && *it != "DELETE;")
-                    _msg_exit("configuration file error, methods");    
                 loct->methods.push_back(*it);
             }
             else if (*(it - 1) == "index")
             {
                 for (; it->back() != ';' && it != words.end(); it++)
                     loct->index.push_back(*it);
-                if (it->back() != ';')
-                    _msg_exit("configuration file error, index");
                 loct->index.push_back(*it);
             }
         }
@@ -176,17 +165,9 @@ void    Parse::_get_conf(int start, int end)
             s.clear();
             it++;
             if (*(it - 1) == "listen")
-            {
-                if (it->back() != ';')
-                    _msg_exit("configuration file error, listen");
                 serv.listen = *it;
-            }
             else if (*(it - 1) == "server_name")
-            {
-                if (it->back() != ';')
-                    _msg_exit("configuration file error, server_name");
                 serv.server_name = *it;
-            }
             else if (*(it - 1) == "error_page")
             {
                 for (; it->back() != ';' && it != words.end(); it++)
@@ -197,21 +178,11 @@ void    Parse::_get_conf(int start, int end)
                 serv.error_page.insert(std::pair<int, std::string>(atoi(s[0].c_str()), s[1]));
             }
             else if (*(it - 1) == "autoindex")
-            {
-                if (it->back() != ';')
-                    _msg_exit("configuration file error, autoindex");
                 serv.autoindex = *it;
-            }
             else if (*(it - 1) == "methods")
             {
                 for (; it->back() != ';' && it != words.end(); it++)
-                {
-                    if (*it != "GET" && *it != "POST" && *it != "DELETE")
-                        _msg_exit("configuration file error, methods");
                     serv.methods.push_back(*it);
-                }
-                if (*it != "GET;" && *it != "POST;" && *it != "DELETE;")
-                    _msg_exit("configuration file error, methods");    
                 serv.methods.push_back(*it);
             }
             else if (*(it - 1) == "location")
@@ -227,6 +198,53 @@ void    Parse::_get_conf(int start, int end)
             _msg_exit("configuration file error");
     }
     _serverContent.push_back(serv);
+}
+
+void    Parse::_checkServerValues()
+{
+    for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
+    {
+        if (!it->listen.empty() && it->listen.back() != ';')
+            _msg_exit("configuration file error, listen");
+        if (!it->server_name.empty() && it->server_name.back() != ';')
+            _msg_exit("configuration file error, server_name");
+        if (!it->autoindex.empty() && it->autoindex != "on;" && it->autoindex != "off;")
+            _msg_exit("configuration file error, autoindex");
+        if (!it->methods.empty())
+        {
+            std::vector<std::string>::iterator it2 = it->methods.begin();
+            for (; it2 != it->methods.end() - 1; it2++)
+                if (*it2 != "GET" && *it2 != "POST" && *it2 != "DELETE")
+                    _msg_exit("configuration file error, methods");
+            if (*it2 != "GET;" && *it2 != "POST;" && *it2 != "DELETE;")
+                _msg_exit("configuration file error, methods");
+        }
+        if (!it->error_page.empty() && it->error_page.begin()->first != 404 && it->error_page.begin()->second.back() != ';')
+            _msg_exit("configuration file error, error_page");
+        if (!it->location.empty())
+        {
+            for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
+            {
+                if (!it4->autoindex.empty() && it4->autoindex != "on;" && it4->autoindex != "off;")
+                    _msg_exit("configuration file error, autoindex");
+                if (!it4->index.empty())
+                {
+                    std::vector<std::string>::iterator it5 = it4->index.end() - 1;
+                    if (it5->back() != ';')
+                        _msg_exit("configuration file error, index");
+                }
+                if (!it4->methods.empty())
+                {
+                    std::vector<std::string>::iterator it6 = it4->methods.begin();
+                    for (; it6 != it4->methods.end() - 1; it6++)
+                        if (*it6 != "GET" && *it6 != "POST" && *it6 != "DELETE")
+                            _msg_exit("configuration file error, methods");
+                    if (*it6 != "GET;" && *it6 != "POST;" && *it6 != "DELETE;")
+                        _msg_exit("configuration file error, methods");
+                }
+            }
+        }
+    }
 }
 
 void    Parse::_erase_separator()
