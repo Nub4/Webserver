@@ -121,8 +121,28 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
             it++;
             if (*(it - 1) == "autoindex"){
                 if (it->back() != ';')
-                    _msg_exit("configuration file error, listen");
+                    _msg_exit("configuration file error, autoindex");
                 loct->autoindex = *it;
+            }
+            else if (*(it - 1) == "methods")
+            {
+                for (; it->back() != ';' && it != words.end(); it++)
+                {
+                    if (*it != "GET" && *it != "POST" && *it != "DELETE")
+                        _msg_exit("configuration file error, methods");
+                    loct->methods.push_back(*it);
+                }
+                if (*it != "GET;" && *it != "POST;" && *it != "DELETE;")
+                    _msg_exit("configuration file error, methods");    
+                loct->methods.push_back(*it);
+            }
+            else if (*(it - 1) == "index")
+            {
+                for (; it->back() != ';' && it != words.end(); it++)
+                    loct->index.push_back(*it);
+                if (it->back() != ';')
+                    _msg_exit("configuration file error, index");
+                loct->index.push_back(*it);
             }
         }
         else
@@ -146,6 +166,7 @@ void    Parse::_get_conf(int start, int end)
     {
         if (_is_validName(*it))
         {
+            memset(&loct, 0, sizeof(loct));
             s.clear();
             it++;
             if (*(it - 1) == "listen")
@@ -247,6 +268,7 @@ void    Parse::_erase_separator()
 
 void    Parse::printStructs()
 {
+    // Check if everything is correctly parsed
     int count = 1;
     std::cout << std::endl;
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
@@ -273,11 +295,11 @@ void    Parse::printStructs()
         }
         if (!it->location.empty())
         {
-            std::cout << "location: \n";
             for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
             {
+                std::cout << "location ";
                 if (!it4->name.empty())
-                    std::cout << "  name:      " << it4->name << std::endl;
+                    std::cout << it4->name << " :" << std::endl;
                 if (!it4->autoindex.empty())
                     std::cout << "  autoindex: " << it4->autoindex << std::endl;
                 if (!it4->methods.empty())

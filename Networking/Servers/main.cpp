@@ -24,7 +24,7 @@ int     main(int ac, char **av, char **env)
     parse.getConfigurationData();
     parse.printStructs();
 
-    // server.setup_server();
-    // server.run_server();
+    server.setup_server();
+    server.run_server();
     return 0;
 }
