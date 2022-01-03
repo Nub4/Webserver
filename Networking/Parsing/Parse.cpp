@@ -10,14 +10,12 @@ Parse::Parse()
     _server_names.push_back("autoindex");
     _server_names.push_back("method");
     _server_names.push_back("location");
-
     _server_names.push_back("client_max_body_size");
     _server_names.push_back("root");
 
     _location_names.push_back("index");
     _location_names.push_back("autoindex");
     _location_names.push_back("method");
-
     _location_names.push_back("root");
     _location_names.push_back("upload_enable");
     _location_names.push_back("upload_path");
