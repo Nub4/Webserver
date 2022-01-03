@@ -199,22 +199,21 @@ void    Parse::_get_conf(int start, int end)
     _serverContent.push_back(serv);
 }
 
+void    Parse::_checkBackChar(std::string *x, std::string name)
+{
+    if (x->back() != ';')
+        _msg_exit("configuration file error, " + name);
+    x->pop_back();
+}
+
 void    Parse::_checkServerValues()
 {
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
     {
         if (!it->listen.empty())
-        {
-            if (it->listen.back() != ';')
-                _msg_exit("configuration file error, listen");
-            it->listen.pop_back();
-        }
+            _checkBackChar(&it->listen, "listen");
         if (!it->server_name.empty())
-        {
-            if (it->server_name.back() != ';')
-                _msg_exit("configuration file error, server_name");
-            it->server_name.pop_back();
-        }
+            _checkBackChar(&it->server_name, "server_name");
         if (!it->autoindex.empty())
         {
             if (it->autoindex != "on;" && it->autoindex != "off;")
@@ -224,9 +223,7 @@ void    Parse::_checkServerValues()
         if (!it->methods.empty())
         {
             std::vector<std::string>::reverse_iterator it2 = it->methods.rbegin();
-            if (it2->back() != ';')
-                _msg_exit("configuration file error, autoindex");
-            it2->pop_back();
+            _checkBackChar(&(*it2), "methods");
             for (; it2 != it->methods.rend(); it2++)
                 if (*it2 != "GET" && *it2 != "POST" && *it2 != "DELETE")
                     _msg_exit("configuration file error, methods");
@@ -249,18 +246,11 @@ void    Parse::_checkServerValues()
                     it4->autoindex.pop_back();
                 }
                 if (!it4->index.empty())
-                {
-                    std::vector<std::string>::iterator it5 = it4->index.end() - 1;
-                    if (it5->back() != ';')
-                        _msg_exit("configuration file error, index");
-                    it5->pop_back();
-                }
+                    _checkBackChar(&(*it4->index.rbegin()), "index");
                 if (!it4->methods.empty())
                 {
                     std::vector<std::string>::reverse_iterator it6 = it4->methods.rbegin();
-                    if (it6->back() != ';')
-                        _msg_exit("configuration file error, autoindex");
-                    it6->pop_back();
+                    _checkBackChar(&(*it6), "methods");
                     for (; it6 != it4->methods.rend(); it6++)
                         if (*it6 != "GET" && *it6 != "POST" && *it6 != "DELETE")
                             _msg_exit("configuration file error, methods");

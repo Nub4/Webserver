@@ -51,6 +51,7 @@ class Parse
         int                         _isNumber(std::string str);
         int                         _parseLocation(int start_pos, std::string temp, struct locationBlock *loct);
         void                        _checkServerValues();
+        void                        _checkBackChar(std::string *x, std::string name);
 };
 
 #endif
