@@ -49,7 +49,6 @@ class Parse
         void                        _get_conf(int start, int end);
         int                         _ft_isdigit(int c);
         int                         _isNumber(std::string str);
-        void                        _erase_separator();
         int                         _parseLocation(int start_pos, std::string temp, struct locationBlock *loct);
         void                        _checkServerValues();
 };

@@ -50,7 +50,6 @@ void    Parse::getConfigurationData()
     while (pos != _conf_file.size() -1)
         pos = _parseServer(pos);
     _checkServerValues();
-    _erase_separator();
 }
 
 int     Parse::_parseLocation(int start_pos, std::string temp, struct locationBlock *loct)
@@ -204,146 +203,70 @@ void    Parse::_checkServerValues()
 {
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
     {
-        if (!it->listen.empty() && it->listen.back() != ';')
-            _msg_exit("configuration file error, listen");
-        if (!it->server_name.empty() && it->server_name.back() != ';')
-            _msg_exit("configuration file error, server_name");
-        if (!it->autoindex.empty() && it->autoindex != "on;" && it->autoindex != "off;")
-            _msg_exit("configuration file error, autoindex");
+        if (!it->listen.empty())
+        {
+            if (it->listen.back() != ';')
+                _msg_exit("configuration file error, listen");
+            it->listen.pop_back();
+        }
+        if (!it->server_name.empty())
+        {
+            if (it->server_name.back() != ';')
+                _msg_exit("configuration file error, server_name");
+            it->server_name.pop_back();
+        }
+        if (!it->autoindex.empty())
+        {
+            if (it->autoindex != "on;" && it->autoindex != "off;")
+                _msg_exit("configuration file error, autoindex");
+            it->autoindex.pop_back();
+        }
         if (!it->methods.empty())
         {
-            std::vector<std::string>::iterator it2 = it->methods.begin();
-            for (; it2 != it->methods.end() - 1; it2++)
+            std::vector<std::string>::reverse_iterator it2 = it->methods.rbegin();
+            if (it2->back() != ';')
+                _msg_exit("configuration file error, autoindex");
+            it2->pop_back();
+            for (; it2 != it->methods.rend(); it2++)
                 if (*it2 != "GET" && *it2 != "POST" && *it2 != "DELETE")
                     _msg_exit("configuration file error, methods");
-            if (*it2 != "GET;" && *it2 != "POST;" && *it2 != "DELETE;")
-                _msg_exit("configuration file error, methods");
-        }
-        if (!it->error_page.empty() && it->error_page.begin()->first != 404 && it->error_page.begin()->second.back() != ';')
-            _msg_exit("configuration file error, error_page");
-        if (!it->location.empty())
-        {
-            for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
-            {
-                if (!it4->autoindex.empty() && it4->autoindex != "on;" && it4->autoindex != "off;")
-                    _msg_exit("configuration file error, autoindex");
-                if (!it4->index.empty())
-                {
-                    std::vector<std::string>::iterator it5 = it4->index.end() - 1;
-                    if (it5->back() != ';')
-                        _msg_exit("configuration file error, index");
-                }
-                if (!it4->methods.empty())
-                {
-                    std::vector<std::string>::iterator it6 = it4->methods.begin();
-                    for (; it6 != it4->methods.end() - 1; it6++)
-                        if (*it6 != "GET" && *it6 != "POST" && *it6 != "DELETE")
-                            _msg_exit("configuration file error, methods");
-                    if (*it6 != "GET;" && *it6 != "POST;" && *it6 != "DELETE;")
-                        _msg_exit("configuration file error, methods");
-                }
-            }
-        }
-    }
-}
-
-void    Parse::_erase_separator()
-{
-    for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
-    {
-        if (!it->listen.empty())
-            it->listen.pop_back();
-        if (!it->server_name.empty())
-            it->server_name.pop_back();
-        if (!it->autoindex.empty())
-            it->autoindex.pop_back();
-        if (!it->methods.empty())
-        {
-            std::vector<std::string>::iterator it2 = it->methods.end() - 1;
-            it2->pop_back();
         }
         if (!it->error_page.empty())
         {
-            std::map<int, std::string>::reverse_iterator it3 = it->error_page.rbegin();
+            std::map<int, std::string>::iterator it3 = it->error_page.begin();
+            if (it3->first != 404 && it3->second.back() != ';')
+                _msg_exit("configuration file error, error_page");
             it3->second.pop_back();
         }
         if (!it->location.empty())
         {
             for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
             {
-                if (it4->name.back() == '{')
-                    it4->name.pop_back();
                 if (!it4->autoindex.empty())
+                {
+                    if (it4->autoindex != "on;" && it4->autoindex != "off;")
+                        _msg_exit("configuration file error, autoindex");
                     it4->autoindex.pop_back();
+                }
                 if (!it4->index.empty())
                 {
                     std::vector<std::string>::iterator it5 = it4->index.end() - 1;
+                    if (it5->back() != ';')
+                        _msg_exit("configuration file error, index");
                     it5->pop_back();
                 }
                 if (!it4->methods.empty())
                 {
-                    std::vector<std::string>::iterator it6 = it4->methods.end() - 1;
+                    std::vector<std::string>::reverse_iterator it6 = it4->methods.rbegin();
+                    if (it6->back() != ';')
+                        _msg_exit("configuration file error, autoindex");
                     it6->pop_back();
+                    for (; it6 != it4->methods.rend(); it6++)
+                        if (*it6 != "GET" && *it6 != "POST" && *it6 != "DELETE")
+                            _msg_exit("configuration file error, methods");
                 }
             }
         }
-    }
-}
-
-void    Parse::printStructs()
-{
-    // Check if everything is correctly parsed
-    int count = 1;
-    std::cout << std::endl;
-    for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
-    {
-        std::cout << "--- " << count << " server block ---\n\n";
-        if (!it->listen.empty())
-            std::cout << "listen:      " << it->listen << std::endl;
-        if (!it->server_name.empty())
-            std::cout << "server_name: " << it->server_name << std::endl;
-        if (!it->autoindex.empty())
-            std::cout << "autoindex:   " << it->autoindex << std::endl;
-        if (!it->methods.empty())
-        {
-            std::cout << "methods:     ";
-            for (std::vector<std::string>::iterator it2 = it->methods.begin(); it2 != it->methods.end(); it2++)
-                std::cout << *it2 << " ";
-            std::cout << std::endl;
-        }
-        if (!it->error_page.empty())
-        {
-            std::cout << "error_page:  ";
-            for (std::map<int, std::string>::iterator it3 = it->error_page.begin(); it3 != it->error_page.end(); it3++)
-                std::cout << it3->first << " " << it3->second << std::endl;
-        }
-        if (!it->location.empty())
-        {
-            for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
-            {
-                std::cout << "location ";
-                if (!it4->name.empty())
-                    std::cout << it4->name << " :" << std::endl;
-                if (!it4->autoindex.empty())
-                    std::cout << "  autoindex: " << it4->autoindex << std::endl;
-                if (!it4->methods.empty())
-                {
-                    std::cout << "  methods:   ";
-                    for (std::vector<std::string>::iterator it5 = it4->methods.begin(); it5 != it4->methods.end(); it5++)
-                        std::cout << *it5 << " ";
-                    std::cout << std::endl;
-                }
-                if (!it4->index.empty())
-                {
-                    std::cout << "  index:     ";
-                    for (std::vector<std::string>::iterator it6 = it4->index.begin(); it6 != it4->index.end(); it6++)
-                        std::cout << *it6 << " ";
-                    std::cout << std::endl;
-                }
-            }
-        }
-        count++;
-        std::cout << std::endl;
     }
 }
 
@@ -410,4 +333,61 @@ void    Parse::_msg_exit(std::string s)
 {
     std::cerr << s << std::endl;
     exit(1);
+}
+
+void    Parse::printStructs()
+{
+    // Check if everything is correctly parsed
+    int count = 1;
+    std::cout << std::endl;
+    for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
+    {
+        std::cout << "--- " << count << " server block ---\n\n";
+        if (!it->listen.empty())
+            std::cout << "listen:      " << it->listen << std::endl;
+        if (!it->server_name.empty())
+            std::cout << "server_name: " << it->server_name << std::endl;
+        if (!it->autoindex.empty())
+            std::cout << "autoindex:   " << it->autoindex << std::endl;
+        if (!it->methods.empty())
+        {
+            std::cout << "methods:     ";
+            for (std::vector<std::string>::iterator it2 = it->methods.begin(); it2 != it->methods.end(); it2++)
+                std::cout << *it2 << " ";
+            std::cout << std::endl;
+        }
+        if (!it->error_page.empty())
+        {
+            std::cout << "error_page:  ";
+            for (std::map<int, std::string>::iterator it3 = it->error_page.begin(); it3 != it->error_page.end(); it3++)
+                std::cout << it3->first << " " << it3->second << std::endl;
+        }
+        if (!it->location.empty())
+        {
+            for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
+            {
+                std::cout << "location ";
+                if (!it4->name.empty())
+                    std::cout << it4->name << " :" << std::endl;
+                if (!it4->autoindex.empty())
+                    std::cout << "  autoindex: " << it4->autoindex << std::endl;
+                if (!it4->methods.empty())
+                {
+                    std::cout << "  methods:   ";
+                    for (std::vector<std::string>::iterator it5 = it4->methods.begin(); it5 != it4->methods.end(); it5++)
+                        std::cout << *it5 << " ";
+                    std::cout << std::endl;
+                }
+                if (!it4->index.empty())
+                {
+                    std::cout << "  index:     ";
+                    for (std::vector<std::string>::iterator it6 = it4->index.begin(); it6 != it4->index.end(); it6++)
+                        std::cout << *it6 << " ";
+                    std::cout << std::endl;
+                }
+            }
+        }
+        count++;
+        std::cout << std::endl;
+    }
 }
