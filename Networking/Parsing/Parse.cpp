@@ -1,19 +1,32 @@
 #include "Parse.hpp"
 
+// Default constructor initialize valid server names
+// and location names for configuration file
 Parse::Parse()
 {
     _server_names.push_back("listen");
     _server_names.push_back("server_name");
     _server_names.push_back("error_page");
     _server_names.push_back("autoindex");
-    _server_names.push_back("methods");
+    _server_names.push_back("method");
     _server_names.push_back("location");
+
+    _server_names.push_back("client_max_body_size");
 
     _location_names.push_back("index");
     _location_names.push_back("autoindex");
-    _location_names.push_back("methods");
+    _location_names.push_back("method");
+
+    _location_names.push_back("root");
+    _location_names.push_back("upload_enable");
+    _location_names.push_back("upload_path");
+    _location_names.push_back("cgi_extension");
+    _location_names.push_back("cgi_path");
+    _location_names.push_back("client_max_body_size");
 }
 
+// Read given text file and remove context from the line
+// after command mark '#'
 void    Parse::readFile(char *conf, std::string path)
 {
     std::string line;
@@ -36,6 +49,7 @@ void    Parse::readFile(char *conf, std::string path)
     infile.close();
 }
 
+// Read binary files
 void    Parse::readBinaryFile(char *conf, std::string path)
 {
     std::string filename = conf;
@@ -44,6 +58,7 @@ void    Parse::readBinaryFile(char *conf, std::string path)
     std::vector<unsigned char> _binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 }
 
+// Start parsing your configuration file
 void    Parse::getConfigurationData()
 {
     size_t pos = 0;
@@ -52,6 +67,9 @@ void    Parse::getConfigurationData()
     _checkServerValues();
 }
 
+// Start parsing your location block data,
+// here you find positions of location block and check if the form is valid.
+// Returning end postion of location block
 int     Parse::_parseLocation(int start_pos, std::string temp, struct locationBlock *loct)
 {
     size_t i;
@@ -88,6 +106,9 @@ int     Parse::_parseLocation(int start_pos, std::string temp, struct locationBl
     return location_end_pos;
 }
 
+// Start parsing your server block data,
+// here you find positions of server block and check if the form is valid.
+// Returning end postion of server block
 int     Parse::_parseServer(int start_pos)
 {
     // find where server block starts
@@ -110,6 +131,8 @@ int     Parse::_parseServer(int start_pos)
     return server_end_pos;
 }
 
+// Check if given names are correct in location block.
+// Insert data to your location block vector.
 void    Parse::_get_location(int start, int end, std::string temp, struct locationBlock *loct)
 {
     temp.erase(0, start);
@@ -126,11 +149,11 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
             it++;
             if (*(it - 1) == "autoindex")
                 loct->autoindex = *it;
-            else if (*(it - 1) == "methods")
+            else if (*(it - 1) == "method")
             {
                 for (; it->back() != ';' && it != words.end(); it++)
-                    loct->methods.push_back(*it);
-                loct->methods.push_back(*it);
+                    loct->method.push_back(*it);
+                loct->method.push_back(*it);
             }
             else if (*(it - 1) == "index")
             {
@@ -144,6 +167,8 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
     }
 }
 
+// Check if given names are correct in server block.
+// Insert data to your serverContent vector.
 void    Parse::_get_conf(int start, int end)
 {
     int pos = 0;
@@ -178,11 +203,11 @@ void    Parse::_get_conf(int start, int end)
             }
             else if (*(it - 1) == "autoindex")
                 serv.autoindex = *it;
-            else if (*(it - 1) == "methods")
+            else if (*(it - 1) == "method")
             {
                 for (; it->back() != ';' && it != words.end(); it++)
-                    serv.methods.push_back(*it);
-                serv.methods.push_back(*it);
+                    serv.method.push_back(*it);
+                serv.method.push_back(*it);
             }
             else if (*(it - 1) == "location")
             {
@@ -199,6 +224,8 @@ void    Parse::_get_conf(int start, int end)
     _serverContent.push_back(serv);
 }
 
+// Checks if word ends to ';' separator and
+// after that erase the separator 
 void    Parse::_checkBackChar(std::string *x, std::string name)
 {
     if (x->back() != ';')
@@ -206,6 +233,34 @@ void    Parse::_checkBackChar(std::string *x, std::string name)
     x->pop_back();
 }
 
+// Checks if method is correct, valid methods
+// are GET POST and DELETE.
+void    Parse::_check_method(std::vector<std::string> *v)
+{
+    size_t size = v->size();
+    _checkBackChar(&v->back(), "method");
+    for (size_t i = 0; i < v->size(); i++)
+    {
+        if ((*v)[i] != "GET" && (*v)[i] != "POST" && (*v)[i] != "DELETE")
+            _msg_exit("configuration file error, methods");
+        for (size_t j = i + 1; j < size; j++)
+            if ((*v)[i] == (*v)[j])
+                _msg_exit("configuration file error, methods");
+    }
+}
+
+// Checks if autoindex is correct,
+// on and off are the two options to use
+void    Parse::_check_autoindex(std::string *x)
+{
+    if (*x != "on;" && *x != "off;")
+        _msg_exit("configuration file error, autoindex");
+    x->pop_back();
+}
+
+// This functions checks if everything is correct in
+// our configuration file and erase the separator end
+// of the last word.
 void    Parse::_checkServerValues()
 {
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
@@ -215,19 +270,9 @@ void    Parse::_checkServerValues()
         if (!it->server_name.empty())
             _checkBackChar(&it->server_name, "server_name");
         if (!it->autoindex.empty())
-        {
-            if (it->autoindex != "on;" && it->autoindex != "off;")
-                _msg_exit("configuration file error, autoindex");
-            it->autoindex.pop_back();
-        }
-        if (!it->methods.empty())
-        {
-            std::vector<std::string>::reverse_iterator it2 = it->methods.rbegin();
-            _checkBackChar(&(*it2), "methods");
-            for (; it2 != it->methods.rend(); it2++)
-                if (*it2 != "GET" && *it2 != "POST" && *it2 != "DELETE")
-                    _msg_exit("configuration file error, methods");
-        }
+            _check_autoindex(&it->autoindex);
+        if (!it->method.empty())
+            _check_method(&it->method);
         if (!it->error_page.empty())
         {
             std::map<int, std::string>::iterator it3 = it->error_page.begin();
@@ -247,11 +292,11 @@ void    Parse::_checkServerValues()
                 }
                 if (!it4->index.empty())
                     _checkBackChar(&(*it4->index.rbegin()), "index");
-                if (!it4->methods.empty())
+                if (!it4->method.empty())
                 {
-                    std::vector<std::string>::reverse_iterator it6 = it4->methods.rbegin();
-                    _checkBackChar(&(*it6), "methods");
-                    for (; it6 != it4->methods.rend(); it6++)
+                    std::vector<std::string>::reverse_iterator it6 = it4->method.rbegin();
+                    _checkBackChar(&(*it6), "method");
+                    for (; it6 != it4->method.rend(); it6++)
                         if (*it6 != "GET" && *it6 != "POST" && *it6 != "DELETE")
                             _msg_exit("configuration file error, methods");
                 }
@@ -260,8 +305,11 @@ void    Parse::_checkServerValues()
     }
 }
 
+// Returning  serverContent vector data.
 std::vector<Parse::serverBlock>    Parse::getServerContent() { return _serverContent; }
 
+// This functions tells if there is a closing bracket or 
+// is the block left open.
 int     Parse::_checkClosingBracket(int pos, std::string s)
 {
     int mark = 1;
@@ -279,6 +327,7 @@ int     Parse::_checkClosingBracket(int pos, std::string s)
     return i;
 }
 
+// Tells if character is pritable or not
 int     Parse::_ft_isprint(int c)
 {
 	if (c > 32 && c < 127)
@@ -287,6 +336,7 @@ int     Parse::_ft_isprint(int c)
 		return (0);
 }
 
+// Tells if string is number or not
 int     Parse::_isNumber(std::string str)
 {
     for (size_t i = 0; i < str.size(); i++)
@@ -295,6 +345,7 @@ int     Parse::_isNumber(std::string str)
     return 1;
 }
 
+// Tells if character is number or not
 int	    Parse::_ft_isdigit(int c)
 {
 	if (c >= '0' && c <= '9')
@@ -303,6 +354,7 @@ int	    Parse::_ft_isdigit(int c)
 		return (0);
 }
 
+// Returning true if server name is valid
 bool    Parse::_is_validName(std::string name)
 {
     for (std::vector<std::string>::iterator it = _server_names.begin(); it != _server_names.end(); it++)
@@ -311,6 +363,7 @@ bool    Parse::_is_validName(std::string name)
     return false;
 }
 
+// Returning true if location name is valid
 bool    Parse::_is_validLocationName(std::string name)
 {
     for (std::vector<std::string>::iterator it = _location_names.begin(); it != _location_names.end(); it++)
@@ -319,15 +372,17 @@ bool    Parse::_is_validLocationName(std::string name)
     return false;
 }
 
+// Prints the wanted error message and exit from the program
 void    Parse::_msg_exit(std::string s)
 {
     std::cerr << s << std::endl;
     exit(1);
 }
 
+// Prints all the data from the configuration file,
+// so we can see parsing is done correctly.
 void    Parse::printStructs()
 {
-    // Check if everything is correctly parsed
     int count = 1;
     std::cout << std::endl;
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
@@ -339,10 +394,10 @@ void    Parse::printStructs()
             std::cout << "server_name: " << it->server_name << std::endl;
         if (!it->autoindex.empty())
             std::cout << "autoindex:   " << it->autoindex << std::endl;
-        if (!it->methods.empty())
+        if (!it->method.empty())
         {
-            std::cout << "methods:     ";
-            for (std::vector<std::string>::iterator it2 = it->methods.begin(); it2 != it->methods.end(); it2++)
+            std::cout << "method:      ";
+            for (std::vector<std::string>::iterator it2 = it->method.begin(); it2 != it->method.end(); it2++)
                 std::cout << *it2 << " ";
             std::cout << std::endl;
         }
@@ -361,10 +416,10 @@ void    Parse::printStructs()
                     std::cout << it4->name << " :" << std::endl;
                 if (!it4->autoindex.empty())
                     std::cout << "  autoindex: " << it4->autoindex << std::endl;
-                if (!it4->methods.empty())
+                if (!it4->method.empty())
                 {
-                    std::cout << "  methods:   ";
-                    for (std::vector<std::string>::iterator it5 = it4->methods.begin(); it5 != it4->methods.end(); it5++)
+                    std::cout << "  method:    ";
+                    for (std::vector<std::string>::iterator it5 = it4->method.begin(); it5 != it4->method.end(); it5++)
                         std::cout << *it5 << " ";
                     std::cout << std::endl;
                 }

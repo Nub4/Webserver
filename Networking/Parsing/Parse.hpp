@@ -10,8 +10,9 @@ class Parse
         {
             std::vector<std::string>    index;
             std::string                 autoindex;
-            std::vector<std::string>    methods;
+            std::vector<std::string>    method;
             std::string                 name;
+
         };
 
         struct serverBlock
@@ -20,7 +21,7 @@ class Parse
             std::string                 server_name;
             std::map<int, std::string>  error_page;
             std::string                 autoindex;
-            std::vector<std::string>    methods;
+            std::vector<std::string>    method;
             std::vector<locationBlock>  location;
         };
 
@@ -39,6 +40,7 @@ class Parse
         std::vector<unsigned char>  _binary_file;
         std::vector<std::string>    _server_names;
         std::vector<std::string>    _location_names;
+        
         void                        _get_location(int start, int end, std::string temp, struct locationBlock *loct);
         bool                        _is_validName(std::string name);
         bool                        _is_validLocationName(std::string name);
@@ -52,6 +54,8 @@ class Parse
         int                         _parseLocation(int start_pos, std::string temp, struct locationBlock *loct);
         void                        _checkServerValues();
         void                        _checkBackChar(std::string *x, std::string name);
+        void                        _check_method(std::vector<std::string> *v);
+        void                        _check_autoindex(std::string *x);
 };
 
 #endif
