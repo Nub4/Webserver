@@ -167,6 +167,22 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
     }
 }
 
+// Inserting error_page values.
+void    Parse::_insert_error_page(std::vector<std::string> words, std::string x, struct serverBlock *serv)
+{
+    std::vector<std::string> s;
+    std::vector<std::string>::iterator it = words.begin();
+    for (; it != words.end(); it++)
+        if (*it == x)
+            break;
+    for (; it->back() != ';' && it != words.end(); it++)
+        s.push_back(*it);
+    if (s.size() != 1 || !_isNumber(s[0]))
+        _msg_exit("configuration file error, error_page");
+    s.push_back(*it);
+    serv->error_page.insert(std::pair<int, std::string>(atoi(s[0].c_str()), s[1]));
+}
+
 // Check if given names are correct in server block.
 // Insert data to your serverContent vector.
 void    Parse::_get_conf(int start, int end)
@@ -194,12 +210,8 @@ void    Parse::_get_conf(int start, int end)
                 serv.server_name = *it;
             else if (*(it - 1) == "error_page")
             {
-                for (; it->back() != ';' && it != words.end(); it++)
-                    s.push_back(*it);
-                if (s.size() != 1 || !_isNumber(s[0]))
-                    _msg_exit("configuration file error, error_page");
-                s.push_back(*it);
-                serv.error_page.insert(std::pair<int, std::string>(atoi(s[0].c_str()), s[1]));
+                _insert_error_page(words, *it, &serv);
+                it++;
             }
             else if (*(it - 1) == "autoindex")
                 serv.autoindex = *it;
@@ -258,6 +270,16 @@ void    Parse::_check_autoindex(std::string *x)
     x->pop_back();
 }
 
+// Checks if error_page is correct
+// and erase the separator ,404 is valid error code 
+void    Parse::_check_error_page(std::map<int, std::string> *m)
+{
+    std::map<int, std::string>::iterator it = m->begin();
+    if (it->first != 404 && it->second.back() != ';')
+        _msg_exit("configuration file error, error_page");
+    it->second.pop_back();
+}
+
 // This functions checks if everything is correct in
 // our configuration file and erase the separator end
 // of the last word.
@@ -274,32 +296,17 @@ void    Parse::_checkServerValues()
         if (!it->method.empty())
             _check_method(&it->method);
         if (!it->error_page.empty())
-        {
-            std::map<int, std::string>::iterator it3 = it->error_page.begin();
-            if (it3->first != 404 && it3->second.back() != ';')
-                _msg_exit("configuration file error, error_page");
-            it3->second.pop_back();
-        }
+            _check_error_page(&it->error_page);
         if (!it->location.empty())
         {
             for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
             {
                 if (!it4->autoindex.empty())
-                {
-                    if (it4->autoindex != "on;" && it4->autoindex != "off;")
-                        _msg_exit("configuration file error, autoindex");
-                    it4->autoindex.pop_back();
-                }
+                    _check_autoindex(&it4->autoindex);
                 if (!it4->index.empty())
                     _checkBackChar(&(*it4->index.rbegin()), "index");
                 if (!it4->method.empty())
-                {
-                    std::vector<std::string>::reverse_iterator it6 = it4->method.rbegin();
-                    _checkBackChar(&(*it6), "method");
-                    for (; it6 != it4->method.rend(); it6++)
-                        if (*it6 != "GET" && *it6 != "POST" && *it6 != "DELETE")
-                            _msg_exit("configuration file error, methods");
-                }
+                    _check_method(&it4->method);
             }
         }
     }

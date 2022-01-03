@@ -56,6 +56,8 @@ class Parse
         void                        _checkBackChar(std::string *x, std::string name);
         void                        _check_method(std::vector<std::string> *v);
         void                        _check_autoindex(std::string *x);
+        void                        _check_error_page(std::map<int, std::string> *m);
+        void                        _insert_error_page(std::vector<std::string> words, std::string x, struct serverBlock *serv);
 };
 
 #endif
