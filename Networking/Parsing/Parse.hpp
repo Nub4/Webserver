@@ -48,6 +48,7 @@ class Parse
         std::vector<std::string>    _server_names;
         std::vector<std::string>    _location_names;
 
+        void                        _check_body_size(std::string *x);
         void                        _check_same_host();
         void                        _check_listen(std::string *x);   
         void                        _get_location(int start, int end, std::string temp, struct locationBlock *loct);

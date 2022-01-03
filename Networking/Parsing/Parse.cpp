@@ -307,6 +307,34 @@ void    Parse::_check_listen(std::string *x)
         _msg_exit("configuration file error, listen");
 }
 
+void    Parse::_check_body_size(std::string *x)
+{
+    int tmp = 0;
+    std::stringstream ss;
+
+    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
+        _msg_exit("configuration file error, client_max_body_size");
+    x->pop_back();
+    if (x->back() == 'M')
+    {
+        x->pop_back();
+        tmp = atoi(x->c_str()) * 1048576;
+        ss << tmp;
+        ss >> *x;
+    }
+    else if (x->back() == 'K')
+    {
+        x->pop_back();
+        tmp = atoi(x->c_str()) * 1024;
+        ss << tmp;
+        ss >> *x;
+    }
+    else
+        tmp = atoi(x->c_str());
+    if (!_isNumber(*x) || tmp > (int)10485760000)
+        _msg_exit("configuration file error, client_max_body_size");
+}
+
 // This functions checks if everything is correct in
 // our configuration file and erase the separator end
 // of the last word.
@@ -327,7 +355,7 @@ void    Parse::_checkServerValues()
         if (!it->root.empty())
             _checkBackChar(&it->root, "root");
         if (!it->client_max_body_size.empty())
-           _checkBackChar(&it->root, "client_max_body_size");
+            _check_body_size(&it->client_max_body_size);
         if (!it->location.empty())
         {
             for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
@@ -349,7 +377,7 @@ void    Parse::_checkServerValues()
                 if (!it4->cgi_path.empty())
                     _checkBackChar(&it4->cgi_path, "cgi_path");
                 if (!it4->client_max_body_size.empty())
-                    _checkBackChar(&it4->client_max_body_size, "client_max_body_size");
+                    _check_body_size(&it4->client_max_body_size);
             }
         }
     }
