@@ -12,7 +12,12 @@ class Parse
             std::string                 autoindex;
             std::vector<std::string>    method;
             std::string                 name;
-
+            std::string                 root;
+            std::string                 upload_enable;
+            std::string                 upload_path;
+            std::string                 cgi_extension;
+            std::string                 cgi_path;
+            std::string                 client_max_body_size;
         };
 
         struct serverBlock
@@ -23,6 +28,8 @@ class Parse
             std::string                 autoindex;
             std::vector<std::string>    method;
             std::vector<locationBlock>  location;
+            std::string                 root;
+            std::string                 client_max_body_size;
         };
 
     public:

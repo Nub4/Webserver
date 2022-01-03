@@ -12,6 +12,7 @@ Parse::Parse()
     _server_names.push_back("location");
 
     _server_names.push_back("client_max_body_size");
+    _server_names.push_back("root");
 
     _location_names.push_back("index");
     _location_names.push_back("autoindex");
@@ -161,6 +162,18 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
                     loct->index.push_back(*it);
                 loct->index.push_back(*it);
             }
+            else if (*(it - 1) == "root")
+                loct->root = *it;
+            else if (*(it - 1) == "upload_enable")
+                loct->upload_enable = *it;
+            else if (*(it - 1) == "upload_path")
+                loct->upload_path = *it;
+            else if (*(it - 1) == "cgi_extension")
+                loct->cgi_extension = *it;
+            else if (*(it - 1) == "cgi_path")
+                loct->cgi_path = *it;
+            else if (*(it - 1) == "client_max_body_size")
+                loct->client_max_body_size = *it;
         }
         else
             _msg_exit("configuration file error, location");
@@ -229,6 +242,10 @@ void    Parse::_get_conf(int start, int end)
                         break;
                 serv.location.push_back(loct);
            }
+           else if (*(it - 1) == "root")
+                serv.root = *it;
+           else if (*(it - 1) == "client_max_body_size")
+                serv.client_max_body_size = *it;
         }
         else
             _msg_exit("configuration file error");
@@ -297,6 +314,10 @@ void    Parse::_checkServerValues()
             _check_method(&it->method);
         if (!it->error_page.empty())
             _check_error_page(&it->error_page);
+        if (!it->root.empty())
+            _checkBackChar(&it->root, "root");
+        if (!it->client_max_body_size.empty())
+           _checkBackChar(&it->root, "client_max_body_size");
         if (!it->location.empty())
         {
             for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
@@ -307,6 +328,18 @@ void    Parse::_checkServerValues()
                     _checkBackChar(&(*it4->index.rbegin()), "index");
                 if (!it4->method.empty())
                     _check_method(&it4->method);
+                if (!it4->root.empty())
+                    _checkBackChar(&it4->root, "root");
+                if (!it4->upload_enable.empty())
+                    _checkBackChar(&it4->upload_enable, "upload_enable");
+                if (!it4->upload_path.empty())
+                    _checkBackChar(&it4->upload_path, "upload_path");
+                if (!it4->cgi_extension.empty())
+                    _checkBackChar(&it4->cgi_extension, "cgi_extension");
+                if (!it4->cgi_path.empty())
+                    _checkBackChar(&it4->cgi_path, "cgi_path");
+                if (!it4->client_max_body_size.empty())
+                    _checkBackChar(&it4->client_max_body_size, "client_max_body_size");
             }
         }
     }
@@ -396,24 +429,28 @@ void    Parse::printStructs()
     {
         std::cout << "--- " << count << " server block ---\n\n";
         if (!it->listen.empty())
-            std::cout << "listen:      " << it->listen << std::endl;
+            std::cout << "listen:               " << it->listen << std::endl;
         if (!it->server_name.empty())
-            std::cout << "server_name: " << it->server_name << std::endl;
+            std::cout << "server_name:          " << it->server_name << std::endl;
         if (!it->autoindex.empty())
-            std::cout << "autoindex:   " << it->autoindex << std::endl;
+            std::cout << "autoindex:            " << it->autoindex << std::endl;
         if (!it->method.empty())
         {
-            std::cout << "method:      ";
+            std::cout << "method:               ";
             for (std::vector<std::string>::iterator it2 = it->method.begin(); it2 != it->method.end(); it2++)
                 std::cout << *it2 << " ";
             std::cout << std::endl;
         }
         if (!it->error_page.empty())
         {
-            std::cout << "error_page:  ";
+            std::cout << "error_page:           ";
             for (std::map<int, std::string>::iterator it3 = it->error_page.begin(); it3 != it->error_page.end(); it3++)
                 std::cout << it3->first << " " << it3->second << std::endl;
         }
+        if (!it->root.empty())
+            std::cout << "root:                 " << it->root << std::endl;
+        if (!it->client_max_body_size.empty())
+            std::cout << "client_max_body_size: " << it->client_max_body_size << std::endl;
         if (!it->location.empty())
         {
             for (std::vector<locationBlock>::iterator it4 = it->location.begin(); it4 != it->location.end(); it4++)
@@ -422,21 +459,34 @@ void    Parse::printStructs()
                 if (!it4->name.empty())
                     std::cout << it4->name << " :" << std::endl;
                 if (!it4->autoindex.empty())
-                    std::cout << "  autoindex: " << it4->autoindex << std::endl;
+                    std::cout << "     autoindex:            " << it4->autoindex << std::endl;
                 if (!it4->method.empty())
                 {
-                    std::cout << "  method:    ";
+                    std::cout << "     method:               ";
                     for (std::vector<std::string>::iterator it5 = it4->method.begin(); it5 != it4->method.end(); it5++)
                         std::cout << *it5 << " ";
                     std::cout << std::endl;
                 }
                 if (!it4->index.empty())
                 {
-                    std::cout << "  index:     ";
+                    std::cout << "     index:                ";
                     for (std::vector<std::string>::iterator it6 = it4->index.begin(); it6 != it4->index.end(); it6++)
                         std::cout << *it6 << " ";
                     std::cout << std::endl;
                 }
+
+                if (!it4->root.empty())
+                    std::cout << "     root:                 " << it4->root << std::endl;
+                if (!it4->upload_enable.empty())
+                    std::cout << "     upload_enable:        " << it4->upload_enable << std::endl;
+                if (!it4->upload_path.empty())
+                    std::cout << "     upload_path:          " << it4->upload_path << std::endl;
+                if (!it4->cgi_extension.empty())
+                    std::cout << "     cgi_extension:        " << it4->cgi_extension << std::endl;
+                if (!it4->cgi_path.empty())
+                    std::cout << "     cgi_path:             " << it4->cgi_path << std::endl;
+                if (!it4->client_max_body_size.empty())
+                    std::cout << "     client_max_body_size: " << it4->client_max_body_size << std::endl;
             }
         }
         count++;
