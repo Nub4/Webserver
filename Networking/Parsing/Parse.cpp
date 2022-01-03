@@ -307,6 +307,8 @@ void    Parse::_check_listen(std::string *x)
         _msg_exit("configuration file error, listen");
 }
 
+// Check if client_max_body_size is correct
+// and convert M or K to numbers
 void    Parse::_check_body_size(std::string *x)
 {
     int tmp = 0;
