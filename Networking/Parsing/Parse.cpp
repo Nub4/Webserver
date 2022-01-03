@@ -64,6 +64,7 @@ void    Parse::getConfigurationData()
     while (pos != _conf_file.size() -1)
         pos = _parseServer(pos);
     _checkServerValues();
+    _check_same_host();
 }
 
 // Start parsing your location block data,
@@ -198,7 +199,7 @@ void    Parse::_insert_error_page(std::vector<std::string> words, std::string x,
 // Insert data to your serverContent vector.
 void    Parse::_get_conf(int start, int end)
 {
-    int pos = 0;
+    size_t pos = 0;
     struct serverBlock serv;
     struct locationBlock loct;
     std::string temp = _conf_file;
@@ -239,10 +240,10 @@ void    Parse::_get_conf(int start, int end)
                     if (*it == "}" || it->back() == '}')
                         break;
                 serv.location.push_back(loct);
-           }
-           else if (*(it - 1) == "root")
+            }
+            else if (*(it - 1) == "root")
                 serv.root = *it;
-           else if (*(it - 1) == "client_max_body_size")
+            else if (*(it - 1) == "client_max_body_size")
                 serv.client_max_body_size = *it;
         }
         else
@@ -255,7 +256,7 @@ void    Parse::_get_conf(int start, int end)
 // after that erase the separator 
 void    Parse::_checkBackChar(std::string *x, std::string name)
 {
-    if (x->back() != ';')
+    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
         _msg_exit("configuration file error, " + name);
     x->pop_back();
 }
@@ -290,9 +291,20 @@ void    Parse::_check_autoindex(std::string *x)
 void    Parse::_check_error_page(std::map<int, std::string> *m)
 {
     std::map<int, std::string>::iterator it = m->begin();
-    if (it->first != 404 && it->second.back() != ';')
+    if ((it->first != 404 && it->second.back() != ';') || std::count(it->second.begin(), it->second.end(), ';') != 1)
         _msg_exit("configuration file error, error_page");
     it->second.pop_back();
+}
+
+// Checks if listen is correct
+// and erase the separator.
+void    Parse::_check_listen(std::string *x)
+{
+    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
+        _msg_exit("configuration file error, listen");
+    x->pop_back();
+    if (!_isNumber(*x) || atoi(x->c_str()) < 0 || atoi(x->c_str()) > 65535)
+        _msg_exit("configuration file error, listen");
 }
 
 // This functions checks if everything is correct in
@@ -303,7 +315,7 @@ void    Parse::_checkServerValues()
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
     {
         if (!it->listen.empty())
-            _checkBackChar(&it->listen, "listen");
+            _check_listen(&it->listen);
         if (!it->server_name.empty())
             _checkBackChar(&it->server_name, "server_name");
         if (!it->autoindex.empty())
@@ -341,6 +353,18 @@ void    Parse::_checkServerValues()
             }
         }
     }
+}
+
+// Checks if two servers are listening same port
+// and having same ip address
+void    Parse::_check_same_host()
+{
+    if (_serverContent.size() < 2)
+        return ;
+    for (size_t i = 0; i < _serverContent.size(); i++)
+        for (size_t j = i + 1; j < _serverContent.size(); j++)
+            if (_serverContent[i].listen == _serverContent[j].listen && _serverContent[i].server_name == _serverContent[j].server_name)
+                _msg_exit("Error, two servers has same server_name and host");
 }
 
 // Returning  serverContent vector data.

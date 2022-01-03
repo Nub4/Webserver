@@ -47,7 +47,9 @@ class Parse
         std::vector<unsigned char>  _binary_file;
         std::vector<std::string>    _server_names;
         std::vector<std::string>    _location_names;
-        
+
+        void                        _check_same_host();
+        void                        _check_listen(std::string *x);   
         void                        _get_location(int start, int end, std::string temp, struct locationBlock *loct);
         bool                        _is_validName(std::string name);
         bool                        _is_validLocationName(std::string name);
