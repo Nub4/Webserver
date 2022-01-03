@@ -2,8 +2,12 @@
 
 Server::Server() {}
 
+// Destructor close server socket when ends to program.
 Server::~Server() { close(_serverSocket); }
 
+// This functions setup the server.
+// Creates server socket, bind to it and start listening
+// that socket.
 void    Server::setup_server()
 {
     int yes = 1;
@@ -32,6 +36,10 @@ void    Server::setup_server()
     _check(listen(_serverSocket, BACKLOG), "listen");
 }
 
+// Run the server, we are using select to communicate
+// with all the clients at the same time. Max amount of clients can connect
+// to server is 1024. It creates a new client connect or
+// send data to the client.
 void    Server::run_server()
 {
     fd_set readfds;
@@ -69,6 +77,7 @@ void    Server::run_server()
     }
 }
 
+// Accepting client to join to server
 int     Server::_accept()
 {
     int addrlen = sizeof(_address);
@@ -77,6 +86,8 @@ int     Server::_accept()
     return clientSocket;
 }
 
+// Handling client socket, reading file descriptor
+// and then send that data to client
 void    Server::_handler(int clientSocket)
 {
     if (!fork())
@@ -131,6 +142,7 @@ void    Server::_handler(int clientSocket)
     
 }
 
+// Function send read data to client
 void    Server::_sendToClient(int clientSocket)
 {
     std::ostringstream oss;
@@ -150,6 +162,7 @@ void    Server::_sendToClient(int clientSocket)
     exit(0);
 }
 
+// Checks if socket is smaller than 0
 void    Server::_check(int a, std::string str)
 {
     if (a < 0)
