@@ -18,7 +18,7 @@ Parse::Parse()
     _location_names.push_back("cgi_path");
 }
 
-void    Parse::readFile(char *conf, std::string path)
+void    Parse::readConfFile(char *conf, std::string path)
 {
     std::string line;
     std::string filename = conf;
@@ -40,17 +40,19 @@ void    Parse::readFile(char *conf, std::string path)
     infile.close();
 }
 
-void    Parse::readBinaryFile(char *conf, std::string path)
+std::vector<unsigned char>  Parse::readBinaryFile(char *conf, std::string path)
 {
     std::string filename = conf;
     std::string str = path + "/confs/" + filename;
     std::ifstream infile(str, std::ios::binary);
-    std::vector<unsigned char> _binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+    std::vector<unsigned char> binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+    return binary_file;
 }
 
 void    Parse::getConfigurationData()
 {
     size_t pos = 0;
+
     while (pos != _conf_file.size() -1)
         pos = _parseServer(pos);
     _checkServerValues();
@@ -60,14 +62,18 @@ void    Parse::getConfigurationData()
 int     Parse::_parseLocation(int start_pos, std::string temp, struct locationBlock *loct)
 {
     size_t i;
-    int pos = temp.find("location", start_pos);
-    int pos_after_location = pos + strlen("location");
+    size_t pos_bracket;
+    int pos;
+    int pos_after_location;
+    int location_end_pos;
+
+    pos = temp.find("location", start_pos);
+    pos_after_location = pos + strlen("location");
     for (i = pos_after_location; temp[i] != '/'; i++)
         if (_ft_isprint(temp[i]))
             _msg_exit("configuration file error, location");
     for (; _ft_isprint(temp[i]); i++)
         loct->name.push_back(temp[i]);
-    size_t pos_bracket;
     if (temp[i - 1] == '{')
     {
         loct->name.pop_back();
@@ -80,23 +86,28 @@ int     Parse::_parseLocation(int start_pos, std::string temp, struct locationBl
             if (_ft_isprint(temp[i]))
                 _msg_exit("configuration file error, location3");
     }
-    int location_end_pos = _checkClosingBracket(pos_bracket + 1, temp);
+    location_end_pos = _checkClosingBracket(pos_bracket + 1, temp);
     _get_location(pos_bracket + 1, location_end_pos - 1, temp, loct);
     return location_end_pos;
 }
 
 int     Parse::_parseServer(int start_pos)
 {
-    int pos = _conf_file.find("server", start_pos);
+    int pos;
+    int pos_after_server;
+    int pos_bracket;
+    int server_end_pos;
+
+    pos = _conf_file.find("server", start_pos);
     for (int i = start_pos; i < pos; i++)
         if (_ft_isprint(_conf_file[i]))
             _msg_exit("configuration file error");
-    int pos_after_server = pos + strlen("server");
-    int pos_bracket = _conf_file.find("{", pos_after_server);
+    pos_after_server = pos + strlen("server");
+    pos_bracket = _conf_file.find("{", pos_after_server);
     for (int i = pos_after_server; i < pos_bracket; i++)
         if (_ft_isprint(_conf_file[i]))
             _msg_exit("configuration file error");
-    int server_end_pos = _checkClosingBracket(pos_bracket + 1, _conf_file);
+    server_end_pos = _checkClosingBracket(pos_bracket + 1, _conf_file);
     _get_conf(pos_bracket + 1, server_end_pos - 1);
     return server_end_pos;
 }
@@ -231,6 +242,7 @@ void    Parse::_insert_error_page(std::vector<std::string> words, std::string x,
 {
     std::vector<std::string> s;
     std::vector<std::string>::iterator it = words.begin();
+
     for (; it != words.end(); it++)
         if (*it == x)
             break;
@@ -273,6 +285,7 @@ bool    Parse::_is_validLocationName(std::string name)
 void    Parse::printStructs()
 {
     int count = 1;
+
     std::cout << std::endl;
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
     {
