@@ -1,6 +1,14 @@
 #include "Server.hpp"
 
-Server::Server() {}
+Server::Server(char *conf, std::string path)
+{
+    Parse parse;
+
+    parse.readConfFile(conf, path);
+    parse.getConfigurationData();
+    parse.printStructs();
+    _server = parse.getServerContent();
+}
 
 Server::~Server() { close(_serverSocket); }
 
@@ -13,7 +21,7 @@ void    Server::setup_server()
     _check(_serverSocket, "socket");
 
     _address.sin_family = AF_INET;
-    _address.sin_port = htons(PORT);
+    _address.sin_port = htons(atoi(_server[0].listen.c_str()));
     _address.sin_addr.s_addr = htonl(INADDR_ANY);
     memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
 

@@ -17,13 +17,8 @@ int     main(int ac, char **av, char **env)
             path = env[i];
     path.erase(0, 4);
 
-    Server server;
-    Parse parse;
-
-    parse.readConfFile(av[1], path);
-    parse.getConfigurationData();
-    parse.printStructs();
-
+    Server server(av[1], path);
+ 
     server.setup_server();
     server.run_server();
     return 0;
