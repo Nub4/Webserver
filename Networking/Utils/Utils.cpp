@@ -2,6 +2,15 @@
 
 Utils::Utils() {}
 
+std::vector<unsigned char>  Utils::readBinaryFile(char *conf, std::string path)
+{
+    std::string filename = conf;
+    std::string str = path + "/confs/" + filename;
+    std::ifstream infile(str, std::ios::binary);
+    std::vector<unsigned char> binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+    return binary_file;
+}
+
 int     Utils::_checkClosingBracket(int pos, std::string s)
 {
     int mark = 1;

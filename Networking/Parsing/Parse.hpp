@@ -32,7 +32,6 @@ class Parse : public Utils
         Parse();
 
         void                        readConfFile(char *conf, std::string path);
-        std::vector<unsigned char>  readBinaryFile(char *conf, std::string path);
         void                        printStructs();
         void                        getConfigurationData();
         std::vector<serverBlock>    getServerContent();

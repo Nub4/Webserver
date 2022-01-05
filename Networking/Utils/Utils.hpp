@@ -8,6 +8,8 @@ class Utils
     public:
         Utils();
 
+        std::vector<unsigned char>  readBinaryFile(char *conf, std::string path);
+
     protected:
         void    _check_body_size(std::string *x);
         void    _check_listen(std::string *x);   

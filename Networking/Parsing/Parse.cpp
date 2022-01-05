@@ -40,15 +40,6 @@ void    Parse::readConfFile(char *conf, std::string path)
     infile.close();
 }
 
-std::vector<unsigned char>  Parse::readBinaryFile(char *conf, std::string path)
-{
-    std::string filename = conf;
-    std::string str = path + "/confs/" + filename;
-    std::ifstream infile(str, std::ios::binary);
-    std::vector<unsigned char> binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
-    return binary_file;
-}
-
 void    Parse::getConfigurationData()
 {
     size_t pos = 0;
