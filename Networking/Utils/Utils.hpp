@@ -12,7 +12,7 @@ class Utils
 
     protected:
         void    _check_body_size(std::string *x);
-        void    _check_listen(std::string *x);   
+        void    _check_listen(std::vector<std::string> *v);   
         int     _ft_isprint(int c);
         int     _checkClosingBracket(int pos, std::string s);
         void    _msg_exit(std::string s);

@@ -167,7 +167,11 @@ void    Parse::_get_conf(int start, int end)
             s.clear();
             it++;
             if (*(it - 1) == "listen")
-                serv.listen = *it;
+            {
+                for (; it->back() != ';' && it != words.end(); it++)
+                    serv.listen.push_back(*it);
+                serv.listen.push_back(*it);
+            }
             else if (*(it - 1) == "server_name")
                 serv.server_name = *it;
             else if (*(it - 1) == "error_page")
@@ -281,8 +285,10 @@ void    Parse::printStructs()
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
     {
         std::cout << "--- " << count << " server block ---\n\n";
-        if (!it->listen.empty())
-            std::cout << "listen:               " << it->listen << std::endl;
+        if (!it->listen.empty() && it->listen.size() == 2)
+            std::cout << "listen:               " << it->listen[0] << " " << it->listen[1] << std::endl;
+        if (!it->listen.empty() && it->listen.size() == 1)
+            std::cout << "listen:               " << it->listen[0] << std::endl;
         if (!it->server_name.empty())
             std::cout << "server_name:          " << it->server_name << std::endl;
         if (!it->error_page.empty())

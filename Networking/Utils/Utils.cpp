@@ -35,12 +35,10 @@ void    Utils::_checkBackChar(std::string *x, std::string name)
     x->pop_back();
 }
 
-void    Utils::_check_listen(std::string *x)
+void    Utils::_check_listen(std::vector<std::string> *v)
 {
-    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
-        _msg_exit("configuration file error, listen");
-    x->pop_back();
-    if (!_isNumber(*x) || atoi(x->c_str()) < 0 || atoi(x->c_str()) > 65535)
+    _checkBackChar(&v->back(), "listen");
+    if ((*v).size() > 2 || !_isNumber((*v)[0]) || atoi((*v)[0].c_str()) < 0 || atoi((*v)[0].c_str()) > 65535)
         _msg_exit("configuration file error, listen");
 }
 
@@ -78,9 +76,7 @@ void    Utils::_check_body_size(std::string *x)
     int tmp = 0;
     std::stringstream ss;
 
-    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
-        _msg_exit("configuration file error, client_max_body_size");
-    x->pop_back();
+    _checkBackChar(x, "client_max_body_size");
     if (x->back() == 'M')
     {
         x->pop_back();

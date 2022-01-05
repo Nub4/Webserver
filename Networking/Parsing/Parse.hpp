@@ -21,7 +21,7 @@ class Parse : public Utils
 
         struct serverBlock
         {
-            std::string                 listen;
+            std::vector<std::string>    listen;
             std::string                 server_name;
             std::map<int, std::string>  error_page;
             std::vector<locationBlock>  location;
