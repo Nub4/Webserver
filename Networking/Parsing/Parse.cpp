@@ -1,7 +1,5 @@
 #include "Parse.hpp"
 
-// Default constructor initialize valid server names
-// and location names for configuration file
 Parse::Parse()
 {
     _server_names.push_back("listen");
@@ -24,8 +22,6 @@ Parse::Parse()
     _location_names.push_back("client_max_body_size");
 }
 
-// Read given text file and remove context from the line
-// after command mark '#'
 void    Parse::readFile(char *conf, std::string path)
 {
     std::string line;
@@ -48,7 +44,6 @@ void    Parse::readFile(char *conf, std::string path)
     infile.close();
 }
 
-// Read binary files
 void    Parse::readBinaryFile(char *conf, std::string path)
 {
     std::string filename = conf;
@@ -57,7 +52,6 @@ void    Parse::readBinaryFile(char *conf, std::string path)
     std::vector<unsigned char> _binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 }
 
-// Start parsing your configuration file
 void    Parse::getConfigurationData()
 {
     size_t pos = 0;
@@ -67,21 +61,14 @@ void    Parse::getConfigurationData()
     _check_same_host();
 }
 
-// Start parsing your location block data,
-// here you find positions of location block and check if the form is valid.
-// Returning end postion of location block
 int     Parse::_parseLocation(int start_pos, std::string temp, struct locationBlock *loct)
 {
     size_t i;
-    // find where location block starts
     int pos = temp.find("location", start_pos);
-    // position after location word
     int pos_after_location = pos + strlen("location");
-    // check if location name is correct
     for (i = pos_after_location; temp[i] != '/'; i++)
         if (_ft_isprint(temp[i]))
             _msg_exit("configuration file error, location");
-    // find position after location name and insert location name
     for (; _ft_isprint(temp[i]); i++)
         loct->name.push_back(temp[i]);
     size_t pos_bracket;
@@ -92,47 +79,32 @@ int     Parse::_parseLocation(int start_pos, std::string temp, struct locationBl
     }
     else
     {
-        // find position of first bracket
         pos_bracket = temp.find("{", i);
-        // check if errors before first bracket
         for (; i < pos_bracket; i++)
             if (_ft_isprint(temp[i]))
                 _msg_exit("configuration file error, location3");
     }
-    // check ending bracket
     int location_end_pos = _checkClosingBracket(pos_bracket + 1, temp);
-    // get data from location block
     _get_location(pos_bracket + 1, location_end_pos - 1, temp, loct);
     return location_end_pos;
 }
 
-// Start parsing your server block data,
-// here you find positions of server block and check if the form is valid.
-// Returning end postion of server block
 int     Parse::_parseServer(int start_pos)
 {
-    // find where server block starts
     int pos = _conf_file.find("server", start_pos);
-    // check if errors before server block
     for (int i = start_pos; i < pos; i++)
         if (_ft_isprint(_conf_file[i]))
             _msg_exit("configuration file error");
-    // check first bracket
     int pos_after_server = pos + strlen("server");
     int pos_bracket = _conf_file.find("{", pos_after_server);
-    // check if errors before first bracket
     for (int i = pos_after_server; i < pos_bracket; i++)
         if (_ft_isprint(_conf_file[i]))
             _msg_exit("configuration file error");
-    // check end position of block 
     int server_end_pos = _checkClosingBracket(pos_bracket + 1, _conf_file);
-    // get data from server block
     _get_conf(pos_bracket + 1, server_end_pos - 1);
     return server_end_pos;
 }
 
-// Check if given names are correct in location block.
-// Insert data to your location block vector.
 void    Parse::_get_location(int start, int end, std::string temp, struct locationBlock *loct)
 {
     temp.erase(0, start);
@@ -179,24 +151,6 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
     }
 }
 
-// Inserting error_page values.
-void    Parse::_insert_error_page(std::vector<std::string> words, std::string x, struct serverBlock *serv)
-{
-    std::vector<std::string> s;
-    std::vector<std::string>::iterator it = words.begin();
-    for (; it != words.end(); it++)
-        if (*it == x)
-            break;
-    for (; it->back() != ';' && it != words.end(); it++)
-        s.push_back(*it);
-    if (s.size() != 1 || !_isNumber(s[0]))
-        _msg_exit("configuration file error, error_page");
-    s.push_back(*it);
-    serv->error_page.insert(std::pair<int, std::string>(atoi(s[0].c_str()), s[1]));
-}
-
-// Check if given names are correct in server block.
-// Insert data to your serverContent vector.
 void    Parse::_get_conf(int start, int end)
 {
     size_t pos = 0;
@@ -252,94 +206,6 @@ void    Parse::_get_conf(int start, int end)
     _serverContent.push_back(serv);
 }
 
-// Checks if word ends to ';' separator and
-// after that erase the separator 
-void    Parse::_checkBackChar(std::string *x, std::string name)
-{
-    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
-        _msg_exit("configuration file error, " + name);
-    x->pop_back();
-}
-
-// Checks if method is correct, valid methods
-// are GET POST and DELETE.
-void    Parse::_check_method(std::vector<std::string> *v)
-{
-    size_t size = v->size();
-    _checkBackChar(&v->back(), "method");
-    for (size_t i = 0; i < v->size(); i++)
-    {
-        if ((*v)[i] != "GET" && (*v)[i] != "POST" && (*v)[i] != "DELETE")
-            _msg_exit("configuration file error, methods");
-        for (size_t j = i + 1; j < size; j++)
-            if ((*v)[i] == (*v)[j])
-                _msg_exit("configuration file error, methods");
-    }
-}
-
-// Checks if autoindex is correct,
-// on and off are the two options to use
-void    Parse::_check_autoindex(std::string *x)
-{
-    if (*x != "on;" && *x != "off;")
-        _msg_exit("configuration file error, autoindex");
-    x->pop_back();
-}
-
-// Checks if error_page is correct
-// and erase the separator ,404 is valid error code 
-void    Parse::_check_error_page(std::map<int, std::string> *m)
-{
-    std::map<int, std::string>::iterator it = m->begin();
-    if ((it->first != 404 && it->second.back() != ';') || std::count(it->second.begin(), it->second.end(), ';') != 1)
-        _msg_exit("configuration file error, error_page");
-    it->second.pop_back();
-}
-
-// Checks if listen is correct
-// and erase the separator.
-void    Parse::_check_listen(std::string *x)
-{
-    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
-        _msg_exit("configuration file error, listen");
-    x->pop_back();
-    if (!_isNumber(*x) || atoi(x->c_str()) < 0 || atoi(x->c_str()) > 65535)
-        _msg_exit("configuration file error, listen");
-}
-
-// Check if client_max_body_size is correct
-// and convert M or K to numbers
-void    Parse::_check_body_size(std::string *x)
-{
-    int tmp = 0;
-    std::stringstream ss;
-
-    if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
-        _msg_exit("configuration file error, client_max_body_size");
-    x->pop_back();
-    if (x->back() == 'M')
-    {
-        x->pop_back();
-        tmp = atoi(x->c_str()) * 1048576;
-        ss << tmp;
-        ss >> *x;
-    }
-    else if (x->back() == 'K')
-    {
-        x->pop_back();
-        tmp = atoi(x->c_str()) * 1024;
-        ss << tmp;
-        ss >> *x;
-    }
-    else
-        tmp = atoi(x->c_str());
-    if (!_isNumber(*x) || tmp > (int)10485760000)
-        _msg_exit("configuration file error, client_max_body_size");
-}
-
-// This functions checks if everything is correct in
-// our configuration file and erase the separator end
-// of the last word.
 void    Parse::_checkServerValues()
 {
     for (std::vector<serverBlock>::iterator it = _serverContent.begin(); it != _serverContent.end(); it++)
@@ -385,8 +251,21 @@ void    Parse::_checkServerValues()
     }
 }
 
-// Checks if two servers are listening same port
-// and having same ip address
+void    Parse::_insert_error_page(std::vector<std::string> words, std::string x, struct serverBlock *serv)
+{
+    std::vector<std::string> s;
+    std::vector<std::string>::iterator it = words.begin();
+    for (; it != words.end(); it++)
+        if (*it == x)
+            break;
+    for (; it->back() != ';' && it != words.end(); it++)
+        s.push_back(*it);
+    if (s.size() != 1 || !_isNumber(s[0]))
+        _msg_exit("configuration file error, error_page");
+    s.push_back(*it);
+    serv->error_page.insert(std::pair<int, std::string>(atoi(s[0].c_str()), s[1]));
+}
+
 void    Parse::_check_same_host()
 {
     if (_serverContent.size() < 2)
@@ -397,56 +276,8 @@ void    Parse::_check_same_host()
                 _msg_exit("Error, two servers has same server_name and host");
 }
 
-// Returning  serverContent vector data.
 std::vector<Parse::serverBlock>    Parse::getServerContent() { return _serverContent; }
 
-// This functions tells if there is a closing bracket or 
-// is the block left open.
-int     Parse::_checkClosingBracket(int pos, std::string s)
-{
-    int mark = 1;
-    size_t i;
-
-    for (i = pos; i < s.size() && mark != 0; i++)
-    {
-        if (s[i] == '{')
-            mark++;
-        else if (s[i] == '}')
-            mark--;
-    }
-    if (i == s.size())
-        return 0;
-    return i;
-}
-
-// Tells if character is pritable or not
-int     Parse::_ft_isprint(int c)
-{
-	if (c > 32 && c < 127)
-		return (1);
-	else
-		return (0);
-}
-
-// Tells if string is number or not
-int     Parse::_isNumber(std::string str)
-{
-    for (size_t i = 0; i < str.size(); i++)
-        if (!_ft_isdigit(str[i]))
-            return 0;
-    return 1;
-}
-
-// Tells if character is number or not
-int	    Parse::_ft_isdigit(int c)
-{
-	if (c >= '0' && c <= '9')
-		return (1);
-	else
-		return (0);
-}
-
-// Returning true if server name is valid
 bool    Parse::_is_validName(std::string name)
 {
     for (std::vector<std::string>::iterator it = _server_names.begin(); it != _server_names.end(); it++)
@@ -455,7 +286,6 @@ bool    Parse::_is_validName(std::string name)
     return false;
 }
 
-// Returning true if location name is valid
 bool    Parse::_is_validLocationName(std::string name)
 {
     for (std::vector<std::string>::iterator it = _location_names.begin(); it != _location_names.end(); it++)
@@ -464,15 +294,6 @@ bool    Parse::_is_validLocationName(std::string name)
     return false;
 }
 
-// Prints the wanted error message and exit from the program
-void    Parse::_msg_exit(std::string s)
-{
-    std::cerr << s << std::endl;
-    exit(1);
-}
-
-// Prints all the data from the configuration file,
-// so we can see parsing is done correctly.
 void    Parse::printStructs()
 {
     int count = 1;
