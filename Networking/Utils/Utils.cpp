@@ -84,6 +84,8 @@ void    Utils::_check_body_size(std::string *x)
     if (x->back() == 'M')
     {
         x->pop_back();
+        if (!_isNumber(*x))
+            _msg_exit("configuration file error, client_max_body_size");
         tmp = atoi(x->c_str()) * 1048576;
         ss << tmp;
         ss >> *x;
@@ -91,13 +93,19 @@ void    Utils::_check_body_size(std::string *x)
     else if (x->back() == 'K')
     {
         x->pop_back();
+        if (!_isNumber(*x))
+            _msg_exit("configuration file error, client_max_body_size");
         tmp = atoi(x->c_str()) * 1024;
         ss << tmp;
         ss >> *x;
     }
     else
+    {
+       if (!_isNumber(*x))
+           _msg_exit("configuration file error, client_max_body_size");
         tmp = atoi(x->c_str());
-    if (!_isNumber(*x) || tmp > (int)10485760000)
+    }
+    if (tmp > (int)10485760000)
         _msg_exit("configuration file error, client_max_body_size");
 }
 
