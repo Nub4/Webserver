@@ -1,8 +1,6 @@
 #ifndef PARSE_HPP
 # define PARSE_HPP
 
-// # include "../../includes/libc.hpp"
-
 # include "../Utils/Utils.hpp"
 
 class Parse : public Utils
@@ -19,7 +17,6 @@ class Parse : public Utils
             std::string                 upload_path;
             std::string                 cgi_extension;
             std::string                 cgi_path;
-            std::string                 client_max_body_size;
         };
 
         struct serverBlock
@@ -27,10 +24,7 @@ class Parse : public Utils
             std::string                 listen;
             std::string                 server_name;
             std::map<int, std::string>  error_page;
-            std::string                 autoindex;
-            std::vector<std::string>    method;
             std::vector<locationBlock>  location;
-            std::string                 root;
             std::string                 client_max_body_size;
         };
 

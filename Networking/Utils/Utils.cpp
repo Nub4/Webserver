@@ -2,8 +2,6 @@
 
 Utils::Utils() {}
 
-/* UTILS FOR PARSING CLASS */
-
 int     Utils::_checkClosingBracket(int pos, std::string s)
 {
     int mark = 1;
@@ -93,8 +91,6 @@ void    Utils::_check_body_size(std::string *x)
     if (!_isNumber(*x) || tmp > (int)10485760000)
         _msg_exit("configuration file error, client_max_body_size");
 }
-
-/* UTILS FOR EVERYWHERE */
 
 int     Utils::_isNumber(std::string str)
 {
