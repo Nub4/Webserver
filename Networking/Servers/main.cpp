@@ -20,7 +20,7 @@ int     main(int ac, char **av, char **env)
     Server server;
     Parse parse;
 
-    parse.readFile(av[1], path);
+    parse.readConfFile(av[1], path);
     parse.getConfigurationData();
     parse.printStructs();
 
