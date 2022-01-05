@@ -81,7 +81,7 @@ void    Server::_handler(int clientSocket)
             std::ifstream f("./Pages/" + parsed[1]);
             if (!f.good())
             {
-                std::ifstream f2("./Pages/error.html");
+                std::ifstream f2("./Pages/404.html");
                 if (f2.good())
                 {
                     std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
