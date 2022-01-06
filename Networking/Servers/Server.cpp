@@ -1,10 +1,10 @@
 #include "Server.hpp"
 
-Server::Server(char *conf, std::string path)
+Server::Server(char *conf)
 {
     Parse parse;
 
-    parse.readConfFile(conf, path);
+    parse.readConfFile(conf);
     parse.getConfigurationData();
     parse.printStructs();
     _server = parse.getServerContent();

@@ -6,7 +6,7 @@
 class Server : public Parse
 {
     public:
-        Server(char *conf, std::string path);
+        Server(char *conf);
         ~Server();
 
         void                run_server();

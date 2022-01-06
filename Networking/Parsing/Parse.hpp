@@ -31,7 +31,7 @@ class Parse : public Utils
     public:
         Parse();
 
-        void                        readConfFile(char *conf, std::string path);
+        void                        readConfFile(char *conf);
         void                        printStructs();
         void                        getConfigurationData();
         std::vector<serverBlock>    getServerContent();

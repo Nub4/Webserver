@@ -6,18 +6,12 @@ void    exit_and_error(std::string str)
     exit(1);
 }
 
-int     main(int ac, char **av, char **env)
+int     main(int ac, char **av)
 {
     if (ac != 2)
         exit_and_error("Error: configuration filename for the argument");
 
-    std::string path;
-    for (int i = 0; env[i] != NULL; i++)
-        if (strncmp(env[i], "PWD", 3) == 0)
-            path = env[i];
-    path.erase(0, 4);
-
-    Server server(av[1], path);
+    Server server(av[1]);
  
     server.setup_server();
     server.run_server();

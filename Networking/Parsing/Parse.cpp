@@ -18,11 +18,11 @@ Parse::Parse()
     _location_names.push_back("cgi_path");
 }
 
-void    Parse::readConfFile(char *conf, std::string path)
+void    Parse::readConfFile(char *conf)
 {
     std::string line;
     std::string filename = conf;
-    std::string str = path + "/confs/" + filename;
+    std::string str = "./confs/" + filename;
     std::ifstream infile;
     int pos;
 
