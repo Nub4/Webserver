@@ -255,8 +255,8 @@ void    Parse::_check_same_host()
         return ;
     for (size_t i = 0; i < _serverContent.size(); i++)
         for (size_t j = i + 1; j < _serverContent.size(); j++)
-            if (_serverContent[i].listen == _serverContent[j].listen && _serverContent[i].server_name == _serverContent[j].server_name)
-                _msg_exit("Error, two servers has same server_name and host");
+            if (_serverContent[i].listen[0] == _serverContent[j].listen[0] && _serverContent[i].listen[1] == _serverContent[j].listen[1])
+                _msg_exit("Error, two servers has same port and host");
 }
 
 std::vector<Parse::serverBlock>    Parse::getServerContent() { return _serverContent; }
