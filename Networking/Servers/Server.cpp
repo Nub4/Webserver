@@ -130,7 +130,7 @@ void    Server::_sendToClient(int clientSocket)
     
     oss << "HTTP/1.1 " << _errorCode << " OK\r\n";
     oss << "Cache-Control: no-cache, private\r\n";
-    oss << "Content-type: text/html\r\n";
+    oss << "Content-type: text/css\r\n";
     oss << "Content-Length: " << _content.size() << "\r\n";
     oss << "\r\n";
     oss << _content;

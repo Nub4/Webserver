@@ -151,7 +151,6 @@ void    Parse::_get_conf(int start, int end)
 {
     size_t pos = 0;
     struct serverBlock serv;
-    struct locationBlock loct;
     std::string temp = _conf_file;
     temp.erase(0, start);
     temp.erase(end - start, _conf_file.size() - (end - start));
@@ -161,6 +160,7 @@ void    Parse::_get_conf(int start, int end)
 
     for (std::vector<std::string>::iterator it = words.begin(); it != words.end(); it++)
     {
+        struct locationBlock loct;
         if (_is_validName(*it))
         {
             memset(&loct, 0, sizeof(loct));
@@ -193,6 +193,7 @@ void    Parse::_get_conf(int start, int end)
         else
             _msg_exit("configuration file error");
     }
+    
     _serverContent.push_back(serv);
 }
 
