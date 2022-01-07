@@ -1,14 +1,9 @@
 #include "Server.hpp"
 
-Server::Server(char *conf)
+Server::Server(serverBlock server)
+	: _server(server)
 {
-    Parse parse;
-
-
-    parse.readConfFile(conf);
-    parse.getConfigurationData();
-    parse.printStructs();
-    _server = parse.getServerContent();
+	setup_server();
 }
 
 Server::~Server() { close(_serverSocket); }
@@ -22,7 +17,7 @@ void    Server::setup_server()
     _check(_serverSocket, "socket");
 
     _address.sin_family = AF_INET;
-    _address.sin_port = htons(atoi(_server[0].listen[0].c_str()));
+    _address.sin_port = htons(atoi(_server.listen[0].c_str()));
     _address.sin_addr.s_addr = htonl(INADDR_ANY);
     memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
 
@@ -131,7 +126,7 @@ void    Server::_sendToClient(int clientSocket)
     
     oss << "HTTP/1.1 " << _errorCode << " OK\r\n";
     oss << "Cache-Control: no-cache, private\r\n";
-    oss << "Content-type: text/css\r\n";
+    oss << "Content-type: text/html\r\n";
     oss << "Content-Length: " << _content.size() << "\r\n";
     oss << "\r\n";
     oss << _content;
@@ -154,3 +149,5 @@ void    Server::_check(int a, std::string str)
         exit(1);
     }
 }
+
+int Server::getServerSocket() { return _serverSocket; }

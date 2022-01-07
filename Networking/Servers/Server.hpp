@@ -6,11 +6,12 @@
 class Server : public Parse
 {
     public:
-        Server(char *conf);
+        Server(serverBlock server);
         ~Server();
 
         void                run_server();
         void                setup_server();
+		int		getServerSocket();
 
     private:
         int                         _fdmax;
@@ -19,7 +20,7 @@ class Server : public Parse
         char                        _buffer[BUFF_SIZE];
         std::string                 _content;
         int                         _errorCode;
-        std::vector<serverBlock>    _server;
+        serverBlock				    _server;
 
         void    _check(int a, std::string str);
         int     _accept();
