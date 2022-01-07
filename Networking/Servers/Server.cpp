@@ -4,6 +4,7 @@ Server::Server(char *conf)
 {
     Parse parse;
 
+
     parse.readConfFile(conf);
     parse.getConfigurationData();
     parse.printStructs();
