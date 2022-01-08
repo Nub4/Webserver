@@ -13,13 +13,15 @@ class Response
         std::string     _content;
         int             _errorCode;
 
-        // std::string     _contentType;
-        // std::string     _contentLength;
-        // std::string     _cacheControl;
+        std::string     _getStatus(int err_code);
+        std::string     _getClientData(std::string type, std::vector<std::string> parsed);
+        std::string     _getCacheControl();
+        std::string     _getContentType(std::string type);
+        std::string     _getContentLength(int size);
 
-        // std::string     _get_header();
+        std::string     _getContent(std::vector<std::string> parsed);
+
         void            _handler(int clientSocket);
-        void            _sendToClient(int clientSocket);
 };
 
 #endif
