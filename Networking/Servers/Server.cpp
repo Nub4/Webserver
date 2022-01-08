@@ -50,8 +50,10 @@ void    Server::_runServer()
                 }
                 else
                 {
-                    _handler(i);
+                    std::map<int, int>::iterator it = _client_server.find(i);
+                    _handler(i, _servers[it->second]);
                     FD_CLR(i, &readfds);
+                    _client_server.erase(i);
                 }
             }
         }
@@ -88,6 +90,7 @@ int     Server::_accept(int i)
     int addrlen = sizeof(_addresses[i]);
     int clientSocket = accept(_serverSockets[i], (struct sockaddr *)&_addresses[i], (socklen_t *)&addrlen);
     _check(clientSocket, "new socket");
+    _client_server[clientSocket] = i;
     return clientSocket;
 }
 

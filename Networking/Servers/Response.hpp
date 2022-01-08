@@ -21,7 +21,7 @@ class Response
 
         std::string     _getContent(std::vector<std::string> parsed);
 
-        void            _handler(int clientSocket);
+        void            _handler(int clientSocket, struct Parse::serverBlock server);
 };
 
 #endif

@@ -2,12 +2,14 @@
 
 Response::Response() {}
 
-void    Response::_handler(int clientSocket)
+void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 {
     std::string output;
     int size;
     int bytes_sending;
     std::string type;
+
+    std::cout << server.listen[0] << std::endl;
     
     memset(_buffer, 0, sizeof(_buffer));
     recv(clientSocket, _buffer, sizeof(_buffer), 0);

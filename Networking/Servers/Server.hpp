@@ -14,6 +14,7 @@ class Server : public Response
         std::vector<struct sockaddr_in> _addresses;
         std::vector<int>                _serverSockets;
         std::vector<Parse::serverBlock> _servers;
+        std::map<int, int>              _client_server;
 
         struct sockaddr_in  _getAddress(struct Parse::serverBlock server);
         void                _runServer();
