@@ -1,13 +1,13 @@
-#include "ResponseHeader.hpp"
+#include "Response.hpp"
 
-ResponseHeader::ResponseHeader()
+Response::Response()
 {
     _contentType = "";
     _contentLength = "";
     _cacheControl = "";
 }
 
-std::string     ResponseHeader::_get_header(int err_code)
+std::string     Response::_get_header(int err_code)
 {
     std::ostringstream oss;
 
@@ -17,7 +17,7 @@ std::string     ResponseHeader::_get_header(int err_code)
     oss << _getContentLength();
 }
 
-std::string     ResponseHeader::_getCacheControl()
+std::string     Response::_getCacheControl()
 {
     
 }

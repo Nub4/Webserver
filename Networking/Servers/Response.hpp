@@ -1,12 +1,12 @@
-#ifndef RESPONSEHEADER_HPP
-# define RESPONSEHEADER_HPP
+#ifndef RESPONSE_HPP
+# define RESPONSE_HPP
 
 # include "../Parsing/Parse.hpp"
 
-class ResponseHeader
+class Response
 {
     public:
-        ResponseHeader();
+        Response();
 
     protected:
         std::string     _contentType;
