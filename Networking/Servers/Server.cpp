@@ -1,11 +1,11 @@
 #include "Server.hpp"
 
-Server::Server(std::vector<serverBlock> servers) : _servers(servers)
+Server::Server(std::vector<Parse::serverBlock> servers) : _servers(servers)
 {
     _fdmax = 0;
     int i = 0;
 
-	for (std::vector<serverBlock>::iterator it = servers.begin(); it != servers.end(); it++)
+	for (std::vector<Parse::serverBlock>::iterator it = servers.begin(); it != servers.end(); it++)
 	{
         _addresses.push_back(_getAddress(*it));
         _serverSockets.push_back(_getSocket(_addresses[i]));
@@ -13,7 +13,7 @@ Server::Server(std::vector<serverBlock> servers) : _servers(servers)
             _fdmax = _serverSockets[i];
         i++;
 	}
-    _run_server();
+    _runServer();
 }
 
 Server::~Server()
@@ -22,7 +22,7 @@ Server::~Server()
         close(*it);
 }
 
-struct sockaddr_in  Server::_getAddress(struct serverBlock server)
+struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
 {
     struct sockaddr_in address;
 
@@ -57,7 +57,7 @@ bool    Server::_isNewConnection(int i)
     return false;
 }
 
-int     Server::_find_socket(int i)
+int     Server::_findServer(int i)
 {
     size_t a = 0;
 
@@ -66,7 +66,7 @@ int     Server::_find_socket(int i)
     return a;
 }
 
-void    Server::_run_server()
+void    Server::_runServer()
 {
     fd_set readfds;
 
@@ -87,7 +87,7 @@ void    Server::_run_server()
             {
                 if (_isNewConnection(i) == true)
                 {
-                    int clientSocket = _accept(_find_socket(i));
+                    int clientSocket = _accept(_findServer(i));
                     FD_SET(clientSocket, &readfds);
                     if (clientSocket > _fdmax)
                         _fdmax = clientSocket;

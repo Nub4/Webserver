@@ -3,10 +3,10 @@
 
 # include "../Parsing/Parse.hpp"
 
-class Server : public Parse
+class Server : public Utils
 {
     public:
-        Server(std::vector<serverBlock> servers);
+        Server(std::vector<Parse::serverBlock> servers);
         ~Server();
 
     private:
@@ -16,12 +16,12 @@ class Server : public Parse
         std::string                     _content;
         int                             _errorCode;
         std::vector<int>                _serverSockets;
-        std::vector<serverBlock> _servers;
+        std::vector<Parse::serverBlock> _servers;
 
-        struct sockaddr_in  _getAddress(struct serverBlock server);
-        void                _run_server();
+        struct sockaddr_in  _getAddress(struct Parse::serverBlock server);
+        void                _runServer();
         int                 _getSocket(struct sockaddr_in address);
-        int                 _find_socket(int i);
+        int                 _findServer(int i);
         bool                _isNewConnection(int i);
         void                _check(int a, std::string str);
         int                 _accept(int i);
