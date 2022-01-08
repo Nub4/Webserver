@@ -1,9 +1,9 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "../Parsing/Parse.hpp"
+# include "Response.hpp"
 
-class Server : public Utils
+class Server : public Response
 {
     public:
         Server(std::vector<Parse::serverBlock> servers);
@@ -12,9 +12,6 @@ class Server : public Utils
     private:
         int                             _fdmax;
         std::vector<struct sockaddr_in> _addresses;
-        char                            _buffer[BUFF_SIZE];
-        std::string                     _content;
-        int                             _errorCode;
         std::vector<int>                _serverSockets;
         std::vector<Parse::serverBlock> _servers;
 
@@ -25,8 +22,6 @@ class Server : public Utils
         bool                _isNewConnection(int i);
         void                _check(int a, std::string str);
         int                 _accept(int i);
-        void                _handler(int clientSocket);
-        void                _sendToClient(int clientSocket);
 };
 
 #endif
