@@ -11,9 +11,11 @@ int     main(int ac, char **av)
     if (ac != 2)
         exit_and_error("Error: configuration filename for the argument");
 
-    Server server(av[1]);
- 
-    server.setup_server();
-    server.run_server();
+    Parse parse;
+    parse.readConfFile(av[1]);
+    parse.getConfigurationData();
+
+    Server server(parse.getServerContent());
+
     return 0;
 }
