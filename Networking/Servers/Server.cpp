@@ -63,10 +63,27 @@ void    Server::_runServer()
 struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
 {
     struct sockaddr_in address;
+    std::ifstream infile;
+    std::string line;
+    std::string res;
+    int pos = 0;
 
+    infile.open("/etc/hosts");
+    if (infile.is_open())
+    {
+        while (getline(infile, line))
+        {
+            if (line.find(server.listen[1]) != std::string::npos)
+            {
+                pos = line.find(' ');
+                if (line.find("::") == std::string::npos)
+                    res = line.substr(0, pos);
+            }
+        }
+    }
     address.sin_family = AF_INET;
     address.sin_port = htons(atoi(server.listen[0].c_str()));
-    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_addr.s_addr = inet_addr(res.c_str());
     memset(address.sin_zero, '\0', sizeof address.sin_zero);
     return address;
 }

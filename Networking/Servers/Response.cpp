@@ -15,6 +15,7 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::istringstream iss(_buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
+    
     _setBlockData(parsed[1], server, &type);
     
     output = _getClientData(type, parsed);
@@ -27,10 +28,10 @@ void    Response::_setBlockData(std::string location, struct Parse::serverBlock 
 {
     _root = "/www/";
     _index = location;
-    // if (!server.client_max_body_size.empty())
-    //     _max_size = server.client_max_body_size;
-    // else
-    //     _max_size = 1048576;
+    if (!server.client_max_body_size.empty())
+        _max_size = atoi(server.client_max_body_size.c_str());
+    else
+        _max_size = 1048576;
     if (!server.location.empty())
     {
         for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
@@ -54,10 +55,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
     std::ostringstream oss;
     std::string content;
 
-    _errorCode = 200;
-    content = _getContent(parsed);
-    if (_errorCode == 404)
-        type = "html";
+    content = _getContent(parsed, &type);    
     oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
     oss << _getCacheControl();
     oss << _getContentType(type);
@@ -68,8 +66,11 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
     return oss.str();
 }
 
-std::string     Response::_getContent(std::vector<std::string> parsed)
+std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type)
 {
+    std::string content;
+
+    _errorCode = 200;
     if (parsed[0] == "GET" && parsed[1].size() != 1)
     {
         std::ifstream f("." + _root + _index);
@@ -79,15 +80,16 @@ std::string     Response::_getContent(std::vector<std::string> parsed)
             if (f2.good())
             {
                 std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
-                _content = str;
+                content = str;
                 _errorCode = 404;
+                *type = "html";
             }
             f2.close();
         }
         else
         {
             std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-            _content = str;
+            content = str;
             _errorCode = 200;
         }
         f.close();
@@ -98,12 +100,25 @@ std::string     Response::_getContent(std::vector<std::string> parsed)
         if (f.good())
         {
             std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-            _content = str;
+            content = str;
             _errorCode = 200;
+            *type = "html";
         }
         f.close();
     }
-    return _content;
+    if (content.size() > _max_size)
+    {
+        std::ifstream f("./www/413.html");
+        if (f.good())
+        {
+            std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+            content = str;
+            _errorCode = 413;
+            *type = "html";
+        }
+        f.close();
+    }
+    return content;
 }
 
 std::string     Response::_getContentLength(int size)
@@ -139,14 +154,15 @@ std::string     Response::_getContentType(std::string type)
 
     str = "Content-Type: ";
     if (type == "jpeg" || type == "jpg")
-        str += "image/jpeg\r\n";
+        str += "image/jpeg";
     else if (type == "html" || type == "/")
-        str += "text/html\r\n";
+        str += "text/html";
     else if (type == "png")
-        str += "image/png\r\n";
+        str += "image/png";
     else if (type == "bmp")
-        str += "image/bmp\r\n";
+        str += "image/bmp";
     else
-        str += "text/plain\r\n";
+        str += "text/plain";
+    str += "\r\n";
     return str;
 }
