@@ -14,7 +14,7 @@ class Response
 
         std::string     _root;
         std::string     _index;
-        size_t          _max_size;
+        int          _max_size;
 
         std::string     _getStatus(int err_code);
         std::string     _getClientData(std::string type, std::vector<std::string> parsed);
@@ -22,8 +22,12 @@ class Response
         std::string     _getContentType(std::string type);
         std::string     _getContentLength(int size);
         std::string     _getContent(std::vector<std::string> parsed, std::string *type);
+        std::string     _get404(std::string *type);
+        std::string     _get413(std::string *type);
+        std::string     _getFile(std::ifstream *f);
+        std::string     _getDefaultFile(std::string *type);
         void            _handler(int clientSocket, struct Parse::serverBlock server);
-        void            _setBlockData(std::string location, struct Parse::serverBlock server, std::string *type);
+        void            _setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type);
 };
 
 #endif
