@@ -12,17 +12,6 @@ int     main(int ac, char **av)
 	if (ac != 2)
 		exit_and_error("Error: configuration filename for the argument");
 
-<<<<<<< HEAD
-	Parse parse;
-	parse.readConfFile(av[1]);
-	parse.getConfigurationData();
-	std::vector<Parse::serverBlock> config = parse.getServerContent();
-	
-	// Let cluster take config file
-	Cluster cluster(config);
-
-	return 0;
-=======
     Parse parse;
     parse.readConfFile(av[1]);
     parse.getConfigurationData();
@@ -30,5 +19,4 @@ int     main(int ac, char **av)
     Server server(parse.getServerContent());
 
     return 0;
->>>>>>> main
 }
