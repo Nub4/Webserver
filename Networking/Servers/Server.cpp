@@ -87,32 +87,11 @@ int     Server::_getSocket(struct sockaddr_in address)
 
 int     Server::_accept(int i)
 {
-<<<<<<< HEAD
-    std::string output;
-    int size;
-    int bytes_sending;
-    std::ostringstream oss;
-    
-    oss << "HTTP/1.1 " << _errorCode << " OK\r\n";
-    oss << "Cache-Control: no-cache, private\r\n";
-    oss << "Content-type: text/html\r\n";
-    oss << "Content-Length: " << _content.size() << "\r\n";
-    oss << "\r\n";
-    oss << _content;
-
-    output = oss.str();
-    size = output.size();
-
-    bytes_sending = send(clientSocket, output.c_str(), size, 0);
-    _check(bytes_sending, "send");
-    close(clientSocket);
-=======
     int addrlen = sizeof(_addresses[i]);
     int clientSocket = accept(_serverSockets[i], (struct sockaddr *)&_addresses[i], (socklen_t *)&addrlen);
     _check(clientSocket, "new socket");
     _client_server[clientSocket] = i;
     return clientSocket;
->>>>>>> main
 }
 
 void    Server::_check(int a, std::string str)
@@ -126,9 +105,6 @@ void    Server::_check(int a, std::string str)
     }
 }
 
-<<<<<<< HEAD
-int Server::getServerSocket() { return _serverSocket; }
-=======
 bool    Server::_isNewConnection(int i)
 {
     size_t a = -1;
@@ -147,4 +123,3 @@ int     Server::_findServer(int i)
         a++;
     return a;
 }
->>>>>>> main
