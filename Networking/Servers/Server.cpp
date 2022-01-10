@@ -60,24 +60,40 @@ void    Server::_runServer()
     }
 }
 
+bool    Server::_isIpAddress(std::string host)
+{
+    int count = 0;
+
+    for (std::string::iterator it = host.begin(); it != host.end(); it++)
+        if (*it == '.')
+            count++;
+    if (count == 3)
+        return true;
+    return false;
+}
+
 struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
 {
     struct sockaddr_in address;
-    std::ifstream infile;
-    std::string line;
     std::string res;
     int pos = 0;
 
-    infile.open("/etc/hosts");
-    if (infile.is_open())
+    if (_isIpAddress(server.listen[1]))
+        res = server.listen[1];
+    else
     {
-        while (getline(infile, line))
+        std::ifstream infile("/etc/hosts");
+        if (infile.is_open())
         {
-            if (line.find(server.listen[1]) != std::string::npos)
+            std::string line;
+            while (getline(infile, line))
             {
-                pos = line.find(' ');
-                if (line.find("::") == std::string::npos)
-                    res = line.substr(0, pos);
+                if (line.find(server.listen[1]) != std::string::npos)
+                {
+                    pos = line.find(' ');
+                    if (line.find("::") == std::string::npos)
+                        res = line.substr(0, pos);
+                }
             }
         }
     }
