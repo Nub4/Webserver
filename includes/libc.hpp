@@ -22,6 +22,7 @@
 # include <list>
 # include <iterator>
 # include <algorithm>
+# include <cerrno>
 
 # define PORT 3490
 # define BACKLOG 1024

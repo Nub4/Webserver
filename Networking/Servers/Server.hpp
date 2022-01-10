@@ -1,31 +1,28 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "../Parsing/Parse.hpp"
+# include "Response.hpp"
 
-class Server : public Parse
+class Server : public Response
 {
     public:
-        Server(serverBlock server);
+        Server(std::vector<Parse::serverBlock> servers);
         ~Server();
 
-        void                run_server();
-        void                setup_server();
-		int		getServerSocket();
-
     private:
-        int                         _fdmax;
-        struct sockaddr_in          _address;
-        int                         _serverSocket;
-        char                        _buffer[BUFF_SIZE];
-        std::string                 _content;
-        int                         _errorCode;
-        serverBlock				    _server;
+        int                             _fdmax;
+        std::vector<struct sockaddr_in> _addresses;
+        std::vector<int>                _serverSockets;
+        std::vector<Parse::serverBlock> _servers;
+        std::map<int, int>              _client_server;
 
-        void    _check(int a, std::string str);
-        int     _accept();
-        void    _handler(int clientSocket);
-        void    _sendToClient(int clientSocket);
+        struct sockaddr_in  _getAddress(struct Parse::serverBlock server);
+        void                _runServer();
+        int                 _getSocket(struct sockaddr_in address);
+        int                 _findServer(int i);
+        bool                _isNewConnection(int i);
+        void                _check(int a, std::string str);
+        int                 _accept(int i);
 };
 
 #endif

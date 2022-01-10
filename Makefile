@@ -6,10 +6,9 @@ SRCS_DIR2 := Networking/Parsing
 
 SRCS_DIR3 := Networking/Utils
 
-SRCS :=	main.cpp \
-		Server.cpp \
-		Cluster.cpp \
-
+SRCS := main.cpp \
+		 Server.cpp \
+		 Response.cpp
 
 SRCS2 := Parse.cpp
 

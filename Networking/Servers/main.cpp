@@ -12,6 +12,7 @@ int     main(int ac, char **av)
 	if (ac != 2)
 		exit_and_error("Error: configuration filename for the argument");
 
+<<<<<<< HEAD
 	Parse parse;
 	parse.readConfFile(av[1]);
 	parse.getConfigurationData();
@@ -21,4 +22,13 @@ int     main(int ac, char **av)
 	Cluster cluster(config);
 
 	return 0;
+=======
+    Parse parse;
+    parse.readConfFile(av[1]);
+    parse.getConfigurationData();
+
+    Server server(parse.getServerContent());
+
+    return 0;
+>>>>>>> main
 }
