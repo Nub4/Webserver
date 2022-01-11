@@ -16,6 +16,11 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
 
+    // check what method we receive, and if that that directory allow that method:
+    // GET = sending received data to the client (read)
+    // POST = modifying the underlying data, creates new resources (create)
+    // DELETE = deleting existing data (delete)
+
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
 
