@@ -11,6 +11,12 @@ std::vector<unsigned char>  Utils::readBinaryFile(char *conf, std::string path)
     return binary_file;
 }
 
+/* 
+* These ones
+* are for
+* Parse class:
+*/
+
 int     Utils::_checkClosingBracket(int pos, std::string s)
 {
     int mark = 1;
@@ -133,4 +139,110 @@ int     Utils::_ft_isprint(int c)
 		return (1);
 	else
 		return (0);
+}
+
+/* 
+* These ones
+* are for
+* Response class:
+*/
+
+std::string Utils::_get413(std::string *type)
+{
+    std::string content;
+    std::ifstream f("./www/413.html");
+    if (f.good())
+    {
+        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        content = str;
+        _errorCode = 413;
+        *type = "html";
+    }
+    f.close();
+    return content;
+}
+
+std::string Utils::_getFile(std::ifstream *f)
+{
+    std::string str((std::istreambuf_iterator<char>(*f)), std::istreambuf_iterator<char>());
+    std::string content = str;
+    _errorCode = 200;
+    return content;
+}
+
+std::string Utils::_get404(std::string *type)
+{
+    std::string content;
+    std::ifstream f2("./www/404.html");
+    if (f2.good())
+    {
+        std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
+        content = str;
+        _errorCode = 404;
+        *type = "html";
+    }
+    f2.close();
+    return content;
+}
+
+std::string Utils::_getDefaultFile(std::string *type)
+{
+    std::string content;
+    std::ifstream f("./www/default.html");
+    if (f.good())
+    {
+        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        content = str;
+        _errorCode = 200;
+        *type = "html";
+    }
+    f.close();
+    return content;
+}
+
+
+std::string     Utils::_getContentLength(int size)
+{
+    std::ostringstream oss;
+
+    oss << "Content-Length: ";
+    oss << size << "\r\n";
+    return oss.str();
+}
+
+std::string     Utils::_getCacheControl()
+{
+    std::string str;
+
+    str = "Cache-Control: no-cache, private\r\n";
+    return str;
+}
+
+std::string     Utils::_getStatus(int err_code)
+{
+    if (err_code == 200)
+        return " OK\r\n";
+    else if (err_code == 413)
+        return "Payload Too Large\r\n";
+    else
+        return " Not Found\r\n";
+}
+
+std::string     Utils::_getContentType(std::string type)
+{
+    std::string str;
+
+    str = "Content-Type: ";
+    if (type == "jpeg" || type == "jpg")
+        str += "image/jpeg";
+    else if (type == "html" || type == "/")
+        str += "text/html";
+    else if (type == "png")
+        str += "image/png";
+    else if (type == "bmp")
+        str += "image/bmp";
+    else
+        str += "text/plain";
+    str += "\r\n";
+    return str;
 }
