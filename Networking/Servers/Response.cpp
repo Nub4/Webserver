@@ -10,13 +10,13 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::string type;
     char buffer[BUFF_SIZE] = {0};
 
-    _errorCode = 200;
     recv(clientSocket, buffer, sizeof(buffer), 0);
     std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
 
+    _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
 
     output = _getClientData(type, parsed);
@@ -25,16 +25,18 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     close(clientSocket);
 }
 
-
+void    Response::_setDefaultData(std::string location)
+{
+    _root = "/www/";
+    _index = location;
+    _max_size = 1048576;
+    _errorCode = 200;
+}
 
 void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
 {
-    _root = "/www/";
-    _index = parsed[1];
     if (!server.client_max_body_size.empty())
         _max_size = atoi(server.client_max_body_size.c_str());
-    else
-        _max_size = 1048576;
     if (!server.location.empty())
     {
         for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)

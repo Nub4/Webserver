@@ -13,6 +13,7 @@ class Response : public Utils
         std::string     _getContent(std::vector<std::string> parsed, std::string *type);
         void            _handler(int clientSocket, struct Parse::serverBlock server);
         void            _setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type);
+        void            _setDefaultData(std::string location);
 };
 
 #endif
