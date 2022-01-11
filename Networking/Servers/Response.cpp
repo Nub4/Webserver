@@ -6,7 +6,6 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
 {
     std::string output;
     int size;
-    int bytes_sending;
     std::string type;
     char buffer[BUFF_SIZE] = {0};
 
@@ -22,8 +21,30 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
 
     output = _getClientData(type, parsed);
     size = output.size();
-    bytes_sending = send(clientSocket, output.c_str(), size, 0);
+    if (_sendall(clientSocket, output.c_str(), &size) == -1)
+    {
+        std::cerr << "sendall\n";
+        std::cout << "Only " << size << " bytes sended because of the error\n";
+    }
     return 1;
+}
+
+int     Response::_sendall(int clientSocket, const char *buf, int *size)
+{
+    int total = 0;
+    int bytesleft = *size;
+    int n;
+
+    while (total < *size)
+    {
+        n = send(clientSocket, buf, bytesleft, 0);
+        if (n == -1)
+            break ;
+        total += n;
+        bytesleft -= n;
+    }
+    *size = total;
+    return n == -1 ? -1 : 0;
 }
 
 void    Response::_setDefaultData(std::string location)
