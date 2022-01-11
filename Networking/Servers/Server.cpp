@@ -60,13 +60,46 @@ void    Server::_runServer()
     }
 }
 
+bool    Server::_isIpAddress(std::string host)
+{
+    int count = 0;
+
+    for (std::string::iterator it = host.begin(); it != host.end(); it++)
+        if (*it == '.')
+            count++;
+    if (count == 3)
+        return true;
+    return false;
+}
+
 struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
 {
     struct sockaddr_in address;
+    std::string res;
+    int pos = 0;
 
+    if (_isIpAddress(server.listen[1]))
+        res = server.listen[1];
+    else
+    {
+        std::ifstream infile("/etc/hosts");
+        if (infile.is_open())
+        {
+            std::string line;
+            while (getline(infile, line))
+            {
+                if (line.find(server.listen[1]) != std::string::npos)
+                {
+                    pos = line.find(' ');
+                    if (line.find("::") == std::string::npos)
+                        res = line.substr(0, pos);
+                }
+            }
+        }
+    }
     address.sin_family = AF_INET;
     address.sin_port = htons(atoi(server.listen[0].c_str()));
-    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_addr.s_addr = inet_addr(res.c_str());
     memset(address.sin_zero, '\0', sizeof address.sin_zero);
     return address;
 }

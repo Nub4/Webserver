@@ -9,33 +9,37 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     int bytes_sending;
     std::string type;
 
+    _errorCode = 200;
     memset(_buffer, 0, sizeof(_buffer));
     recv(clientSocket, _buffer, sizeof(_buffer), 0);
     std::cout << _buffer << std::endl;
     std::istringstream iss(_buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
-    _setBlockData(parsed[1], server, &type);
-    
+
+    _setBlockData(parsed, server, &type);
+
     output = _getClientData(type, parsed);
     size = output.size();
     bytes_sending = send(clientSocket, output.c_str(), size, 0);
     close(clientSocket);
 }
 
-void    Response::_setBlockData(std::string location, struct Parse::serverBlock server, std::string *type)
+
+
+void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
 {
     _root = "/www/";
-    _index = location;
-    // if (!server.client_max_body_size.empty())
-    //     _max_size = server.client_max_body_size;
-    // else
-    //     _max_size = 1048576;
+    _index = parsed[1];
+    if (!server.client_max_body_size.empty())
+        _max_size = atoi(server.client_max_body_size.c_str());
+    else
+        _max_size = 1048576;
     if (!server.location.empty())
     {
         for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
         {
-            if (it->name == location)
+            if (it->name == parsed[1])
             {
                 if (!it->root.empty())
                     _root = it->root;
@@ -47,6 +51,10 @@ void    Response::_setBlockData(std::string location, struct Parse::serverBlock 
             }
         }
     }
+    for (std::vector<std::string>::iterator it = parsed.begin(); it != parsed.end(); it++)
+        if (it->find("Content-Length:") != std::string::npos)
+            if (atoi((it + 1)->c_str()) > _max_size)
+                _errorCode = 413;
 }
 
 std::string     Response::_getClientData(std::string type, std::vector<std::string> parsed)
@@ -54,10 +62,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
     std::ostringstream oss;
     std::string content;
 
-    _errorCode = 200;
-    content = _getContent(parsed);
-    if (_errorCode == 404)
-        type = "html";
+    content = _getContent(parsed, &type);    
     oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
     oss << _getCacheControl();
     oss << _getContentType(type);
@@ -68,43 +73,80 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
     return oss.str();
 }
 
-std::string     Response::_getContent(std::vector<std::string> parsed)
+std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type)
 {
-    if (parsed[0] == "GET" && parsed[1].size() != 1)
-    {
-        std::ifstream f("." + _root + _index);
-        if (!f.good())
-        {
-            std::ifstream f2("./www/404.html");
-            if (f2.good())
-            {
-                std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
-                _content = str;
-                _errorCode = 404;
-            }
-            f2.close();
-        }
-        else
-        {
-            std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-            _content = str;
-            _errorCode = 200;
-        }
-        f.close();
-    }
+    std::string content;
+    if (_errorCode == 413)
+        content = _get413(type);
     else
     {
-        std::ifstream f("./www/default.html");
-        if (f.good())
+        if (parsed[0] == "GET" && parsed[1].size() != 1)
         {
-            std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-            _content = str;
-            _errorCode = 200;
+            std::ifstream f("." + _root + _index);
+            if (!f.good())
+                content = _get404(type);
+            else
+                content = _getFile(&f);
+            f.close();
         }
-        f.close();
+        else
+            content = _getDefaultFile(type);
     }
-    return _content;
+    return content;
 }
+std::string Response::_get413(std::string *type)
+{
+    std::string content;
+    std::ifstream f("./www/413.html");
+    if (f.good())
+    {
+        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        content = str;
+        _errorCode = 413;
+        *type = "html";
+    }
+    f.close();
+    return content;
+}
+
+std::string Response::_getFile(std::ifstream *f)
+{
+    std::string str((std::istreambuf_iterator<char>(*f)), std::istreambuf_iterator<char>());
+    std::string content = str;
+    _errorCode = 200;
+    return content;
+}
+
+std::string Response::_get404(std::string *type)
+{
+    std::string content;
+    std::ifstream f2("./www/404.html");
+    if (f2.good())
+    {
+        std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
+        content = str;
+        _errorCode = 404;
+        *type = "html";
+    }
+    f2.close();
+    return content;
+}
+
+std::string Response::_getDefaultFile(std::string *type)
+{
+    std::string content;
+    std::ifstream f("./www/default.html");
+    if (f.good())
+    {
+        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        content = str;
+        _errorCode = 200;
+        *type = "html";
+    }
+    f.close();
+    return content;
+}
+
 
 std::string     Response::_getContentLength(int size)
 {
@@ -139,14 +181,15 @@ std::string     Response::_getContentType(std::string type)
 
     str = "Content-Type: ";
     if (type == "jpeg" || type == "jpg")
-        str += "image/jpeg\r\n";
+        str += "image/jpeg";
     else if (type == "html" || type == "/")
-        str += "text/html\r\n";
+        str += "text/html";
     else if (type == "png")
-        str += "image/png\r\n";
+        str += "image/png";
     else if (type == "bmp")
-        str += "image/bmp\r\n";
+        str += "image/bmp";
     else
-        str += "text/plain\r\n";
+        str += "text/plain";
+    str += "\r\n";
     return str;
 }
