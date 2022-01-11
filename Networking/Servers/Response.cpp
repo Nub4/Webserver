@@ -2,7 +2,7 @@
 
 Response::Response() {}
 
-void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
+int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
 {
     std::string output;
     int size;
@@ -10,7 +10,8 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::string type;
     char buffer[BUFF_SIZE] = {0};
 
-    recv(clientSocket, buffer, sizeof(buffer), 0);
+    if (recv(clientSocket, buffer, sizeof(buffer), 0) <= 0)
+        return -1;
     std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
@@ -22,7 +23,7 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     output = _getClientData(type, parsed);
     size = output.size();
     bytes_sending = send(clientSocket, output.c_str(), size, 0);
-    close(clientSocket);
+    return 1;
 }
 
 void    Response::_setDefaultData(std::string location)
