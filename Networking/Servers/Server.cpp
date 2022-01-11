@@ -52,12 +52,10 @@ void    Server::_runServer()
                 {
                     std::map<int, int>::iterator it = _client_server.find(i);
                     if (_handler(i, _servers[it->second]) == -1)
-                    {
                         std::cerr << "recv\n";
-                        close(i);
-                        FD_CLR(i, &master);
-                        _client_server.erase(i);
-                    }
+                    close(i);
+                    FD_CLR(i, &master);
+                    _client_server.erase(i);
                 }
             }
         }
