@@ -34,6 +34,32 @@ int     Utils::_checkClosingBracket(int pos, std::string s)
     return i;
 }
 
+bool    Utils::_isCorrectHost(std::string host)
+{
+    int count = 0;
+
+    for (std::string::iterator it = host.begin(); it != host.end(); it++)
+        if (*it == '.')
+            count++;
+    if (count == 3)
+        return true;
+    std::ifstream infile("/etc/hosts");
+    if (infile.is_open())
+    {
+        std::string line;
+        while (getline(infile, line))
+        {
+            if (line.find(host) != std::string::npos)
+            {
+                infile.close();
+                return true;
+            }
+        }
+    }
+    infile.close();
+    return false;
+}
+
 void    Utils::_checkBackChar(std::string *x, std::string name)
 {
     if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
@@ -44,6 +70,13 @@ void    Utils::_checkBackChar(std::string *x, std::string name)
 void    Utils::_check_listen(std::vector<std::string> *v)
 {
     _checkBackChar(&v->back(), "listen");
+    if ((*v).size() == 1)
+    {
+        if (_isCorrectHost((*v)[0]))
+            v->insert(v->begin(), "8080");
+        else
+            v->push_back("127.0.0.1");
+    }
     if ((*v).size() > 2 || !_isNumber((*v)[0]) || atoi((*v)[0].c_str()) < 0 || atoi((*v)[0].c_str()) > 65535)
         _msg_exit("configuration file error, listen");
 }

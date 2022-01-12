@@ -17,6 +17,7 @@ class Utils
         int                         _max_size;
         std::vector<std::string>    _method;
 
+        bool    _isCorrectHost(std::string host);
         void    _check_body_size(std::string *x);
         void    _check_listen(std::vector<std::string> *v);   
         int     _ft_isprint(int c);

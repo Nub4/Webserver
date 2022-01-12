@@ -80,18 +80,6 @@ struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
     std::string res;
     int pos = 0;
 
-    if (server.listen.empty())
-    {
-        server.listen.push_back("80");
-        server.listen.push_back("127.0.0.1");
-    }
-    else if (server.listen.size() == 1)
-    {
-        if (_isIpAddress(server.listen[0]))
-            server.listen.insert(server.listen.begin(), "80");
-        else
-            server.listen.push_back("127.0.0.1");
-    }
     if (_isIpAddress(server.listen[1]))
         res = server.listen[1];
     else
@@ -110,7 +98,9 @@ struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
                 }
             }
         }
+        infile.close();
     }
+    std::cout << server.listen[0] << " " << res << std::endl;
     address.sin_family = AF_INET;
     address.sin_port = htons(atoi(server.listen[0].c_str()));
     address.sin_addr.s_addr = inet_addr(res.c_str());
