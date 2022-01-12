@@ -16,11 +16,6 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
 
-    // check what method we receive, and if that that directory allow that method:
-    // GET = sending received data to the client (read)
-    // POST = modifying the underlying data, creates new resources (create)
-    // DELETE = deleting existing data (delete)
-
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
 
@@ -45,6 +40,8 @@ void    Response::_setDefaultData(std::string location)
 
 void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
 {
+    int mark = 0;
+
     if (!server.client_max_body_size.empty())
         _max_size = atoi(server.client_max_body_size.c_str());
     if (!server.location.empty())
@@ -68,6 +65,8 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
                         }
                         f.close();
                     }
+                    if (i == it->index.size())
+                        i--;
                     _index = it->index[i];
                     *type = _index.substr(_index.rfind(".") + 1, _index.size() - _index.rfind("."));
                 }
@@ -84,6 +83,11 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
         if (it->find("Content-Length:") != std::string::npos)
             if (atoi((it + 1)->c_str()) > _max_size)
                 _errorCode = 413;
+    for (std::vector<std::string>::iterator it = _method.begin(); it != _method.end(); it++)
+        if (parsed[0] == *it)
+            mark = 1;
+    if (mark == 0)
+        _errorCode = 405;
 }
 
 std::string     Response::_getClientData(std::string type, std::vector<std::string> parsed)
@@ -97,7 +101,6 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
     oss << _getContentType(type);
     oss << _getContentLength(content.size());
     oss << "\r\n";
-//   std::cout << oss.str() << std::endl;
     oss << content;
     return oss.str();
 }

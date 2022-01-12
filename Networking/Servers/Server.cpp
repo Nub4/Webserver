@@ -100,7 +100,6 @@ struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
         }
         infile.close();
     }
-    std::cout << server.listen[0] << " " << res << std::endl;
     address.sin_family = AF_INET;
     address.sin_port = htons(atoi(server.listen[0].c_str()));
     address.sin_addr.s_addr = inet_addr(res.c_str());
