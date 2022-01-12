@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include "Cluster.hpp"
 
 void    exit_and_error(std::string str)
 {
