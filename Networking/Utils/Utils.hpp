@@ -16,6 +16,7 @@ class Utils
         std::string                 _index;
         int                         _max_size;
         std::vector<std::string>    _method;
+        std::map<int, std::string>  _error_page;
 
         bool    _isCorrectHost(std::string host);
         void    _check_body_size(std::string *x);
@@ -30,9 +31,9 @@ class Utils
         void    _check_autoindex(std::string *x);
         void    _check_error_page(std::map<int, std::string> *m);
 
-        std::string     _get404(std::string *type);
-        std::string     _get405(std::string *type);
-        std::string     _get413(std::string *type);
+        int             _sendall(int clientSocket, const char *buf, int *size);
+        void            _setErrorPages();
+        std::string     _getErrorPage(std::string *type);
         std::string     _getFile(std::ifstream *f);
         std::string     _getDefaultFile(std::string *type);
         std::string     _getCacheControl();

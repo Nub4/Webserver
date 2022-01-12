@@ -180,24 +180,17 @@ int     Utils::_ft_isprint(int c)
 * Response class:
 */
 
-std::string Utils::_get413(std::string *type)
+void    Utils::_setErrorPages()
 {
-    std::string content;
-    std::ifstream f("./www/413.html");
-    if (f.good())
-    {
-        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-        content = str;
-        *type = "html";
-    }
-    f.close();
-    return content;
+    _error_page[404] = "404.html";
+    _error_page[405] = "405.html";
+    _error_page[413] = "413.html";
 }
 
-std::string Utils::_get405(std::string *type)
+std::string Utils::_getErrorPage(std::string *type)
 {
     std::string content;
-    std::ifstream f("./www/405.html");
+    std::ifstream f("./www/" + _error_page[_errorCode]);
     if (f.good())
     {
         std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
@@ -213,21 +206,6 @@ std::string Utils::_getFile(std::ifstream *f)
     std::string str((std::istreambuf_iterator<char>(*f)), std::istreambuf_iterator<char>());
     std::string content = str;
     _errorCode = 200;
-    return content;
-}
-
-std::string Utils::_get404(std::string *type)
-{
-    std::string content;
-    std::ifstream f2("./www/404.html");
-    if (f2.good())
-    {
-        std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
-        content = str;
-        _errorCode = 404;
-        *type = "html";
-    }
-    f2.close();
     return content;
 }
 
@@ -293,4 +271,22 @@ std::string     Utils::_getContentType(std::string type)
         str += "text/plain";
     str += "\r\n";
     return str;
+}
+
+int     Utils::_sendall(int clientSocket, const char *buf, int *size)
+{
+    int total = 0;
+    int bytesleft = *size;
+    int n;
+
+    while (total < *size)
+    {
+        n = send(clientSocket, buf, bytesleft, 0);
+        if (n == -1)
+            break ;
+        total += n;
+        bytesleft -= n;
+    }
+    *size = total;
+    return n == -1 ? -1 : 0;
 }

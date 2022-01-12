@@ -31,11 +31,15 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
 
 void    Response::_setDefaultData(std::string location)
 {
+    _method.clear();
+    _error_page.clear();
+
     _root = "/www/";
     _index = location;
     _max_size = 1048576;
     _errorCode = 200;
     _method.push_back("GET");
+    _setErrorPages();
 }
 
 void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
@@ -44,6 +48,9 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
 
     if (!server.client_max_body_size.empty())
         _max_size = atoi(server.client_max_body_size.c_str());
+    if (!server.error_page.empty())
+        for (std::map<int, std::string>::iterator it = server.error_page.begin(); it != server.error_page.end(); it++)
+            _error_page[it->first] = it->second;
     if (!server.location.empty())
     {
         for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
@@ -108,17 +115,18 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type)
 {
     std::string content;
-    if (_errorCode == 413)
-        content = _get413(type);
-    else if (_errorCode == 405)
-        content = _get405(type);
+    if (_errorCode >= 400 && _errorCode <= 511)
+        content = _getErrorPage(type);
     else
     {
         if (parsed[0] == "GET" && parsed[1].size() != 1)
         {
             std::ifstream f("." + _root + _index);
             if (!f.good())
-                content = _get404(type);
+            {
+                _errorCode = 404;
+                content = _getErrorPage(type); //_get404(type);
+            }
             else
                 content = _getFile(&f);
             f.close();
@@ -127,22 +135,4 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
             content = _getDefaultFile(type);
     }
     return content;
-}
-
-int     Response::_sendall(int clientSocket, const char *buf, int *size)
-{
-    int total = 0;
-    int bytesleft = *size;
-    int n;
-
-    while (total < *size)
-    {
-        n = send(clientSocket, buf, bytesleft, 0);
-        if (n == -1)
-            break ;
-        total += n;
-        bytesleft -= n;
-    }
-    *size = total;
-    return n == -1 ? -1 : 0;
 }
