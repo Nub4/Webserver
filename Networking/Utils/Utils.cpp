@@ -182,9 +182,9 @@ int     Utils::_ft_isprint(int c)
 
 void    Utils::_setErrorPages()
 {
-    _error_page[404] = "404.html";
-    _error_page[405] = "405.html";
-    _error_page[413] = "413.html";
+    _error_page[404] = "errors/404.html";
+    _error_page[405] = "errors/405.html";
+    _error_page[413] = "errors/413.html";
 }
 
 std::string Utils::_getErrorPage(std::string *type)
