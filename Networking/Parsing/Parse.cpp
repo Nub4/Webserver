@@ -252,6 +252,14 @@ void    Parse::_insert_error_page(std::vector<std::string> words, std::string x,
 
 void    Parse::_check_same_host()
 {
+    for (size_t i = 0; i < _serverContent.size(); i++)
+    {
+        if (_serverContent[i].listen.empty())
+        {
+            _serverContent[i].listen.push_back("8080");
+            _serverContent[i].listen.push_back("127.0.0.1");
+        }
+    }
     if (_serverContent.size() < 2)
         return ;
     for (size_t i = 0; i < _serverContent.size(); i++)

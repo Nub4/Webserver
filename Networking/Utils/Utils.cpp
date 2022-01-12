@@ -34,6 +34,32 @@ int     Utils::_checkClosingBracket(int pos, std::string s)
     return i;
 }
 
+bool    Utils::_isCorrectHost(std::string host)
+{
+    int count = 0;
+
+    for (std::string::iterator it = host.begin(); it != host.end(); it++)
+        if (*it == '.')
+            count++;
+    if (count == 3)
+        return true;
+    std::ifstream infile("/etc/hosts");
+    if (infile.is_open())
+    {
+        std::string line;
+        while (getline(infile, line))
+        {
+            if (line.find(host) != std::string::npos)
+            {
+                infile.close();
+                return true;
+            }
+        }
+    }
+    infile.close();
+    return false;
+}
+
 void    Utils::_checkBackChar(std::string *x, std::string name)
 {
     if (std::count(x->begin(), x->end(), ';') != 1 || x->back() != ';')
@@ -44,6 +70,13 @@ void    Utils::_checkBackChar(std::string *x, std::string name)
 void    Utils::_check_listen(std::vector<std::string> *v)
 {
     _checkBackChar(&v->back(), "listen");
+    if ((*v).size() == 1)
+    {
+        if (_isCorrectHost((*v)[0]))
+            v->insert(v->begin(), "8080");
+        else
+            v->push_back("127.0.0.1");
+    }
     if ((*v).size() > 2 || !_isNumber((*v)[0]) || atoi((*v)[0].c_str()) < 0 || atoi((*v)[0].c_str()) > 65535)
         _msg_exit("configuration file error, listen");
 }
@@ -147,15 +180,21 @@ int     Utils::_ft_isprint(int c)
 * Response class:
 */
 
-std::string Utils::_get413(std::string *type)
+void    Utils::_setErrorPages()
+{
+    _error_page[404] = "404.html";
+    _error_page[405] = "405.html";
+    _error_page[413] = "413.html";
+}
+
+std::string Utils::_getErrorPage(std::string *type)
 {
     std::string content;
-    std::ifstream f("./www/413.html");
+    std::ifstream f("./www/" + _error_page[_errorCode]);
     if (f.good())
     {
         std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
         content = str;
-        _errorCode = 413;
         *type = "html";
     }
     f.close();
@@ -167,21 +206,6 @@ std::string Utils::_getFile(std::ifstream *f)
     std::string str((std::istreambuf_iterator<char>(*f)), std::istreambuf_iterator<char>());
     std::string content = str;
     _errorCode = 200;
-    return content;
-}
-
-std::string Utils::_get404(std::string *type)
-{
-    std::string content;
-    std::ifstream f2("./www/404.html");
-    if (f2.good())
-    {
-        std::string str((std::istreambuf_iterator<char>(f2)), std::istreambuf_iterator<char>());
-        content = str;
-        _errorCode = 404;
-        *type = "html";
-    }
-    f2.close();
     return content;
 }
 
@@ -222,8 +246,10 @@ std::string     Utils::_getStatus(int err_code)
 {
     if (err_code == 200)
         return " OK\r\n";
+    else if (err_code == 405)
+        return " Method Not Allowed\r\n";
     else if (err_code == 413)
-        return "Payload Too Large\r\n";
+        return " Payload Too Large\r\n";
     else
         return " Not Found\r\n";
 }
@@ -245,4 +271,22 @@ std::string     Utils::_getContentType(std::string type)
         str += "text/plain";
     str += "\r\n";
     return str;
+}
+
+int     Utils::_sendall(int clientSocket, const char *buf, int *size)
+{
+    int total = 0;
+    int bytesleft = *size;
+    int n;
+
+    while (total < *size)
+    {
+        n = send(clientSocket, buf, bytesleft, 0);
+        if (n == -1)
+            break ;
+        total += n;
+        bytesleft -= n;
+    }
+    *size = total;
+    return n == -1 ? -1 : 0;
 }

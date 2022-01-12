@@ -24,35 +24,37 @@ Server::~Server()
 
 void    Server::_runServer()
 {
-    fd_set readfds;
+    fd_set master;
 
-    FD_ZERO(&readfds);
+    FD_ZERO(&master);
     for (std::vector<int>::iterator it = _serverSockets.begin(); it != _serverSockets.end(); it++)
     {
-        FD_SET(*it, &readfds);
+        FD_SET(*it, &master);
         if (*it > _fdmax)
             _fdmax = *it;
     }
     while (1)
     {
-        fd_set copy = readfds;
-        _check(select(_fdmax + 1, &copy, NULL, NULL, NULL), "select");
+        fd_set readfds = master;
+        _check(select(_fdmax + 1, &readfds, NULL, NULL, NULL), "select");
         for (int i = 0; i <= _fdmax; i++)
         {
-            if (FD_ISSET(i, &copy))
+            if (FD_ISSET(i, &readfds))
             {
                 if (_isNewConnection(i) == true)
                 {
                     int clientSocket = _accept(_findServer(i));
-                    FD_SET(clientSocket, &readfds);
+                    FD_SET(clientSocket, &master);
                     if (clientSocket > _fdmax)
                         _fdmax = clientSocket;
                 }
                 else
                 {
                     std::map<int, int>::iterator it = _client_server.find(i);
-                    _handler(i, _servers[it->second]);
-                    FD_CLR(i, &readfds);
+                    if (_handler(i, _servers[it->second]) == -1)
+                        std::cerr << "recv\n";
+                    close(i);
+                    FD_CLR(i, &master);
                     _client_server.erase(i);
                 }
             }
@@ -96,6 +98,7 @@ struct sockaddr_in  Server::_getAddress(struct Parse::serverBlock server)
                 }
             }
         }
+        infile.close();
     }
     address.sin_family = AF_INET;
     address.sin_port = htons(atoi(server.listen[0].c_str()));
@@ -122,7 +125,8 @@ int     Server::_accept(int i)
 {
     int addrlen = sizeof(_addresses[i]);
     int clientSocket = accept(_serverSockets[i], (struct sockaddr *)&_addresses[i], (socklen_t *)&addrlen);
-    _check(clientSocket, "new socket");
+    if (clientSocket == -1)
+        std::cerr << "accept\n";
     _client_server[clientSocket] = i;
     return clientSocket;
 }
