@@ -11,10 +11,11 @@ class Utils
         std::vector<unsigned char>  readBinaryFile(char *conf, std::string path);
 
     protected:
-        int             _errorCode;
-        std::string     _root;
-        std::string     _index;
-        int             _max_size;
+        int                         _errorCode;
+        std::string                 _root;
+        std::string                 _index;
+        int                         _max_size;
+        std::vector<std::string>    _method;
 
         void    _check_body_size(std::string *x);
         void    _check_listen(std::vector<std::string> *v);   
@@ -29,6 +30,7 @@ class Utils
         void    _check_error_page(std::map<int, std::string> *m);
 
         std::string     _get404(std::string *type);
+        std::string     _get405(std::string *type);
         std::string     _get413(std::string *type);
         std::string     _getFile(std::ifstream *f);
         std::string     _getDefaultFile(std::string *type);

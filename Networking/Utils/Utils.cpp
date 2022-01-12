@@ -155,7 +155,20 @@ std::string Utils::_get413(std::string *type)
     {
         std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
         content = str;
-        _errorCode = 413;
+        *type = "html";
+    }
+    f.close();
+    return content;
+}
+
+std::string Utils::_get405(std::string *type)
+{
+    std::string content;
+    std::ifstream f("./www/405.html");
+    if (f.good())
+    {
+        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+        content = str;
         *type = "html";
     }
     f.close();
@@ -222,8 +235,10 @@ std::string     Utils::_getStatus(int err_code)
 {
     if (err_code == 200)
         return " OK\r\n";
+    else if (err_code == 405)
+        return " Method Not Allowed\r\n";
     else if (err_code == 413)
-        return "Payload Too Large\r\n";
+        return " Payload Too Large\r\n";
     else
         return " Not Found\r\n";
 }

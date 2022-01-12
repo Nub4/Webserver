@@ -34,30 +34,13 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
     return 1;
 }
 
-int     Response::_sendall(int clientSocket, const char *buf, int *size)
-{
-    int total = 0;
-    int bytesleft = *size;
-    int n;
-
-    while (total < *size)
-    {
-        n = send(clientSocket, buf, bytesleft, 0);
-        if (n == -1)
-            break ;
-        total += n;
-        bytesleft -= n;
-    }
-    *size = total;
-    return n == -1 ? -1 : 0;
-}
-
 void    Response::_setDefaultData(std::string location)
 {
     _root = "/www/";
     _index = location;
     _max_size = 1048576;
     _errorCode = 200;
+    _method.push_back("GET");
 }
 
 void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
@@ -74,8 +57,25 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
                     _root = it->root;
                 if (!it->index.empty())
                 {
-                    _index = it->index[0];
+                    size_t i = 0;
+                    for (i = 0; i < it->index.size(); i++)
+                    {
+                        std::ifstream f("." + _root + it->index[i]);
+                        if (f.good())
+                        {
+                            f.close();
+                            break;
+                        }
+                        f.close();
+                    }
+                    _index = it->index[i];
                     *type = _index.substr(_index.rfind(".") + 1, _index.size() - _index.rfind("."));
+                }
+                if (!it->method.empty())
+                {
+                    _method.pop_back();
+                    for (size_t i = 0; i < it->method.size(); i++)
+                        _method.push_back(it->method[i]);
                 }
             }
         }
@@ -107,6 +107,8 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
     std::string content;
     if (_errorCode == 413)
         content = _get413(type);
+    else if (_errorCode == 405)
+        content = _get405(type);
     else
     {
         if (parsed[0] == "GET" && parsed[1].size() != 1)
@@ -122,4 +124,22 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
             content = _getDefaultFile(type);
     }
     return content;
+}
+
+int     Response::_sendall(int clientSocket, const char *buf, int *size)
+{
+    int total = 0;
+    int bytesleft = *size;
+    int n;
+
+    while (total < *size)
+    {
+        n = send(clientSocket, buf, bytesleft, 0);
+        if (n == -1)
+            break ;
+        total += n;
+        bytesleft -= n;
+    }
+    *size = total;
+    return n == -1 ? -1 : 0;
 }
