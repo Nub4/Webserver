@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "CGI.hpp"
 
 void    exit_and_error(std::string str)
 {
@@ -8,7 +9,7 @@ void    exit_and_error(std::string str)
 
 int     main(int ac, char **av)
 {
-	if (ac != 2)
+  if (ac != 2)
 		exit_and_error("Error: configuration filename for the argument");
 
     Parse parse;

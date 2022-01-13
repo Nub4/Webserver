@@ -2,8 +2,9 @@
 # define RESPONSE_HPP
 
 # include "../Parsing/Parse.hpp"
+# include "CGI.hpp"
 
-class Response : public Utils
+class Response : public Utils, public CGI
 {
     public:
         Response();

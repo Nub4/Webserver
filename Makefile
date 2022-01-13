@@ -8,7 +8,8 @@ SRCS_DIR3 := Networking/Utils
 
 SRCS := main.cpp \
 		 Server.cpp \
-		 Response.cpp
+		 Response.cpp \
+		 CGI.cpp
 
 SRCS2 := Parse.cpp
 
@@ -26,7 +27,7 @@ CXX := clang++
 
 RM := rm -f
 
-CXXFLAGS := -Wall -Wextra -Werror #-std=c++98
+CXXFLAGS := -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)
 
