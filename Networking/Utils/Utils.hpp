@@ -17,6 +17,7 @@ class Utils
         int                         _max_size;
         std::vector<std::string>    _method;
         std::map<int, std::string>  _error_page;
+        std::string                 _autoindex;
 
         bool    _isCorrectHost(std::string host);
         void    _check_body_size(std::string *x);

@@ -40,6 +40,7 @@ void    Response::_setDefaultData(std::string location)
     _errorCode = 200;
     _method.push_back("GET");
     _setErrorPages();
+    _autoindex = "off";
 }
 
 void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
@@ -83,6 +84,8 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
                     for (size_t i = 0; i < it->method.size(); i++)
                         _method.push_back(it->method[i]);
                 }
+                if (!it->autoindex.empty())
+                    _autoindex = it->autoindex;
             }
         }
     }
@@ -125,7 +128,7 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
             if (!f.good())
             {
                 _errorCode = 404;
-                content = _getErrorPage(type); //_get404(type);
+                content = _getErrorPage(type);
             }
             else
                 content = _getFile(&f);
