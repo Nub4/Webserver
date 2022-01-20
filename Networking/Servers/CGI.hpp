@@ -10,7 +10,7 @@ class CGI
 {
     public:
         CGI();
-        CGI(Parse::serverBlock server, std::vector<std::string> parsed);
+        CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string index);
         ~CGI();
 
         void getEnv();

@@ -18,9 +18,9 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
 
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
-
-    CGI cgi(server, parsed);
-    
+/////////////
+    CGI cgi(server, parsed, _index);
+//////////////   
     output = _getClientData(type, parsed);
     size = output.size();
     if (_sendall(clientSocket, output.c_str(), &size) == -1)
