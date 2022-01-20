@@ -13,9 +13,9 @@ class CGI
         CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string index);
         ~CGI();
 
-        void getEnv();
+		void runCGI();
 
     private:
-        std::map<std::string, std::string>  _env;
+        std::map<std::string, std::string>  _env;				
         std::string                         _getUserAgent(std::vector<std::string> parsed);
 };

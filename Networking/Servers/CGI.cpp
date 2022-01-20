@@ -27,8 +27,8 @@ CGI::CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string
     _env["SERVER_SOFTWARE"] = "WEBSERV/19.42";
     _env["SERVER_NAME"] = server.listen[1] + ":" + server.listen[0];
     _env["GATEWAY_INTERFACE"] = "CGI/1.1";
-    for (std::map<std::string, std::string>::iterator it = _env.begin(); it != _env.end(); it++)
-        std::cout << it->first << " = " << it->second << std::endl;
+    // for (std::map<std::string, std::string>::iterator it = _env.begin(); it != _env.end(); it++)
+    //     std::cout << it->first << " = " << it->second << std::endl;
 }
 
 CGI::~CGI() {}
@@ -45,13 +45,23 @@ std::string     CGI::_getUserAgent(std::vector<std::string> parsed)
     return str;
 }
 
-void CGI::getEnv()
+void CGI::runCGI()
 {
-   
-
     const char *c_env[_env.size()];
-    std::map<std::string, std::string>::iterator it = _env.begin();
-    std::string tmp = it->first + '=' + it->second;
-    c_env[0] = tmp.c_str();
-    std::cout << c_env[0]<< std::endl;
+	std::map<std::string, std::string>::iterator it = _env.begin();
+	int i = 0;
+    while (it != _env.end())
+    {
+		std::string tmp = it->first + '=' + it->second;
+		c_env[i++] = tmp.c_str();
+		it++;
+	}
+
+	int fd[2];
+	pipe(fd);
+	int pid = fork();
+	if (pid > 0)
+	{
+
+	}
 }

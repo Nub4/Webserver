@@ -20,6 +20,7 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
     _setBlockData(parsed, server, &type);
 /////////////
     CGI cgi(server, parsed, _index);
+	cgi.getEnv();
 //////////////   
     output = _getClientData(type, parsed);
     size = output.size();
