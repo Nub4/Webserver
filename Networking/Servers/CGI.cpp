@@ -12,7 +12,7 @@ CGI::CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string
     char tmp[256];
 	getcwd(tmp, 256);
 	std::string curr_dir = tmp;
-    _env["SCRIPT_NAME"] = curr_dir + "www/cgi-bin/" + index;
+    _env["SCRIPT_NAME"] = curr_dir + "/www" + index;
     _env["QUERY_STRING"] = ""; //might need to add something
     // _env["REMOTE_HOST"] = maybe add later
     // _env["REMOTE_ADDR"] = maybe add later
@@ -47,21 +47,31 @@ std::string     CGI::_getUserAgent(std::vector<std::string> parsed)
 
 void CGI::runCGI()
 {
-    const char *c_env[_env.size()];
+    char *c_env[_env.size()];
 	std::map<std::string, std::string>::iterator it = _env.begin();
 	int i = 0;
     while (it != _env.end())
     {
 		std::string tmp = it->first + '=' + it->second;
-		c_env[i++] = tmp.c_str();
+		c_env[i++] = (char *)tmp.c_str();
 		it++;
 	}
+	c_env[i] = NULL;
 
-	int fd[2];
-	pipe(fd);
-	int pid = fork();
-	if (pid > 0)
+
+	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
+	pid_t pid = fork();
+	if (pid == 0)
 	{
-
+		dup2(fd_file, STDOUT_FILENO);
+		close(fd_file);
+		char const *pathname = _env["SCRIPT_NAME"].c_str();
+		char *placeholder = (char *)"19";
+		execle(pathname, placeholder, c_env);
+	}
+	else
+	{
+		waitpid(pid, 0, 0);
+		close(fd_file);
 	}
 }

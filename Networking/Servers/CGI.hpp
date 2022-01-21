@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <sys/wait.h>
 #include "../Parsing/Parse.hpp"
 
 class CGI

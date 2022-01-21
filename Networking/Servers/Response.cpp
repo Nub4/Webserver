@@ -15,14 +15,9 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
-
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
-/////////////
-    CGI cgi(server, parsed, _index);
-	cgi.getEnv();
-//////////////   
-    output = _getClientData(type, parsed);
+    output = _getClientData(type, parsed, server);
     size = output.size();
     if (_sendall(clientSocket, output.c_str(), &size) == -1)
     {
@@ -103,12 +98,29 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
         _errorCode = 405;
 }
 
-std::string     Response::_getClientData(std::string type, std::vector<std::string> parsed)
+std::string     Response::_getClientData(std::string type, std::vector<std::string> parsed, struct Parse::serverBlock server)
 {
     std::ostringstream oss;
     std::string content;
 
-    content = _getContent(parsed, &type);    
+	if (type == "py")
+	{		
+		CGI cgi(server, parsed, _index);
+		cgi.runCGI();
+		std::string path = getcwd(NULL, 0);
+		path.append("/temp.txt");
+		std::ifstream f(path);
+		if (f.is_open())
+		{
+			std::stringstream buffer;
+			buffer << f.rdbuf();
+			content = buffer.str();
+			f.close();
+			remove(path.c_str());
+		}
+	}
+	else
+    	content = _getContent(parsed, &type);    
     oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
     oss << _getCacheControl();
     oss << _getContentType(type);
