@@ -103,6 +103,15 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
     std::ostringstream oss;
     std::string content;
 
+	int pos = type.find("py?");
+	if (pos != -1)
+		type = type.substr(0, pos + 2);
+	else
+	{
+		pos = type.find("py/");
+		if (pos != -1)
+			type = type.substr(0, pos + 2);
+	}
 	if (type == "py")
 	{		
 		CGI cgi(server, parsed, _index);
@@ -139,7 +148,7 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
     {
         if (parsed[0] == "GET" && parsed[1].size() != 1)
         {
-            std::ifstream f("." + _root + _index);
+			std::ifstream f("." + _root + _index);
             if (!f.good())
             {
                 _errorCode = 404;
