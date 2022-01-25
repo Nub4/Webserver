@@ -20,12 +20,12 @@ void CGI::runCGI()
 	}
 
 	char *c_env[_env.size() + 1];
-	for (ulong i = 0; i < _env.size(); i++)
+	for (unsigned long i = 0; i < _env.size(); i++)
 		c_env[i] = (char *)tmp_env[i].c_str();
 	c_env[_env.size()] = NULL;
 
-	// for (int j = 0; c_env[j] != NULL; j++)
-	// 	std::cout << c_env[j] << "\n";
+	for (int j = 0; c_env[j] != NULL; j++)
+		std::cout << c_env[j] << "\n";
 
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
 	pid_t pid = fork();

@@ -129,12 +129,14 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 		}
 	}
 	else
+	{
     	content = _getContent(parsed, &type);    
-    oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
-    oss << _getCacheControl();
-    oss << _getContentType(type);
-    oss << _getContentLength(content.size());
-    oss << "\r\n";
+		oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
+		oss << _getCacheControl();
+		oss << _getContentType(type);
+		oss << _getContentLength(content.size());
+		oss << "\r\n";
+	}
     oss << content;
     return oss.str();
 }
