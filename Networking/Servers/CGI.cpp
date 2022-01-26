@@ -20,12 +20,12 @@ void CGI::runCGI()
 	}
 
 	char *c_env[_env.size() + 1];
-	for (unsigned long i = 0; i < _env.size(); i++)
+	for (ulong i = 0; i < _env.size(); i++)
 		c_env[i] = (char *)tmp_env[i].c_str();
 	c_env[_env.size()] = NULL;
 
-	// for (int j = 0; c_env[j] != NULL; j++)
-	// 	std::cout << c_env[j] << "\n";
+	for (int j = 0; c_env[j] != NULL; j++)
+		std::cout << c_env[j] << "\n";
 
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
 	pid_t pid = fork();
@@ -110,10 +110,10 @@ void CGI::_parseClientToEnvVariables(std::map<std::string, std::string> client_h
 
 std::string CGI::_parseQueryString(std::string url)
 {
-	int pos = url.find(".py?");
+	int pos = url.find("?");
 	if (pos == -1)
 		return std::string();
-	return url.substr(pos + 4);
+	return url.substr(pos + 1);
 }
 
 std::string CGI::_parseScriptName(std::string index)
@@ -127,15 +127,23 @@ std::string CGI::_parseScriptName(std::string index)
 		if (pos != -1)
 			index = index.substr(0, pos + 3);
 	}
-	return index;
+	index = index.substr(index.find_last_of("/"));
+	return "/cgi-bin" + index;
 }
 
 std::string CGI::_parsePathInfo(std::string index)
 {
-	int pos = index.find(".py/");
-	if (pos == -1)
+	int pos_begin = index.find(".py/");
+	if (pos_begin == -1)
 		return std::string();
-	index = index.substr(pos + 3);
+	int pos_end = index.find("?");
+	if (pos_end == -1)
+		index = index.substr(pos_begin + 3);
+	else
+	{
+		index = index.substr(0, pos_end);
+		index = index.substr(pos_begin + 3);
+	}
 	return index;
 }
 
