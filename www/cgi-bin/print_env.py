@@ -14,8 +14,3 @@ print (header)
 print (content)
 
 exit(0)
-
-# HTTP/1.1 200 OK
-# Cache-Control: no-cache, private
-# Content-Type: text/plain
-# Content-Length: 909

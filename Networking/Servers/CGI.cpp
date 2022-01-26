@@ -9,8 +9,9 @@ CGI::CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string
 
 CGI::~CGI() {}
 
-void CGI::runCGI()
+int CGI::runCGI()
 {
+	int status = 0;
 	std::vector<std::string> tmp_env;
 	std::map<std::string, std::string>::iterator it = _env.begin();
 	for (; it != _env.end(); it++)
@@ -23,10 +24,10 @@ void CGI::runCGI()
 	for (unsigned long i = 0; i < _env.size(); i++)
 		c_env[i] = (char *)tmp_env[i].c_str();
 	c_env[_env.size()] = NULL;
-
-	for (int j = 0; c_env[j] != NULL; j++)
-		std::cout << c_env[j] << "\n";
-
+/////////////////////////
+	// for (int j = 0; c_env[j] != NULL; j++)
+	// 	std::cout << c_env[j] << "\n";
+/////////////////////////
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
 	pid_t pid = fork();
 	if (pid == 0)
@@ -36,13 +37,21 @@ void CGI::runCGI()
 		char const *pathname = _env["PATH_TRANSLATED"].c_str();
 		char **placeholder = NULL;
 		if (execve(pathname, placeholder, c_env) == -1)
+		{
 			std::cout << "exec error\n";
+			exit(127);
+		}
 	}
 	else
 	{
-		waitpid(pid, 0, 0);
+		waitpid(pid, &status, 0);
 		close(fd_file);
+		if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
 	}
+	if (status == 127)
+		return 1;
+	return 0;
 }
 
 void CGI::_initEnvCGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string index)

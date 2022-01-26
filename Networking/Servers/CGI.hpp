@@ -8,14 +8,14 @@
 #include <algorithm>
 #include "../Parsing/Parse.hpp"
 
-class CGI
+class CGI : public Utils
 {
     public:
         CGI();
         CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string index);
         ~CGI();
 
-		void runCGI();
+		int runCGI();
 
     private:
 		std::map<std::string, std::string>  _env;				

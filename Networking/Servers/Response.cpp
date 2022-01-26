@@ -102,6 +102,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 {
     std::ostringstream oss;
     std::string content;
+	int status = 0;
 
 	int pos = type.find("py?");
 	if (pos != -1)
@@ -115,7 +116,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 	if (type == "py")
 	{		
 		CGI cgi(server, parsed, _index);
-		cgi.runCGI();
+		status = cgi.runCGI();
 		std::string path = getcwd(NULL, 0);
 		path.append("/temp.txt");
 		std::ifstream f(path);
@@ -126,16 +127,17 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 			content = buffer.str();
 			f.close();
 			remove(path.c_str());
+			if (status == 1)
+			{
+				content = _getContent(parsed, &type);    
+				_createHeader(oss, _errorCode, type, content.size());
+			}
 		}
 	}
 	else
 	{
-    	content = _getContent(parsed, &type);    
-		oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
-		oss << _getCacheControl();
-		oss << _getContentType(type);
-		oss << _getContentLength(content.size());
-		oss << "\r\n";
+    	content = _getContent(parsed, &type);   
+		_createHeader(oss, _errorCode, type, content.size());
 	}
     oss << content;
     return oss.str();
@@ -164,4 +166,13 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
             content = _getDefaultFile(type);
     }
     return content;
+}
+
+void Response::_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length)
+{
+	oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
+	oss << _getCacheControl();
+	oss << _getContentType(type);
+	oss << _getContentLength(content_length);
+	oss << "\r\n";
 }
