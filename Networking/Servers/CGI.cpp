@@ -20,7 +20,7 @@ void CGI::runCGI()
 	}
 
 	char *c_env[_env.size() + 1];
-	for (ulong i = 0; i < _env.size(); i++)
+	for (unsigned long i = 0; i < _env.size(); i++)
 		c_env[i] = (char *)tmp_env[i].c_str();
 	c_env[_env.size()] = NULL;
 
