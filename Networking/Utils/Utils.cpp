@@ -89,6 +89,13 @@ void    Utils::_check_error_page(std::map<int, std::string> *m)
     it->second.pop_back();
 }
 
+void    Utils::_check_redirect(std::vector<std::string> *v)
+{
+    _checkBackChar(&v->back(), "return");
+    if ((*v)[0] != "301" && v->size() != 2)
+        _msg_exit("configuration file error, return");
+}
+
 void    Utils::_check_autoindex(std::string *x)
 {
     if (*x != "on;" && *x != "off;")
@@ -240,6 +247,15 @@ std::string     Utils::_getCacheControl()
 
     str = "Cache-Control: no-cache, private\r\n";
     return str;
+}
+
+std::string     Utils::_getLocation(std::string url)
+{
+    std::ostringstream oss;
+
+    oss << "Location: ";
+    oss << url << "\r\n";
+    return oss.str();
 }
 
 std::string     Utils::_getStatus(int err_code)

@@ -2,15 +2,22 @@
 
 Response::Response() {}
 
-int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
+void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 {
     std::string output;
     int size;
     std::string type;
     char buffer[BUFF_SIZE] = {0};
+    int n;
 
-    if (recv(clientSocket, buffer, sizeof(buffer), 0) <= 0)
-        return -1;
+    if ((n = recv(clientSocket, buffer, sizeof(buffer), 0)) <= 0)
+    {
+        if (n == 0)
+            std::cout << "Connection closed\n";
+        else
+            std::cerr << "recv\n";
+        return ;
+    }
     std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
@@ -24,13 +31,13 @@ int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
         std::cerr << "sendall\n";
         std::cout << "Only " << size << " bytes sended because of the error\n";
     }
-    return 1;
 }
 
 void    Response::_setDefaultData(std::string location)
 {
     _method.clear();
     _error_page.clear();
+    _redirect.clear();
 
     _root = "/www/";
     _index = location;
@@ -84,6 +91,8 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
                 }
                 if (!it->autoindex.empty())
                     _autoindex = it->autoindex;
+                if (!it->redirect.empty())
+                    _redirect.insert(std::pair<int, std::string>(atoi(it->redirect[0].c_str()), it->redirect[1]));
             }
         }
     }
@@ -170,9 +179,18 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
 
 void Response::_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length)
 {
-	oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
-	oss << _getCacheControl();
-	oss << _getContentType(type);
-	oss << _getContentLength(content_length);
-	oss << "\r\n";
+    if (!_redirect.empty())
+    {
+        std::map<int, std::string>::iterator it = _redirect.begin();
+        oss << "HTTP/1.1 " << it->first << _getStatus(it->first);
+        oss << _getLocation(it->second);
+    }
+    else
+    {
+        oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
+        oss << _getCacheControl();
+        oss << _getContentType(type);
+        oss << _getContentLength(content_length);
+    }
+    oss << "\r\n";
 }
