@@ -157,7 +157,7 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
         content = _getErrorPage(type);
     else
     {
-        if (parsed[0] == "GET" && parsed[1].size() != 1)
+        if (parsed[0] == "GET" && _index != "/")
         {
 			std::ifstream f("." + _root + _index);
             if (!f.good())
