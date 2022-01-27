@@ -8,8 +8,6 @@ class Utils
     public:
         Utils();
 
-        std::vector<unsigned char>  readBinaryFile(char *conf, std::string path);
-
     protected:
         int                         _errorCode;
         std::string                 _root;

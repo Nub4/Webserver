@@ -38,7 +38,7 @@ int CGI::runCGI()
 		char **placeholder = NULL;
 		if (execve(pathname, placeholder, c_env) == -1)
 		{
-			std::cout << "exec error\n";
+			std::cerr << RED << "execve\n" << RESET;
 			exit(127);
 		}
 	}

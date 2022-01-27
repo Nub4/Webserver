@@ -12,13 +12,11 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 
     if ((n = recv(clientSocket, buffer, sizeof(buffer), 0)) <= 0)
     {
-        if (n == 0)
-            std::cout << "Connection closed\n";
-        else
-            std::cerr << "recv\n";
+        if (n == -1)
+            std::cerr << RED << "recv\n" << RESET;
         return ;
     }
-    std::cout << buffer << std::endl;
+ //   std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
@@ -28,8 +26,8 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     size = output.size();
     if (_sendall(clientSocket, output.c_str(), &size) == -1)
     {
-        std::cerr << "sendall\n";
-        std::cout << "Only " << size << " bytes sended because of the error\n";
+        std::cerr << RED << "sendall\n" << RESET;
+        std::cout << YELLOW << "Only " << size << " bytes sended because of the error\n" << RESET;
     }
 }
 

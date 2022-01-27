@@ -2,15 +2,6 @@
 
 Utils::Utils() {}
 
-std::vector<unsigned char>  Utils::readBinaryFile(char *conf, std::string path)
-{
-    std::string filename = conf;
-    std::string str = path + "/confs/" + filename;
-    std::ifstream infile(str, std::ios::binary);
-    std::vector<unsigned char> binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
-    return binary_file;
-}
-
 /* 
 * These ones
 * are for
@@ -169,7 +160,7 @@ int	    Utils::_ft_isdigit(int c)
 
 void    Utils::_msg_exit(std::string s)
 {
-    std::cerr << s << std::endl;
+    std::cerr << RED << s << RESET << std::endl;
     exit(1);
 }
 
@@ -374,10 +365,19 @@ std::string     Utils::_getContentType(std::string type)
     std::string str;
 
     str = "Content-Type: ";
-    if (type == "jpeg" || type == "jpg")
-        str += "image/jpeg";
-    else if (type == "html" || type == "/")
+    if (type == "html" || type == "/")
         str += "text/html";
+    else if (type == "css")
+        str += "text/css";
+    else if (type == "csv")
+        str += "text/csv";
+    else if (type == "js")
+        str += "text/javascript";
+
+    else if (type == "jpeg" || type == "jpg")
+        str += "image/jpeg";
+    else if (type == "gif")
+        str += "image/gif";
     else if (type == "png")
         str += "image/png";
     else if (type == "bmp")
