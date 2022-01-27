@@ -260,12 +260,111 @@ std::string     Utils::_getLocation(std::string url)
 
 std::string     Utils::_getStatus(int err_code)
 {
-    if (err_code == 200)
+    if (err_code == 100)
+        return " Continue\r\n";
+    else if (err_code == 101)
+        return " Switching Protocols\r\n";
+    else if (err_code == 103)
+        return " Early Hints\r\n";
+
+    else if (err_code == 200)
         return " OK\r\n";
+    else if (err_code == 201)
+        return " Created\r\n";
+    else if (err_code == 202)
+        return " Accepted\r\n";
+    else if (err_code == 203)
+        return " Non-Authoritative Information\r\n";
+    else if (err_code == 204)
+        return " No Content\r\n";
+    else if (err_code == 205)
+        return " Reset Content\r\n";
+    else if (err_code == 206)
+        return " Partial Content\r\n";
+
+    else if (err_code == 300)
+        return " Multiple Choice\r\n";
+    else if (err_code == 301)
+        return " Moved Permanently\r\n";
+    else if (err_code == 302)
+        return " Found\r\n";
+    else if (err_code == 303)
+        return " See Other\r\n";
+    else if (err_code == 304)
+        return " Not Modified\r\n";
+    else if (err_code == 307)
+        return " Temporary Redirect\r\n";
+    else if (err_code == 308)
+        return " Permanent Redirect\r\n";
+
+    else if (err_code == 400)
+        return " Bad Request\r\n";
+    else if (err_code == 401)
+        return " Unauthorized\r\n";
+    else if (err_code == 402)
+        return " Payment Required\r\n";
+    else if (err_code == 403)
+        return " Forbidden\r\n";
     else if (err_code == 405)
         return " Method Not Allowed\r\n";
+    else if (err_code == 406)
+        return " Not Acceptable\r\n";
+    else if (err_code == 407)
+        return " Proxy Authentication Required\r\n";
+    else if (err_code == 408)
+        return " Request Timeout\r\n"; 
+    else if (err_code == 409)
+        return " Conflict\r\n";
+    else if (err_code == 410)
+        return " Gone\r\n";
+    else if (err_code == 411)
+        return " Length Required\r\n";
+    else if (err_code == 412)
+        return " Precondition Failed\r\n";
     else if (err_code == 413)
         return " Payload Too Large\r\n";
+    else if (err_code == 414)
+        return " URI Too Long\r\n";
+    else if (err_code == 415)
+        return " Unsupported Media Type\r\n";
+    else if (err_code == 416)
+        return " Range Not Satisfiable\r\n";
+    else if (err_code == 417)
+        return " Expectation Failed\r\n";
+    else if (err_code == 418)
+        return " I'm a teapot\r\n";
+    else if (err_code == 425)
+        return " Too Early\r\n";
+    else if (err_code == 426)
+        return " Upgrade Required\r\n";
+    else if (err_code == 428)
+        return " Precondition Required\r\n";
+    else if (err_code == 429)
+        return " Too Many Request\r\n";
+    else if (err_code == 431)
+        return " Request Header Fields Too Large\r\n";
+    else if (err_code == 451)
+        return " Unavailable For Legal Reasons\r\n";
+
+    else if (err_code == 500)
+        return " Internal Server Error\r\n";
+    else if (err_code == 501)
+        return " Not Implemented\r\n";
+    else if (err_code == 502)
+        return " Bad Gateway\r\n";
+    else if (err_code == 503)
+        return " Service Unavailable\r\n";
+    else if (err_code == 504)
+        return " Gateway Timeout\r\n";
+    else if (err_code == 505)
+        return " HTTP Version Not Supported\r\n";
+    else if (err_code == 506)
+        return " Variant Also Negotiates\r\n";
+    else if (err_code == 510)
+        return " Not Extended\r\n";
+    else if (err_code == 511)
+        return " Network Authentication Required\r\n";
+
     else
         return " Not Found\r\n";
 }
