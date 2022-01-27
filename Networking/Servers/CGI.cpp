@@ -29,18 +29,19 @@ int CGI::runCGI()
 	// 	std::cout << c_env[j] << "\n";
 ///////////////////////
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
+	if (fd_file == -1)
+		return 1;
 	pid_t pid = fork();
-	if (pid == 0)
+	if (pid == -1)
+		return 1;
+	else if (pid == 0)
 	{
 		dup2(fd_file, STDOUT_FILENO);
 		close(fd_file);
 		char const *pathname = _env["PATH_TRANSLATED"].c_str();
 		char **placeholder = NULL;
 		if (execve(pathname, placeholder, c_env) == -1)
-		{
-			std::cout << "exec error\n";
 			exit(127);
-		}
 	}
 	else
 	{
@@ -62,7 +63,6 @@ void CGI::_initEnvCGI(Parse::serverBlock server, std::vector<std::string> parsed
 	_env["SERVER_NAME"] = server.listen[1];
 	_env["SERVER_PORT"] = server.listen[0];
 	_env["REQUEST_METHOD"] = parsed[0];
-	std::cout << _parseScriptName(index) << "\n";
 	_env["SCRIPT_NAME"] = _parseScriptName(index);
 	_env["PATH_INFO"] = _parsePathInfo(index);
 	_env["PATH_TRANSLATED"] = _parsePathTranslated();
@@ -142,7 +142,7 @@ std::string CGI::_parseScriptName(std::string index)
 		index = index.substr(index.find_last_of("/"));
 		return "/cgi-bin" + index;
 	}
-		return "/cgi-bin/" + index;
+	return "/cgi-bin/" + index;
 }
 
 std::string CGI::_parsePathInfo(std::string index)
@@ -182,8 +182,10 @@ std::string CGI::_parsePathTranslated()
 
 std::string CGI::_parseRemoteHost()
 {
+	std::string host;
 	int pos = _env["HTTP_HOST"].find(":");
-	std::string host = _env["HTTP_HOST"].substr(0, pos);
+	if (pos != -1)
+		host = _env["HTTP_HOST"].substr(0, pos);
 	int count = std::count(host.begin(), host.end(), '.');
 	if (count == 3)
 		return std::string();
