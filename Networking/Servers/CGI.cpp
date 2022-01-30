@@ -4,7 +4,6 @@ CGI::CGI() {}
 
 CGI::CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string index)
 {
-	std::cout << parsed[parsed.size() - 1] << "\n";
 	_initEnvCGI(server, parsed, index);
 }
 
