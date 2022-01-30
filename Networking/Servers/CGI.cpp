@@ -4,6 +4,7 @@ CGI::CGI() {}
 
 CGI::CGI(Parse::serverBlock server, std::vector<std::string> parsed, std::string index)
 {
+	std::cout << parsed[parsed.size() - 1] << "\n";
 	_initEnvCGI(server, parsed, index);
 }
 
@@ -66,7 +67,7 @@ void CGI::_initEnvCGI(Parse::serverBlock server, std::vector<std::string> parsed
 	_env["SCRIPT_NAME"] = _parseScriptName(index);
 	_env["PATH_INFO"] = _parsePathInfo(index);
 	_env["PATH_TRANSLATED"] = _parsePathTranslated();
-	_env["QUERY_STRING"] = _parseQueryString(parsed[1]);
+	_env["QUERY_STRING"] = _parseQueryString(parsed);
 	_env["REMOTE_HOST"] = _parseRemoteHost(); 
 	_env["REMOTE_ADDR"] = std::string();
 	_env["AUTH_TYPE"] = std::string();
@@ -117,12 +118,22 @@ void CGI::_parseClientToEnvVariables(std::map<std::string, std::string> client_h
 	}
 }
 
-std::string CGI::_parseQueryString(std::string url)
+std::string CGI::_parseQueryString(std::vector<std::string> parsed)
 {
-	int pos = url.find("?");
-	if (pos == -1)
-		return std::string();
-	return url.substr(pos + 1);
+	std::string queryString;
+	if (parsed[0] == "GET")
+	{
+		queryString = parsed[1];
+		int pos = queryString.find("?");
+		if (pos == -1)
+			return std::string();
+		return queryString.substr(pos + 1);
+	}
+	else if (parsed[0] == "POST")
+	{
+		queryString = parsed[parsed.size() - 1];
+	}
+	return queryString;
 }
 
 std::string CGI::_parseScriptName(std::string index)

@@ -18,12 +18,13 @@ except ValueError:
 	content += "'" + input0 + "' and '" + input1 + "' don't add up!"
 else:
 	content += input0 + " + " + input1 + " = " + str(int(input0) + int(input1))
-	
 
 header= "HTTP/1.1 200 OK\r\n"
 header+= "Cache-Control: no-cache, private\r\n"
 header+= "Content-Type: text/plain\r\n"
 header+= "Content-Length: " + str(len(content)) + "\r\n"
+
+
 print (header)
 print (content)
 

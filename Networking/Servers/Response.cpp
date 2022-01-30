@@ -16,7 +16,7 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
             std::cerr << RED << "recv\n" << RESET;
         return ;
     }
- //   std::cout << buffer << std::endl;
+	std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
