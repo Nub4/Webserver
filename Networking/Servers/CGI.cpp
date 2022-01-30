@@ -25,13 +25,17 @@ int CGI::runCGI()
 	for (unsigned long i = 0; i < _env.size(); i++)
 		c_env[i] = (char *)tmp_env[i].c_str();
 	c_env[_env.size()] = NULL;
-/////////////////////////
+///////////////////////
 	// for (int j = 0; c_env[j] != NULL; j++)
 	// 	std::cout << c_env[j] << "\n";
-/////////////////////////
+///////////////////////
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
+	if (fd_file == -1)
+		return 1;
 	pid_t pid = fork();
-	if (pid == 0)
+	if (pid == -1)
+		return 1;
+	else if (pid == 0)
 	{
 		dup2(fd_file, STDOUT_FILENO);
 		close(fd_file);
@@ -59,7 +63,6 @@ void CGI::_initEnvCGI(Parse::serverBlock server, std::vector<std::string> parsed
 {
 	std::map<std::string, std::string>	client_header(_parseClientVariables(parsed));	
 	_parseClientToEnvVariables(client_header);
-
 	_env["SERVER_PROTOCOL"] = parsed[2];
 	_env["SERVER_NAME"] = server.listen[1];
 	_env["SERVER_PORT"] = server.listen[0];
@@ -147,8 +150,13 @@ std::string CGI::_parseScriptName(std::string index)
 		if (pos != -1)
 			index = index.substr(0, pos + 3);
 	}
-	index = index.substr(index.find_last_of("/"));
-	return "/cgi-bin" + index;
+	pos = index.find_last_of("/");
+	if (pos != -1)
+	{
+		index = index.substr(index.find_last_of("/"));
+		return "/cgi-bin" + index;
+	}
+	return "/cgi-bin/" + index;
 }
 
 std::string CGI::_parsePathInfo(std::string index)
@@ -188,8 +196,10 @@ std::string CGI::_parsePathTranslated()
 
 std::string CGI::_parseRemoteHost()
 {
+	std::string host;
 	int pos = _env["HTTP_HOST"].find(":");
-	std::string host = _env["HTTP_HOST"].substr(0, pos);
+	if (pos != -1)
+		host = _env["HTTP_HOST"].substr(0, pos);
 	int count = std::count(host.begin(), host.end(), '.');
 	if (count == 3)
 		return std::string();

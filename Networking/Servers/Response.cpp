@@ -111,19 +111,18 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
     std::string content;
 	int status = 0;
 
-	int pos = type.find("py?");
-	if (pos != -1)
-		type = type.substr(0, pos + 2);
-	else
-	{
-		pos = type.find("py/");
-		if (pos != -1)
-			type = type.substr(0, pos + 2);
-	}
-	if (type == "py")
+	if (_typeIsPy(type))
 	{		
 		CGI cgi(server, parsed, _index);
 		status = cgi.runCGI();
+		if (status == 1)
+		{
+			_errorCode = 404; // this has to change to 400 error code?
+			content = _getContent(parsed, &type);
+			_createHeader(oss, _errorCode, type, content.size());
+			oss << content;
+  			return oss.str();
+		}
 		std::string path = getcwd(NULL, 0);
 		path.append("/temp.txt");
 		std::ifstream f(path);
@@ -134,11 +133,6 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 			content = buffer.str();
 			f.close();
 			remove(path.c_str());
-			if (status == 1)
-			{
-				content = _getContent(parsed, &type);    
-				_createHeader(oss, _errorCode, type, content.size());
-			}
 		}
 	}
 	else
@@ -177,18 +171,26 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
 
 void Response::_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length)
 {
-    if (!_redirect.empty())
-    {
-        std::map<int, std::string>::iterator it = _redirect.begin();
-        oss << "HTTP/1.1 " << it->first << _getStatus(it->first);
-        oss << _getLocation(it->second);
-    }
-    else
-    {
-        oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
-        oss << _getCacheControl();
-        oss << _getContentType(type);
-        oss << _getContentLength(content_length);
-    }
-    oss << "\r\n";
+	oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
+	oss << _getCacheControl();
+	oss << _getContentType(type);
+	oss << _getContentLength(content_length);
+	oss << "\r\n";
+}
+
+bool Response::_typeIsPy(std::string type)
+{
+	int pos = type.find("py?");
+	if (pos != -1)
+		type = type.substr(0, pos + 2);
+	else
+	{
+		pos = type.find("py/");
+		if (pos != -1)
+			type = type.substr(0, pos + 2);
+	}
+	if (type == "py")
+		return true;
+	else
+		return false;
 }
