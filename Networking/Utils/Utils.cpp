@@ -178,25 +178,24 @@ int     Utils::_ft_isprint(int c)
 * Response class:
 */
 
-void    Utils::_setErrorPages()
-{
-    _error_page[404] = "errors/404.html";
-    _error_page[405] = "errors/405.html";
-    _error_page[413] = "errors/413.html";
-}
-
 std::string Utils::_getErrorPage(std::string *type)
 {
-    std::string content;
-    std::ifstream f("./www/" + _error_page[_errorCode]);
-    if (f.good())
-    {
-        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-        content = str;
-        *type = "html";
-    }
-    f.close();
-    return content;
+    std::ostringstream oss;
+
+    oss <<  "<!DOCTYPE html>"
+            "<html>"
+                "<style>"
+                    "h1 {text-align: center;}"
+                    "p {text-align: center;}"
+                "</style>"
+                "<body>"
+                    "<h1>" << _errorCode << " " << _getStatus(_errorCode) << "</h1>"
+                    "<hr>"
+                    "<p><small>Webserv</small></p>"
+                "</body>"
+            "</html>";
+    *type = "html";
+    return oss.str();
 }
 
 std::string Utils::_getFile(std::ifstream *f)
@@ -339,4 +338,33 @@ int     Utils::_sendall(int clientSocket, const char *buf, int *size)
     }
     *size = total;
     return n == -1 ? -1 : 0;
+}
+
+std::string Utils::_getFileString(std::string path)
+{
+    std::ifstream infile;
+    std::stringstream strStream;
+
+    infile.open(path);
+    strStream << infile.rdbuf();
+    return strStream.str();
+}
+
+std::string Utils::_getAutoindexHtml(std::string path, std::string uri)
+{
+    std::string templateContent = _getFileString("./Networking/Utils/autoindex_template.html");
+    std::string linkPrefix = (uri[uri.size() - 1] == '/' ? uri : uri + "/");
+    std::string fileList;
+    DIR *dirp = opendir(path.c_str());
+    struct dirent *direntp = readdir(dirp);
+    for (; direntp != NULL; direntp = readdir(dirp))
+    {
+        if (std::string(direntp->d_name) == ".." || std::string(direntp->d_name) == ".")
+            continue;
+        fileList +=
+            "<a href=\"" + linkPrefix + direntp->d_name + "\">" + direntp->d_name + "</a>\n";
+    }
+    closedir(dirp);
+    templateContent.replace(templateContent.find("$2"), 2, fileList);
+    return templateContent;
 }

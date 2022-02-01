@@ -12,12 +12,13 @@ class Response : public Utils
 
     protected:
         std::string     _getClientData(std::string type, std::vector<std::string> parsed, struct Parse::serverBlock server);
-        std::string     _getContent(std::vector<std::string> parsed, std::string *type);
+        std::string     _getContent(std::vector<std::string> parsed, std::string *type, struct Parse::serverBlock server);
         void            _handler(int clientSocket, struct Parse::serverBlock server);
         void            _setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type);
         void            _setDefaultData(std::string location);
 		void			_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length);
 		bool			_typeIsPy(std::string type);
+        bool            _is404(struct Parse::serverBlock server, std::string location);
 };
 
 #endif

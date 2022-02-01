@@ -42,7 +42,6 @@ void    Response::_setDefaultData(std::string location)
     _max_size = 1048576;
     _errorCode = 200;
     _method.push_back("GET");
-    _setErrorPages();
     _autoindex = "off";
 }
 
@@ -112,13 +111,20 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 	int status = 0;
 
 	if (_typeIsPy(type))
-	{		
+	{
+        if (_errorCode >= 400 && _errorCode <= 511)
+        {
+            content = _getErrorPage(&type);
+            _createHeader(oss, _errorCode, type, content.size());
+            oss << content;
+            return oss.str();
+        }
 		CGI cgi(server, parsed, _index);
 		status = cgi.runCGI();
 		if (status == 1)
 		{
-			_errorCode = 404; // this has to change to 400 error code?
-			content = _getContent(parsed, &type);
+			_errorCode = 400;
+			content = _getContent(parsed, &type, server);
 			_createHeader(oss, _errorCode, type, content.size());
 			oss << content;
   			return oss.str();
@@ -137,34 +143,58 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 	}
 	else
 	{
-    	content = _getContent(parsed, &type);   
+    	content = _getContent(parsed, &type, server);
 		_createHeader(oss, _errorCode, type, content.size());
 	}
     oss << content;
     return oss.str();
 }
 
-std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type)
+std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type, struct Parse::serverBlock server)
 {
     std::string content;
+    std::string url = "http://" + parsed[4] + parsed[1];
+    std::string path = "./www" + parsed[1];
+
     if (_errorCode >= 400 && _errorCode <= 511)
         content = _getErrorPage(type);
     else
     {
         if (parsed[0] == "GET" && _index != "/")
         {
-			std::ifstream f("." + _root + _index);
-            if (!f.good())
+            if (_autoindex == "off")
             {
-                _errorCode = 404;
-                content = _getErrorPage(type);
+                std::ifstream f("." + _root + _index);
+                if (!f.good())
+                {
+                    _errorCode = 404;
+                    content = _getErrorPage(type);
+                }
+                else
+                {
+                    if (_is404(server, parsed[1]))
+                        content = _getFile(&f);
+                    else
+                    {
+                        _errorCode = 404;
+                        content = _getErrorPage(type);
+                    }
+                }
+                f.close();
             }
             else
-                content = _getFile(&f);
-            f.close();
+            {
+                *type = "html";
+                content = _getAutoindexHtml(path, url);
+            }
         }
         else
-            content = _getDefaultFile(type);
+        {
+            if (_autoindex == "off")
+                content = _getDefaultFile(type);
+            else
+                content = _getAutoindexHtml("./www", url);
+        }
     }
     return content;
 }
@@ -193,4 +223,14 @@ bool Response::_typeIsPy(std::string type)
 		return true;
 	else
 		return false;
+}
+
+bool    Response::_is404(struct Parse::serverBlock server, std::string location)
+{
+    if (server.location.empty())
+        return false;
+    for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
+        if (it->name == location)
+            return true;
+    return false;
 }
