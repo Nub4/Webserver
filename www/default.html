@@ -12,11 +12,12 @@
             <h1>Welcome to Webserv!</h1>
             <p>If you see this page, the Webserv web server is successfully installed and<br>working. Futher configurations is required.</p>
             <p><i>Thank you for using Webserv.</i></p>
-            <form method="get" action="cgi-bin/feedbacks.py">
+            <form method="post" action="cgi-bin/feedbacks.py">
                 <input type="text" name="user" id="user" placeholder="Username" size="22" required><br>
                 <textarea id="feedback" name="feedback" placeholder="Feedback..." required></textarea><br>
                 <button type="submit">Submit</button>
             </form>
+            <!-- <a href="" target="_blank"></a><br> -->
         </div>
     </body>
 </html>

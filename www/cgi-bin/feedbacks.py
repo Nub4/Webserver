@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/local/bin/python3
 
 import os
 
@@ -10,7 +10,7 @@ toParse = os.environ["QUERY_STRING"]
 input0 = toParse[: toParse.find('&')]
 input0 = input0[toParse.find('=')+1 :]
 input1 = toParse[toParse.find('&')+1 :]
-input1 = input1[toParse.find('=')+1 :]
+input1 = input1[input1.find('=')+1 :]
 
 mark = 0
 mark2 = 0
