@@ -21,7 +21,7 @@ class Utils
 
         bool    _isCorrectHost(std::string host);
         void    _check_body_size(std::string *x);
-        void    _check_listen(std::vector<std::string> *v);   
+        void    _check_listen(std::vector<std::string> *v);
         int     _ft_isprint(int c);
         int     _checkClosingBracket(int pos, std::string s);
         void    _msg_exit(std::string s);
@@ -41,6 +41,8 @@ class Utils
         std::string     _getContentType(std::string type);
         std::string     _getContentLength(int size);
         std::string     _getStatus(int err_code);
+        std::string     _getFileString(std::string path);
+        std::string     _getAutoindexHtml(std::string path, std::string uri);
 };
 
 #endif

@@ -23,6 +23,7 @@
 # include <iterator>
 # include <algorithm>
 # include <cerrno>
+# include <dirent.h>
 
 # define PORT 3490
 # define BACKLOG 1024

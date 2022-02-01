@@ -11,7 +11,7 @@ std::vector<unsigned char>  Utils::readBinaryFile(char *conf, std::string path)
     return binary_file;
 }
 
-/* 
+/*
 * These ones
 * are for
 * Parse class:
@@ -174,7 +174,7 @@ int     Utils::_ft_isprint(int c)
 		return (0);
 }
 
-/* 
+/*
 * These ones
 * are for
 * Response class:
@@ -289,4 +289,33 @@ int     Utils::_sendall(int clientSocket, const char *buf, int *size)
     }
     *size = total;
     return n == -1 ? -1 : 0;
+}
+
+std::string Utils::_getFileString(std::string path)
+{
+    std::ifstream infile;
+    std::stringstream strStream;
+
+    infile.open(path);
+    strStream << infile.rdbuf();
+    return strStream.str();
+}
+
+std::string Utils::_getAutoindexHtml(std::string path, std::string uri)
+{
+    std::string templateContent = _getFileString("./Networking/Utils/autoindex_template.html");
+    std::string linkPrefix = (uri[uri.size() - 1] == '/' ? uri : uri + "/");
+    std::string fileList;
+    DIR *dirp = opendir(path.c_str());
+    struct dirent *direntp = readdir(dirp);
+    for (; direntp != NULL; direntp = readdir(dirp))
+    {
+        if (std::string(direntp->d_name) == ".." || std::string(direntp->d_name) == ".")
+            continue;
+        fileList +=
+            "<a href=\"" + linkPrefix + direntp->d_name + "\">" + direntp->d_name + "</a>\n";
+    }
+    closedir(dirp);
+    templateContent.replace(templateContent.find("$2"), 2, fileList);
+    return templateContent;
 }
