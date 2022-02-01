@@ -124,7 +124,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 		if (status == 1)
 		{
 			_errorCode = 400;
-			content = _getContent(parsed, &type, server);
+			content = _getContent(parsed, &type);
 			_createHeader(oss, _errorCode, type, content.size());
 			oss << content;
   			return oss.str();
@@ -143,14 +143,14 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 	}
 	else
 	{
-    	content = _getContent(parsed, &type, server);
+    	content = _getContent(parsed, &type);
 		_createHeader(oss, _errorCode, type, content.size());
 	}
     oss << content;
     return oss.str();
 }
 
-std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type, struct Parse::serverBlock server)
+std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type)
 {
     std::string content;
     std::string url = "http://" + parsed[4] + parsed[1];
@@ -165,7 +165,7 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
             if (_autoindex == "off")
             {
                 std::ifstream f("." + _root + _index);
-                if (!f.good()) //|| !_is404(server, parsed[1]))
+                if (!f.good())
                 {
                     _errorCode = 404;
                     content = _getErrorPage(type);
@@ -222,18 +222,3 @@ bool Response::_typeIsPy(std::string type)
 	else
 		return false;
 }
-
-// bool    Response::_is404(struct Parse::serverBlock server, std::string location)
-// {
-//     if (server.location.empty())
-//         return false;
-//     for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
-//     {
-//         if (it->name == location)
-//         {
-//             std::cout << "haha\n";
-//             return true;
-//         }
-//     }
-//     return false;
-// }
