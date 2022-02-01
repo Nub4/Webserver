@@ -350,8 +350,9 @@ std::string Utils::_getFileString(std::string path)
     return strStream.str();
 }
 
-std::string Utils::_getAutoindexHtml(std::string path, std::string uri)
+std::string Utils::_getAutoindexHtml(std::string path, std::string uri, std::string *type)
 {
+    *type = "html";
     std::string templateContent = _getFileString("./Networking/Utils/autoindex_template.html");
     std::string linkPrefix = (uri[uri.size() - 1] == '/' ? uri : uri + "/");
     std::string fileList;

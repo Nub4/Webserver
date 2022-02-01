@@ -165,35 +165,24 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
             if (_autoindex == "off")
             {
                 std::ifstream f("." + _root + _index);
-                if (!f.good())
+                if (!f.good()) //|| !_is404(server, parsed[1]))
                 {
                     _errorCode = 404;
                     content = _getErrorPage(type);
                 }
                 else
-                {
-                    if (_is404(server, parsed[1]))
-                        content = _getFile(&f);
-                    else
-                    {
-                        _errorCode = 404;
-                        content = _getErrorPage(type);
-                    }
-                }
+                    content = _getFile(&f);
                 f.close();
             }
             else
-            {
-                *type = "html";
-                content = _getAutoindexHtml(path, url);
-            }
+                content = _getAutoindexHtml(path, url, type);
         }
         else
         {
             if (_autoindex == "off")
                 content = _getDefaultFile(type);
             else
-                content = _getAutoindexHtml("./www", url);
+                content = _getAutoindexHtml("./www", url, type);
         }
     }
     return content;
@@ -201,10 +190,19 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
 
 void Response::_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length)
 {
-	oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
-	oss << _getCacheControl();
-	oss << _getContentType(type);
-	oss << _getContentLength(content_length);
+    if (_redirect.empty())
+    {
+        oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
+	    oss << _getCacheControl();
+        oss << _getContentType(type);
+	    oss << _getContentLength(content_length);
+    }
+    else
+    {
+        std::map<int, std::string>::iterator it = _redirect.begin();
+        oss << "HTTP/1.1 " << it->first << _getStatus(it->first);
+        oss << _getLocation(it->second);
+    }
 	oss << "\r\n";
 }
 
@@ -225,12 +223,17 @@ bool Response::_typeIsPy(std::string type)
 		return false;
 }
 
-bool    Response::_is404(struct Parse::serverBlock server, std::string location)
-{
-    if (server.location.empty())
-        return false;
-    for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
-        if (it->name == location)
-            return true;
-    return false;
-}
+// bool    Response::_is404(struct Parse::serverBlock server, std::string location)
+// {
+//     if (server.location.empty())
+//         return false;
+//     for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
+//     {
+//         if (it->name == location)
+//         {
+//             std::cout << "haha\n";
+//             return true;
+//         }
+//     }
+//     return false;
+// }
