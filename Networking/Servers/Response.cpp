@@ -112,13 +112,13 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 
 	if (_typeIsPy(type))
 	{
-        // if (_errorCode >= 400 && _errorCode <= 511)
-        // {
-        //     content = _getErrorPage(&type);
-        //     _createHeader(oss, _errorCode, type, content.size());
-        //     oss << content;
-        //     return oss.str();
-        // }
+        if (_errorCode >= 400 && _errorCode <= 511)
+        {
+            content = _getErrorPage(&type);
+            _createHeader(oss, _errorCode, type, content.size());
+            oss << content;
+            return oss.str();
+        }
 		CGI cgi(server, parsed, _index);
 		status = cgi.runCGI();
 		if (status == 1)
@@ -160,7 +160,7 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
         content = _getErrorPage(type);
     else
     {
-        if (parsed[0] == "GET" && _index != "/")
+        if (_index != "/")
         {
             if (_autoindex == "off")
             {
