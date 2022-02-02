@@ -13,9 +13,13 @@
             <p>If you see this page, the Webserv web server is successfully installed and<br>working. Futher configurations is required.</p>
             <p><i>Thank you for using Webserv.</i></p>
             <form method="post" action="cgi-bin/feedbacks.py">
-                <input type="text" name="user" id="user" placeholder="Username" size="22" required><br>
-                <textarea id="feedback" name="feedback" placeholder="Feedback..." required></textarea><br>
+                <input type="text" name="user" id="user" placeholder="Username" size="22"><br>
+                <textarea id="feedback" name="feedback" placeholder="Feedback..."></textarea><br>
                 <button type="submit">Submit</button>
+            </form>
+            <form method="post" action="cgi-bin/delete_user.py">
+                <br><input type="text" name="delete_user" id="delete_user" placeholder="Username" size="22"><br>
+                <button type="submit">Delete</button>
             </form>
             <br>
             <a href="http://localhost:3491/cgi-bin/feedbacks.py" target="_blank">Check feedbacks</a><br>
