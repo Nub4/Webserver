@@ -14,16 +14,16 @@ input1 = input1[input1.find('=')+1 :]
 
 mark = 0
 mark2 = 0
-r = open("./www/feedback_log.txt", "r")
+r = open("./assets/feedback_log.txt", "r")
 for line in r:
     if input0 in line:
         mark2 = 1
 r.close()
 if mark2 == 0:
-    f = open("./www/feedback_log.txt", "a")
+    f = open("./assets/feedback_log.txt", "a")
     f.write(input0 + " & " + input1 + "\n")
     f.close()
-f = open("./www/feedback_log.txt", "r")
+f = open("./assets/feedback_log.txt", "r")
 
 content += "<!DOCKTYPE html>"
 content += "<html>"
@@ -32,7 +32,7 @@ content +=      "#foo { position: fixed;"
 content +=      "top: 25px;"
 content +=      "color: white;"
 content +=      "left: 50px; }"
-content +=      "body { background-image: url('../photo.jpeg');"
+content +=      "body { background-image: url('../randomfiles/photo.jpeg');"
 content +=      "background-repeat: no-repeat;"
 content +=      "background-attachment: fixed;"
 content +=      "background-size: cover; }"
