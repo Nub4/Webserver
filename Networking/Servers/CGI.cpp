@@ -41,10 +41,7 @@ int CGI::runCGI()
 		char const *pathname = _env["PATH_TRANSLATED"].c_str();
 		char **placeholder = NULL;
 		if (execve(pathname, placeholder, c_env) == -1)
-		{
-			std::cerr << RED << "execve\n" << RESET;
 			exit(127);
-		}
 	}
 	else
 	{
