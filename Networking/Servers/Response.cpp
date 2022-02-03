@@ -112,19 +112,20 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 	int status = 0;
 
 	if (_typeIsPy(type))
-	{		
+	{
 		CGI cgi(server, parsed, _index);
 		status = cgi.runCGI();
+		std::string path = getcwd(NULL, 0);
+		path.append("/temp.txt");
 		if (status == 1)
 		{
+			remove(path.c_str());
 			_errorCode = 404; // this has to change to 400 error code?
 			content = _getContent(parsed, &type);
 			_createHeader(oss, _errorCode, type, content.size());
 			oss << content;
   			return oss.str();
 		}
-		std::string path = getcwd(NULL, 0);
-		path.append("/temp.txt");
 		std::ifstream f(path);
 		if (f.is_open())
 		{

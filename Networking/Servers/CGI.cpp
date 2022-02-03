@@ -25,8 +25,8 @@ int CGI::runCGI()
 		c_env[i] = (char *)tmp_env[i].c_str();
 	c_env[_env.size()] = NULL;
 ///////////////////////
-	// for (int j = 0; c_env[j] != NULL; j++)
-	// 	std::cout << c_env[j] << "\n";
+	for (int j = 0; c_env[j] != NULL; j++)
+		std::cout << c_env[j] << "\n";
 ///////////////////////
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
 	if (fd_file == -1)
