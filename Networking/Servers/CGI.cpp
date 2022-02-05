@@ -12,22 +12,26 @@ CGI::~CGI() {}
 int CGI::runCGI()
 {
 	int status = 0;
-	std::vector<std::string> tmp_env;
-	std::map<std::string, std::string>::iterator it = _env.begin();
-	for (; it != _env.end(); it++)
-	{
-		std::string tmp = it->first + '=' + it->second;
-		tmp_env.push_back(tmp);
-	}
 
-	char *c_env[_env.size() + 1];
-	for (unsigned long i = 0; i < _env.size(); i++)
-		c_env[i] = (char *)tmp_env[i].c_str();
-	c_env[_env.size()] = NULL;
+	char *c_env[_envMap.size() + 1];
+	for (size_t i = 0; i < _envMap.size(); i++)
+		c_env[i] = (char *)_envVect[i].c_str();
+	c_env[_envMap.size()] = NULL;
 ///////////////////////
-	for (int j = 0; c_env[j] != NULL; j++)
-		std::cout << c_env[j] << "\n";
+	// for (int j = 0; c_env[j] != NULL; j++)
+	// 	std::cout << c_env[j] << "\n";
 ///////////////////////
+
+	char *c_args[_args.size() + 1];
+	for (size_t i = 0; i < _args.size(); i++)
+		c_args[i] = (char *)_args[i].c_str();
+	c_args[_args.size()] = NULL;
+
+///////////////////////
+	for (int j = 0; c_args[j] != NULL; j++)
+		std::cout << c_args[j] << "\n";
+///////////////////////
+
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
 	if (fd_file == -1)
 		return 1;
@@ -38,9 +42,8 @@ int CGI::runCGI()
 	{
 		dup2(fd_file, STDOUT_FILENO);
 		close(fd_file);
-		char const *pathname = _env["PATH_TRANSLATED"].c_str();
-		char **placeholder = NULL;
-		if (execve(pathname, placeholder, c_env) == -1)
+		char const *pathname = _envMap["PATH_TRANSLATED"].c_str();
+		if (execve(pathname, c_args, c_env) == -1)
 		{
 			std::cerr << RED << "execve\n" << RESET;
 			exit(127);
@@ -62,22 +65,24 @@ void CGI::_initEnvCGI(Parse::serverBlock server, std::vector<std::string> parsed
 {
 	std::map<std::string, std::string>	client_header(_parseClientVariables(parsed));	
 	_parseClientToEnvVariables(client_header);
-	_env["SERVER_PROTOCOL"] = parsed[2];
-	_env["SERVER_NAME"] = server.listen[1];
-	_env["SERVER_PORT"] = server.listen[0];
-	_env["REQUEST_METHOD"] = parsed[0];
-	_env["SCRIPT_NAME"] = _parseScriptName(index);
-	_env["PATH_INFO"] = _parsePathInfo(index);
-	_env["PATH_TRANSLATED"] = _parsePathTranslated();
-	_env["QUERY_STRING"] = _parseQueryString(parsed);
-	_env["REMOTE_HOST"] = _parseRemoteHost(); 
-	_env["REMOTE_ADDR"] = std::string();
-	_env["AUTH_TYPE"] = std::string();
-	_env["REMOTE_USER"] = std::string();
-	_env["CONTENT_TYPE"] = _parseContentType();
-	_env["CONTENT_LENGTH"] = _parseContentLength();
-	_env["SERVER_SOFTWARE"] = "WEBSERV/42.19";
-	_env["GATEWAY_INTERFACE"] = "CGI/1.1";
+	_envMap["SERVER_PROTOCOL"] = parsed[2];
+	_envMap["SERVER_NAME"] = server.listen[1];
+	_envMap["SERVER_PORT"] = server.listen[0];
+	_envMap["REQUEST_METHOD"] = parsed[0];
+	_envMap["SCRIPT_NAME"] = _parseScriptName(index);
+	_envMap["PATH_INFO"] = _parsePathInfo(index);
+	_envMap["PATH_TRANSLATED"] = _parsePathTranslated();
+	_envMap["QUERY_STRING"] = _parseQueryString(parsed);
+	_envMap["REMOTE_HOST"] = _parseRemoteHost(); 
+	_envMap["REMOTE_ADDR"] = std::string();
+	_envMap["AUTH_TYPE"] = std::string();
+	_envMap["REMOTE_USER"] = std::string();
+	_envMap["CONTENT_TYPE"] = _parseContentType();
+	_envMap["CONTENT_LENGTH"] = _parseContentLength();
+	_envMap["SERVER_SOFTWARE"] = "WEBSERV/42.19";
+	_envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
+	_parseEnvMapToVect();
+	_parseQueryStringToArgs();
 
 	// for (std::map<std::string, std::string>::iterator it = _env.begin(); it != _env.end(); it++)
 	// 	std::cout << it->first << " = " << it->second << std::endl;
@@ -116,7 +121,17 @@ void CGI::_parseClientToEnvVariables(std::map<std::string, std::string> client_h
 		std::replace(var.begin(), var.end(), '-', '_');
 		std::transform(var.begin(), var.end(), var.begin(), ::toupper);
 		var = "HTTP_" + var;
-		_env[var] = it->second;
+		_envMap[var] = it->second;
+	}
+}
+
+void CGI::_parseEnvMapToVect()
+{
+	std::map<std::string, std::string>::iterator it = _envMap.begin();
+	for (; it != _envMap.end(); it++)
+	{
+		std::string tmp = it->first + '=' + it->second;
+		_envVect.push_back(tmp);
 	}
 }
 
@@ -176,32 +191,52 @@ std::string CGI::_parsePathInfo(std::string index)
 
 std::string CGI::_parseContentType()
 {
-	if (_env.find("HTTP_CONTENT_TYPE") == _env.end())
+	if (_envMap.find("HTTP_CONTENT_TYPE") == _envMap.end())
 		return std::string();
-	return _env["HTTP_CONTENT_TYPE"];
+	return _envMap["HTTP_CONTENT_TYPE"];
 }
 std::string CGI::_parseContentLength()
 {
-	if (_env.find("HTTP_CONTENT_LENGTH") == _env.end())
+	if (_envMap.find("HTTP_CONTENT_LENGTH") == _envMap.end())
 		return std::string();
-	return _env["HTTP_CONTENT_LENGTH"];
+	return _envMap["HTTP_CONTENT_LENGTH"];
 }
 
 std::string CGI::_parsePathTranslated()
 {
 	std::string absolute_path = getcwd(NULL, 0);
-	return absolute_path + "/www" + _env["SCRIPT_NAME"];
+	return absolute_path + "/www" + _envMap["SCRIPT_NAME"];
 }
 
 std::string CGI::_parseRemoteHost()
 {
 	std::string host;
-	int pos = _env["HTTP_HOST"].find(":");
+	int pos = _envMap["HTTP_HOST"].find(":");
 	if (pos != -1)
-		host = _env["HTTP_HOST"].substr(0, pos);
+		host = _envMap["HTTP_HOST"].substr(0, pos);
 	int count = std::count(host.begin(), host.end(), '.');
 	if (count == 3)
 		return std::string();
 	else
 		return host;
+}
+
+void CGI::_parseQueryStringToArgs()
+{
+	_args.push_back(_envMap["PATH_TRANSLATED"]);
+	if (_envMap["QUERY_STRING"] == std::string())
+		return;
+	std::string queryString = _envMap["QUERY_STRING"];
+	for (int pos = queryString.find("&"); pos != -1; pos = queryString.find("&"))
+	{
+		std::string tmp_arg = queryString.substr(0, pos);
+		tmp_arg.erase(0, tmp_arg.find("=")+1);
+		_args.push_back(tmp_arg);
+		queryString.erase(0, pos+1);
+	}
+	queryString.erase(0, queryString.find("=")+1);
+	_args.push_back(queryString);
+////////////////////
+	// for (std::vector<std::string>::iterator it = _args.begin(); it != _args.end(); it++)
+	// 	std::cout << *it << "\n";
 }
