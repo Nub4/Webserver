@@ -18,6 +18,7 @@ class Response : public Utils
         void            _setDefaultData(std::string location);
 		void			_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length);
 		bool			_typeIsPy(std::string type);
+        bool            _is404(struct Parse::serverBlock server, std::string location);
 };
 
 #endif
