@@ -16,9 +16,23 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
             std::cerr << RED << "recv\n" << RESET;
         return ;
     }
-//	std::cout << buffer << std::endl;
+	std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
+
+	////////////////////////
+	for (std::vector<std::string>::iterator it = parsed.begin(); it != parsed.end(); it++)
+	{
+		if ((*it).find("multipart/form-data") != size_t(-1))
+		{
+			std::string response = "HTTP/1.1 100 CONTINUE\r\n\r\n";
+			size = response.size();
+			std::cout << size << "\n";
+			_sendall(clientSocket, response.c_str(), &size);
+		}
+	}
+	////////////////////////
+
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);

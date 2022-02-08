@@ -18,8 +18,8 @@ int CGI::runCGI()
 		c_env[i] = (char *)_envVect[i].c_str();
 	c_env[_envMap.size()] = NULL;
 ///////////////////////
-	// for (int j = 0; c_env[j] != NULL; j++)
-	// 	std::cout << c_env[j] << "\n";
+	for (int j = 0; c_env[j] != NULL; j++)
+		std::cout << c_env[j] << "\n";
 ///////////////////////
 
 	char *c_args[_args.size() + 1];
@@ -28,8 +28,8 @@ int CGI::runCGI()
 	c_args[_args.size()] = NULL;
 
 ///////////////////////
-	for (int j = 0; c_args[j] != NULL; j++)
-		std::cout << c_args[j] << "\n";
+	// for (int j = 0; c_args[j] != NULL; j++)
+	// 	std::cout << c_args[j] << "\n";
 ///////////////////////
 
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
