@@ -28,16 +28,20 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 			std::string response = "HTTP/1.1 100 Continue\r\n\r\n";
 			size = response.size();
 			_sendall(clientSocket, response.c_str(), &size);
-			for (int i = 0; i < 200; i++)
+			int ar = 1;
+			while (ar > 0)
 			{
-				char buffer0[BUFF_SIZE] = {0};
-				recv(clientSocket, buffer0, sizeof(buffer), 0);
-				std::cout << buffer0 << std::endl;
+				char buffer0[1] = {0};
+				ar = recv(clientSocket, buffer0, 1, 0);
+				std::cout << buffer0;
+				// std::istringstream iss0(buffer0);
+				// parsed.insert(parsed.end(), (std::istream_iterator<std::string>(iss0)), std::istream_iterator<std::string>());
 			}
+			break;
 		}
 	}
 	////////////////////////
-
+	std::cout << "LOL\n";
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
