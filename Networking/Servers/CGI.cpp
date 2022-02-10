@@ -27,6 +27,7 @@ int CGI::runCGI()
 ///////////////////////
 	// for (int j = 0; c_env[j] != NULL; j++)
 	// 	std::cout << c_env[j] << "\n";
+	// std::cout << _env["QUERY_STRING"];
 ///////////////////////
 	int fd_file = open("temp.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
 	if (fd_file == -1)
