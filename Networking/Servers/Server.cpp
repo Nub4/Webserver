@@ -51,8 +51,7 @@ void    Server::_runServer()
                 else
                 {
                     std::map<int, int>::iterator it = _client_server.find(i);
-                    if (_handler(i, _servers[it->second]) == -1)
-                        std::cerr << "recv\n";
+                    _handler(i, _servers[it->second]);
                     close(i);
                     FD_CLR(i, &master);
                     _client_server.erase(i);
@@ -126,7 +125,7 @@ int     Server::_accept(int i)
     int addrlen = sizeof(_addresses[i]);
     int clientSocket = accept(_serverSockets[i], (struct sockaddr *)&_addresses[i], (socklen_t *)&addrlen);
     if (clientSocket == -1)
-        std::cerr << "accept\n";
+        std::cerr << RED << "accept\n" << RESET;
     _client_server[clientSocket] = i;
     return clientSocket;
 }
@@ -135,7 +134,7 @@ void    Server::_check(int a, std::string str)
 {
     if (a < 0)
     {
-        std::cerr << str << std::endl;
+        std::cerr << RED << str << RESET << std::endl;
         for (std::vector<int>::iterator it = _serverSockets.begin(); it != _serverSockets.end(); it++)
             close(*it);
         exit(1);

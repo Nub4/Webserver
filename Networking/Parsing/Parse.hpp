@@ -13,10 +13,7 @@ class Parse : public Utils
             std::vector<std::string>    method;
             std::string                 name;
             std::string                 root;
-            std::string                 upload_enable;
-            std::string                 upload_path;
-            std::string                 cgi_extension;
-            std::string                 cgi_path;
+            std::vector<std::string>    redirect;
         };
 
         struct serverBlock

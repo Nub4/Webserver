@@ -12,10 +12,7 @@ Parse::Parse()
     _location_names.push_back("autoindex");
     _location_names.push_back("method");
     _location_names.push_back("root");
-    _location_names.push_back("upload_enable");
-    _location_names.push_back("upload_path");
-    _location_names.push_back("cgi_extension");
-    _location_names.push_back("cgi_path");
+    _location_names.push_back("return");
 }
 
 void    Parse::readConfFile(char *conf)
@@ -133,14 +130,12 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
             }
             else if (*(it - 1) == "root")
                 loct->root = *it;
-            else if (*(it - 1) == "upload_enable")
-                loct->upload_enable = *it;
-            else if (*(it - 1) == "upload_path")
-                loct->upload_path = *it;
-            else if (*(it - 1) == "cgi_extension")
-                loct->cgi_extension = *it;
-            else if (*(it - 1) == "cgi_path")
-                loct->cgi_path = *it;
+            else if (*(it - 1) == "return")
+            {
+                for (; it->back() != ';' && it != words.end(); it++)
+                    loct->redirect.push_back(*it);
+                loct->redirect.push_back(*it);
+            }
         }
         else
             _msg_exit("configuration file error, location");
@@ -221,14 +216,8 @@ void    Parse::_checkServerValues()
                     _check_method(&it4->method);
                 if (!it4->root.empty())
                     _checkBackChar(&it4->root, "root");
-                if (!it4->upload_enable.empty())
-                    _checkBackChar(&it4->upload_enable, "upload_enable");
-                if (!it4->upload_path.empty())
-                    _checkBackChar(&it4->upload_path, "upload_path");
-                if (!it4->cgi_extension.empty())
-                    _checkBackChar(&it4->cgi_extension, "cgi_extension");
-                if (!it4->cgi_path.empty())
-                    _checkBackChar(&it4->cgi_path, "cgi_path");
+                if (!it4->redirect.empty())
+                    _check_redirect(&it4->redirect);
             }
         }
     }
@@ -333,14 +322,13 @@ void    Parse::printStructs()
                 }
                 if (!it4->root.empty())
                     std::cout << "     root:                 " << it4->root << std::endl;
-                if (!it4->upload_enable.empty())
-                    std::cout << "     upload_enable:        " << it4->upload_enable << std::endl;
-                if (!it4->upload_path.empty())
-                    std::cout << "     upload_path:          " << it4->upload_path << std::endl;
-                if (!it4->cgi_extension.empty())
-                    std::cout << "     cgi_extension:        " << it4->cgi_extension << std::endl;
-                if (!it4->cgi_path.empty())
-                    std::cout << "     cgi_path:             " << it4->cgi_path << std::endl;
+                if (!it4->redirect.empty())
+                {    
+                    std::cout << "     return:               ";
+                    for (std::vector<std::string>::iterator it7 = it4->redirect.begin(); it7 != it4->redirect.end(); it7++)
+                        std::cout << *it7 << " ";
+                    std::cout << std::endl;
+                }
             }
         }
         count++;

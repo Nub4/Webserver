@@ -2,15 +2,6 @@
 
 Utils::Utils() {}
 
-std::vector<unsigned char>  Utils::readBinaryFile(char *conf, std::string path)
-{
-    std::string filename = conf;
-    std::string str = path + "/confs/" + filename;
-    std::ifstream infile(str, std::ios::binary);
-    std::vector<unsigned char> binary_file((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
-    return binary_file;
-}
-
 /*
 * These ones
 * are for
@@ -89,6 +80,13 @@ void    Utils::_check_error_page(std::map<int, std::string> *m)
     it->second.pop_back();
 }
 
+void    Utils::_check_redirect(std::vector<std::string> *v)
+{
+    _checkBackChar(&v->back(), "return");
+    if ((*v)[0] != "301" && v->size() != 2)
+        _msg_exit("configuration file error, return");
+}
+
 void    Utils::_check_autoindex(std::string *x)
 {
     if (*x != "on;" && *x != "off;")
@@ -162,7 +160,7 @@ int	    Utils::_ft_isdigit(int c)
 
 void    Utils::_msg_exit(std::string s)
 {
-    std::cerr << s << std::endl;
+    std::cerr << RED << s << RESET << std::endl;
     exit(1);
 }
 
@@ -180,25 +178,24 @@ int     Utils::_ft_isprint(int c)
 * Response class:
 */
 
-void    Utils::_setErrorPages()
-{
-    _error_page[404] = "errors/404.html";
-    _error_page[405] = "errors/405.html";
-    _error_page[413] = "errors/413.html";
-}
-
 std::string Utils::_getErrorPage(std::string *type)
 {
-    std::string content;
-    std::ifstream f("./www/" + _error_page[_errorCode]);
-    if (f.good())
-    {
-        std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-        content = str;
-        *type = "html";
-    }
-    f.close();
-    return content;
+    std::ostringstream oss;
+
+    oss <<  "<!DOCTYPE html>"
+            "<html>"
+                "<style>"
+                    "h1 {text-align: center;}"
+                    "p {text-align: center;}"
+                "</style>"
+                "<body>"
+                    "<h1>" << _errorCode << " " << _getStatus(_errorCode) << "</h1>"
+                    "<hr>"
+                    "<p><small>Webserv</small></p>"
+                "</body>"
+            "</html>";
+    *type = "html";
+    return oss.str();
 }
 
 std::string Utils::_getFile(std::ifstream *f)
@@ -242,14 +239,57 @@ std::string     Utils::_getCacheControl()
     return str;
 }
 
+std::string     Utils::_getLocation(std::string url)
+{
+    std::ostringstream oss;
+
+    oss << "Location: ";
+    oss << url << "\r\n";
+    return oss.str();
+}
+
 std::string     Utils::_getStatus(int err_code)
 {
     if (err_code == 200)
         return " OK\r\n";
+    else if (err_code == 201)
+        return " Created\r\n";
+    else if (err_code == 202)
+        return " Accepted\r\n";
+    else if (err_code == 204)
+        return " No Content\r\n";
+
+    else if (err_code == 301)
+        return " Moved Permanently\r\n";
+    else if (err_code == 302)
+        return " Found\r\n";
+    else if (err_code == 303)
+        return " See Other\r\n";
+    else if (err_code == 304)
+        return " Not Modified\r\n";
+    else if (err_code == 307)
+        return " Temporary Redirect\r\n";
+    else if (err_code == 308)
+        return " Permanent Redirect\r\n";
+
+    else if (err_code == 400)
+        return " Bad Request\r\n";
+    else if (err_code == 403)
+        return " Forbidden\r\n";
     else if (err_code == 405)
         return " Method Not Allowed\r\n";
+    else if (err_code == 406)
+        return " Not Acceptable\r\n";
     else if (err_code == 413)
         return " Payload Too Large\r\n";
+    else if (err_code == 414)
+        return " URI Too Long\r\n";
+
+    else if (err_code == 502)
+        return " Bad Gateway\r\n";
+    else if (err_code == 505)
+        return " HTTP Version Not Supported\r\n";
+
     else
         return " Not Found\r\n";
 }
@@ -259,17 +299,26 @@ std::string     Utils::_getContentType(std::string type)
     std::string str;
 
     str = "Content-Type: ";
-    if (type == "jpeg" || type == "jpg")
-        str += "image/jpeg";
-    else if (type == "html" || type == "/")
+    if (type == "html" || type == "/")
         str += "text/html";
+    else if (type == "css")
+        str += "text/css";
+    else if (type == "csv")
+        str += "text/csv";
+    else if (type == "js")
+        str += "text/javascript";
+
+    else if (type == "jpeg" || type == "jpg")
+        str += "image/jpeg";
+    else if (type == "gif")
+        str += "image/gif";
     else if (type == "png")
         str += "image/png";
     else if (type == "bmp")
         str += "image/bmp";
     else
         str += "text/plain";
-    str += "\r\n";
+    str += "; charset=UTF-8\r\n";
     return str;
 }
 
@@ -301,9 +350,10 @@ std::string Utils::_getFileString(std::string path)
     return strStream.str();
 }
 
-std::string Utils::_getAutoindexHtml(std::string path, std::string uri)
+std::string Utils::_getAutoindexHtml(std::string path, std::string uri, std::string *type)
 {
-    std::string templateContent = _getFileString("./Networking/Utils/autoindex_template.html");
+    *type = "html";
+    std::string templateContent = _getFileString("./assets/autoindex_template.html"); //"./Networking/Utils/autoindex_template.html");
     std::string linkPrefix = (uri[uri.size() - 1] == '/' ? uri : uri + "/");
     std::string fileList;
     DIR *dirp = opendir(path.c_str());

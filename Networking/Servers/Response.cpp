@@ -2,44 +2,72 @@
 
 Response::Response() {}
 
-int     Response::_handler(int clientSocket, struct Parse::serverBlock server)
+void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 {
+    std::ostringstream oss;
     std::string output;
     int size;
     std::string type;
     char buffer[BUFF_SIZE] = {0};
+    int n;
 
-    if (recv(clientSocket, buffer, sizeof(buffer), 0) <= 0)
-        return -1;
-    std::cout << buffer << std::endl;
+    if ((n = recv(clientSocket, buffer, sizeof(buffer), 0)) <= 0)
+    {
+        if (n == -1)
+            std::cerr << RED << "recv\n" << RESET;
+        return ;
+    }
+	std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-    type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
+    
+    ////////////////////////
+    for (std::vector<std::string>::iterator it = parsed.begin(); it != parsed.end(); it++)
+	{
+		if ((*it).find("multipart/form-data") != size_t(-1))
+		{
+			std::string response = "HTTP/1.1 100 Continue\r\n\r\n";
+			size = response.size();
+			_sendall(clientSocket, response.c_str(), &size);
+            int ar = 1;
+            while (ar > 0)
+            {
+				char buffer0[1] = {0};
+				ar = recv(clientSocket, buffer0, 1, 0);
+			//	std::cout << buffer0;
+                oss << buffer0;
+			}
+		}
+	}
+    parsed.push_back(oss.str());
+    // std::cout << "LOL" << std::endl;
+     //std::cout << parsed[parsed.size() - 1] << std::endl;
+	////////////////////////
 
+    
+    type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
-
-    output = _getClientData(type, parsed);
+    output = _getClientData(type, parsed, server);
     size = output.size();
     if (_sendall(clientSocket, output.c_str(), &size) == -1)
     {
-        std::cerr << "sendall\n";
-        std::cout << "Only " << size << " bytes sended because of the error\n";
+        std::cerr << RED << "sendall\n" << RESET;
+        std::cout << YELLOW << "Only " << size << " bytes sended because of the error\n" << RESET;
     }
-    return 1;
 }
 
 void    Response::_setDefaultData(std::string location)
 {
     _method.clear();
     _error_page.clear();
+    _redirect.clear();
 
     _root = "/www/";
     _index = location;
     _max_size = 1048576;
     _errorCode = 200;
     _method.push_back("GET");
-    _setErrorPages();
     _autoindex = "off";
 }
 
@@ -86,6 +114,8 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
                 }
                 if (!it->autoindex.empty())
                     _autoindex = it->autoindex;
+                if (!it->redirect.empty())
+                    _redirect.insert(std::pair<int, std::string>(atoi(it->redirect[0].c_str()), it->redirect[1]));
             }
         }
     }
@@ -100,17 +130,48 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
         _errorCode = 405;
 }
 
-std::string     Response::_getClientData(std::string type, std::vector<std::string> parsed)
+std::string     Response::_getClientData(std::string type, std::vector<std::string> parsed, struct Parse::serverBlock server)
 {
     std::ostringstream oss;
     std::string content;
+	int status = 0;
 
-    content = _getContent(parsed, &type);    
-    oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
-    oss << _getCacheControl();
-    oss << _getContentType(type);
-    oss << _getContentLength(content.size());
-    oss << "\r\n";
+	if (_typeIsPy(type))
+	{
+        if (_errorCode >= 400 && _errorCode <= 511)
+        {
+            content = _getErrorPage(&type);
+            _createHeader(oss, _errorCode, type, content.size());
+            oss << content;
+            return oss.str();
+        }
+		CGI cgi(server, parsed, _index);
+		status = cgi.runCGI();
+		if (status == 1)
+		{
+			_errorCode = 400;
+			content = _getContent(parsed, &type);
+			_createHeader(oss, _errorCode, type, content.size());
+			oss << content;
+  			return oss.str();
+		}
+		std::string path = getcwd(NULL, 0);
+		path.append("/temp.txt");
+		std::ifstream f(path);
+		if (f.is_open())
+		{
+			std::stringstream buffer;
+			buffer << f.rdbuf();
+			content = buffer.str();
+			f.close();
+			remove(path.c_str());
+		}
+	}
+	else
+	{
+    	content = _getContent(parsed, &type);
+		_createHeader(oss, _errorCode, type, content.size());
+	}
     oss << content;
     return oss.str();
 }
@@ -118,24 +179,72 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type)
 {
     std::string content;
+    std::string url = "http://" + parsed[4] + parsed[1];
+    std::string path = "./www" + parsed[1];
+
     if (_errorCode >= 400 && _errorCode <= 511)
         content = _getErrorPage(type);
     else
     {
-        if (parsed[0] == "GET" && parsed[1].size() != 1)
+        if (_index != "/")
         {
-            std::ifstream f("." + _root + _index);
-            if (!f.good())
+            if (_autoindex == "off")
             {
-                _errorCode = 404;
-                content = _getErrorPage(type);
+                std::ifstream f("." + _root + _index);
+                if (!f.good())
+                {
+                    _errorCode = 404;
+                    content = _getErrorPage(type);
+                }
+                else
+                    content = _getFile(&f);
+                f.close();
             }
             else
-                content = _getFile(&f);
-            f.close();
+                content = _getAutoindexHtml(path, url, type);
         }
         else
-            content = _getDefaultFile(type);
+        {
+            if (_autoindex == "off")
+                content = _getDefaultFile(type);
+            else
+                content = _getAutoindexHtml("./www", url, type);
+        }
     }
     return content;
+}
+
+void Response::_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length)
+{
+    if (_redirect.empty())
+    {
+        oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
+	    oss << _getCacheControl();
+        oss << _getContentType(type);
+	    oss << _getContentLength(content_length);
+    }
+    else
+    {
+        std::map<int, std::string>::iterator it = _redirect.begin();
+        oss << "HTTP/1.1 " << it->first << _getStatus(it->first);
+        oss << _getLocation(it->second);
+    }
+	oss << "\r\n";
+}
+
+bool Response::_typeIsPy(std::string type)
+{
+	int pos = type.find("py?");
+	if (pos != -1)
+		type = type.substr(0, pos + 2);
+	else
+	{
+		pos = type.find("py/");
+		if (pos != -1)
+			type = type.substr(0, pos + 2);
+	}
+	if (type == "py")
+		return true;
+	else
+		return false;
 }

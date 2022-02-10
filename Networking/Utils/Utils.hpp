@@ -8,8 +8,6 @@ class Utils
     public:
         Utils();
 
-        std::vector<unsigned char>  readBinaryFile(char *conf, std::string path);
-
     protected:
         int                         _errorCode;
         std::string                 _root;
@@ -18,6 +16,7 @@ class Utils
         std::vector<std::string>    _method;
         std::map<int, std::string>  _error_page;
         std::string                 _autoindex;
+        std::map<int, std::string>  _redirect;
 
         bool    _isCorrectHost(std::string host);
         void    _check_body_size(std::string *x);
@@ -31,9 +30,9 @@ class Utils
         void    _check_method(std::vector<std::string> *v);
         void    _check_autoindex(std::string *x);
         void    _check_error_page(std::map<int, std::string> *m);
+        void    _check_redirect(std::vector<std::string> *v);
 
         int             _sendall(int clientSocket, const char *buf, int *size);
-        void            _setErrorPages();
         std::string     _getErrorPage(std::string *type);
         std::string     _getFile(std::ifstream *f);
         std::string     _getDefaultFile(std::string *type);
@@ -41,8 +40,9 @@ class Utils
         std::string     _getContentType(std::string type);
         std::string     _getContentLength(int size);
         std::string     _getStatus(int err_code);
+        std::string     _getLocation(std::string url);
+        std::string     _getAutoindexHtml(std::string path, std::string uri, std::string *type);
         std::string     _getFileString(std::string path);
-        std::string     _getAutoindexHtml(std::string path, std::string uri);
 };
 
 #endif
