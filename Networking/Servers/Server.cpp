@@ -47,13 +47,11 @@ void    Server::_runServer()
                     FD_SET(clientSocket, &master);
                     if (clientSocket > _fdmax)
                         _fdmax = clientSocket;
-             //       std::cout << GREEN << "New connection on socket " << clientSocket << RESET << std::endl; 
                 }
                 else
                 {
                     std::map<int, int>::iterator it = _client_server.find(i);
                     _handler(i, _servers[it->second]);
-            //        std::cout << YELLOW << "Connection closed from socket " << i << RESET << std::endl;
                     close(i);
                     FD_CLR(i, &master);
                     _client_server.erase(i);

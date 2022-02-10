@@ -19,6 +19,20 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 	std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
+
+	////////////////////////
+	for (std::vector<std::string>::iterator it = parsed.begin(); it != parsed.end(); it++)
+	{
+		if ((*it).find("multipart/form-data") != size_t(-1))
+		{
+			std::string response = "HTTP/1.1 100 CONTINUE\r\n\r\n";
+			size = response.size();
+			std::cout << size << "\n";
+			_sendall(clientSocket, response.c_str(), &size);
+		}
+	}
+	////////////////////////
+
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);
@@ -42,7 +56,6 @@ void    Response::_setDefaultData(std::string location)
     _max_size = 1048576;
     _errorCode = 200;
     _method.push_back("GET");
-    _setErrorPages();
     _autoindex = "off";
 }
 
@@ -138,7 +151,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 	}
 	else
 	{
-    	content = _getContent(parsed, &type);   
+    	content = _getContent(parsed, &type);
 		_createHeader(oss, _errorCode, type, content.size());
 	}
     oss << content;
@@ -148,34 +161,56 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 std::string     Response::_getContent(std::vector<std::string> parsed, std::string *type)
 {
     std::string content;
+    std::string url = "http://" + parsed[4] + parsed[1];
+    std::string path = "./www" + parsed[1];
+
     if (_errorCode >= 400 && _errorCode <= 511)
         content = _getErrorPage(type);
     else
     {
-        if (parsed[0] == "GET" && _index != "/")
+        if (_index != "/")
         {
-			std::ifstream f("." + _root + _index);
-            if (!f.good())
+            if (_autoindex == "off")
             {
-                _errorCode = 404;
-                content = _getErrorPage(type);
+                std::ifstream f("." + _root + _index);
+                if (!f.good())
+                {
+                    _errorCode = 404;
+                    content = _getErrorPage(type);
+                }
+                else
+                    content = _getFile(&f);
+                f.close();
             }
             else
-                content = _getFile(&f);
-            f.close();
+                content = _getAutoindexHtml(path, url, type);
         }
         else
-            content = _getDefaultFile(type);
+        {
+            if (_autoindex == "off")
+                content = _getDefaultFile(type);
+            else
+                content = _getAutoindexHtml("./www", url, type);
+        }
     }
     return content;
 }
 
 void Response::_createHeader(std::ostringstream &oss, int _errorCode, std::string type, size_t content_length)
 {
-	oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
-	oss << _getCacheControl();
-	oss << _getContentType(type);
-	oss << _getContentLength(content_length);
+    if (_redirect.empty())
+    {
+        oss << "HTTP/1.1 " << _errorCode << _getStatus(_errorCode);
+	    oss << _getCacheControl();
+        oss << _getContentType(type);
+	    oss << _getContentLength(content_length);
+    }
+    else
+    {
+        std::map<int, std::string>::iterator it = _redirect.begin();
+        oss << "HTTP/1.1 " << it->first << _getStatus(it->first);
+        oss << _getLocation(it->second);
+    }
 	oss << "\r\n";
 }
 

@@ -33,7 +33,6 @@ class Utils
         void    _check_redirect(std::vector<std::string> *v);
 
         int             _sendall(int clientSocket, const char *buf, int *size);
-        void            _setErrorPages();
         std::string     _getErrorPage(std::string *type);
         std::string     _getFile(std::ifstream *f);
         std::string     _getDefaultFile(std::string *type);
@@ -42,6 +41,8 @@ class Utils
         std::string     _getContentLength(int size);
         std::string     _getStatus(int err_code);
         std::string     _getLocation(std::string url);
+        std::string     _getAutoindexHtml(std::string path, std::string uri, std::string *type);
+        std::string     _getFileString(std::string path);
 };
 
 #endif
