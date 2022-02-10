@@ -25,10 +25,15 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 	{
 		if ((*it).find("multipart/form-data") != size_t(-1))
 		{
-			std::string response = "HTTP/1.1 100 CONTINUE\r\n\r\n";
+			std::string response = "HTTP/1.1 100 Continue\r\n\r\n";
 			size = response.size();
-			std::cout << size << "\n";
 			_sendall(clientSocket, response.c_str(), &size);
+			for (int i = 0; i < 200; i++)
+			{
+				char buffer0[BUFF_SIZE] = {0};
+				recv(clientSocket, buffer0, sizeof(buffer), 0);
+				std::cout << buffer0 << std::endl;
+			}
 		}
 	}
 	////////////////////////

@@ -18,8 +18,8 @@ int CGI::runCGI()
 		c_env[i] = (char *)_envVect[i].c_str();
 	c_env[_envMap.size()] = NULL;
 ///////////////////////
-	for (int j = 0; c_env[j] != NULL; j++)
-		std::cout << c_env[j] << "\n";
+	// for (int j = 0; c_env[j] != NULL; j++)
+	// 	std::cout << c_env[j] << "\n";
 ///////////////////////
 
 	char *c_args[_args.size() + 1];
