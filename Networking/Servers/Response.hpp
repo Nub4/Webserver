@@ -11,6 +11,7 @@ class Response : public Utils
         Response();
 
     protected:
+        int             _fileUpload(char *s, int clientSocket);
         std::string     _getClientData(std::string type, std::vector<std::string> parsed, struct Parse::serverBlock server);
         std::string     _getContent(std::vector<std::string> parsed, std::string *type);
         void            _handler(int clientSocket, struct Parse::serverBlock server);
