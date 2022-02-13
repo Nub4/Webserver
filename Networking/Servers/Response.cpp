@@ -1,6 +1,4 @@
 #include "Response.hpp"
-#include <iostream>
-#include <fstream>
 
 Response::Response() {}
 
@@ -22,7 +20,7 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
 	std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-    
+
     char *s;
     s = strstr(buffer, "------WebKitFormBoundary");
     if (s != NULL)
@@ -219,6 +217,18 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
 
     if (_errorCode >= 400 && _errorCode <= 511)
         content = _getErrorPage(type);
+    else if (parsed[0] == "DELETE")
+    {
+        std::string file = "." + _root + _index;
+        int status = remove(file.c_str());
+        if (status == 0)
+            content = "File has been deleted succesfully!";
+        else
+        {
+            _errorCode = 204;
+            content = "Couldn't delete the file!";
+        }
+    }
     else
     {
         if (_index != "/")

@@ -24,6 +24,7 @@
 # include <algorithm>
 # include <cerrno>
 # include <dirent.h>
+# include <cstdio>
 
 # define PORT 3490
 # define BACKLOG 1024
