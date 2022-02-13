@@ -8,13 +8,29 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::string output;
     int size;
     std::string type;
-    char buffer[BUFF_SIZE] = {0};
     int n;
+    char buffer[BUFF_SIZE];
+    char bufferi[10];
 
-    if ((n = recv(clientSocket, buffer, sizeof(buffer), 0)) <= 0)
+    memset(buffer, 0, BUFF_SIZE);
+    memset(bufferi, 0, 10);
+    while ((n = recv(clientSocket, bufferi, 10, 0)) == 10)
     {
-        if (n == -1)
-            std::cerr << RED << "recv\n" << RESET;
+        oss << bufferi;
+        memset(bufferi, 0, 10);
+    }
+    if (n > 0)
+        oss << bufferi;
+    strcpy(buffer, oss.str().c_str());
+    // if ((n = recv(clientSocket, buffer, sizeof(buffer), 0)) <= 0)
+    // {
+    //     if (n == -1)
+    //         std::cerr << RED << "recv\n" << RESET;
+    //     return ;
+    // }
+    if (oss.str().size() == 0)
+    {
+        std::cout << "recv" << std::endl;
         return ;
     }
 	std::cout << buffer << std::endl;
@@ -22,7 +38,7 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
     char *s;
-    s = strstr(buffer, "------WebKitFormBoundary");
+    s = strstr(buffer, "\r\n------");//WebKitFormBoundary");
     if (s != NULL)
         if (_fileUpload(s, clientSocket) == 0)
             return ;
@@ -52,41 +68,41 @@ int     Response::_fileUpload(char *s, int clientSocket)
     t = temp.find("\"");
     temp.erase(t, temp.size());
 
-    if (!strstr(s, "Content-Type: image"))
+    // if (!strstr(s, "Content-Type: image"))
+    // {
+    char *s2;
+    s2 = strstr(s, "\r\n\r\n");
+    if (s2 != NULL)
     {
-        char *s2;
-        s2 = strstr(s, "\r\n\r\n");
-        if (s2 != NULL)
+        std::string lol = s2;
+        lol.erase(0, 4);
+        size_t n = lol.find("------");//WebKitFormBoundary");
+        lol.erase(n - 2, lol.size());
+
+        std::string header = "HTTP/1.1 200 OK\r\n\r\n";
+        header += "File was uploaded succesfully!";
+        int si = header.size();
+        if (_sendall(clientSocket, header.c_str(), &si) == -1)
         {
-            std::string lol = s2;
-            lol.erase(0, 4);
-            size_t n = lol.find("------WebKitFormBoundary");
-            lol.erase(n - 2, lol.size());
-
-            std::string header = "HTTP/1.1 200 OK\r\n\r\n";
-            header += "File was uploaded succesfully!";
-            int si = header.size();
-            if (_sendall(clientSocket, header.c_str(), &si) == -1)
-            {
-                std::cerr << RED << "sendall\n" << RESET;
-                std::cout << YELLOW << "Only " << si << " bytes sended because of the error\n" << RESET;
-            }
-
-            std::ofstream myfile;
-            myfile.open("./uploads/" + temp, std::ios::out | std::ios::binary);
-            myfile << lol;
-            myfile.close();
-            return 0;
+            std::cerr << RED << "sendall\n" << RESET;
+            std::cout << YELLOW << "Only " << si << " bytes sended because of the error\n" << RESET;
         }
-    }
-    else
-    {
-        std::string response = "HTTP/1.1 200 OK\r\n\r\n";
-        response += "Failed to upload file, its binary bitch!";
-        int size = response.size();
-        _sendall(clientSocket, response.c_str(), &size);
+
+        std::ofstream myfile;
+        myfile.open("./uploads/" + temp, std::ios::out | std::ios::binary);
+        myfile << lol;
+        myfile.close();
         return 0;
     }
+    // }
+    // else
+    // {
+    //     std::string response = "HTTP/1.1 200 OK\r\n\r\n";
+    //     response += "Failed to upload file, its binary bitch!";
+    //     int size = response.size();
+    //     _sendall(clientSocket, response.c_str(), &size);
+    //     return 0;
+    // }
     return 1;
 }
 
