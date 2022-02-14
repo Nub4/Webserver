@@ -1,23 +1,22 @@
 #! /usr/local/bin/python3
 
 import os
+import sys
 
 content = ""
 
-toParse = ""
-toParse = os.environ["QUERY_STRING"]
-
-input0 = toParse[: toParse.find('&')]
-input0 = input0[toParse.find('=')+1 :]
-input1 = toParse[toParse.find('&')+1 :]
-input1 = input1[toParse.find('=')+1 :]
-try:
-	int(input0)
-	int(input1)
-except ValueError:
-	content += "'" + input0 + "' and '" + input1 + "' don't add up!"
+if len(sys.argv) < 3:
+	content = "Not enough numbers to add up!"
 else:
-	content += input0 + " + " + input1 + " = " + str(int(input0) + int(input1))
+	input0 = sys.argv[1]
+	input1 = sys.argv[2]
+	try:
+		int(input0)
+		int(input1)
+	except ValueError:
+		content += "'" + input0 + "' and '" + input1 + "' don't add up!"
+	else:
+		content += input0 + " + " + input1 + " = " + str(int(input0) + int(input1))
 
 header= "HTTP/1.1 200 OK\r\n"
 header+= "Cache-Control: no-cache, private\r\n"
