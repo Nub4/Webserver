@@ -173,7 +173,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 		if (status == 1)
 		{
 			remove(path.c_str());
-			_errorCode = 404; // this has to change to 400 error code?
+			_errorCode = 400;
 			content = _getContent(parsed, &type);
 			_createHeader(oss, _errorCode, type, content.size());
 			oss << content;
