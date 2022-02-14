@@ -63,7 +63,7 @@ int     Response::_fileUpload(char *s, int clientSocket)
         std::string lol = s2;
         lol.erase(0, 4);
         size_t n = lol.find("------");
-        lol.erase(n - 2, lol.size());
+        lol.erase(n - 2, lol.size() - n);
 
         std::string header = "HTTP/1.1 200 OK\r\n\r\n";
         header += "File was uploaded succesfully!";
