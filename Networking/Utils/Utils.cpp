@@ -405,3 +405,27 @@ std::string Utils::_encodeURIComponent(std::string src)
     }
     return result;
 }
+
+
+std::string Utils::_decodeURIComponent(std::string encodedURI)
+{
+    std::string decodedURI;
+
+    for (unsigned i = 0; i < encodedURI.size(); i++)
+    {
+        if (encodedURI[i] == '+')
+            decodedURI += ' ';
+        else if (encodedURI[i] == '%')
+        {
+            unsigned int c;
+            std::stringstream ss;
+            ss << std::hex << std::string(encodedURI, i + 1, 2);
+            ss >> c;
+            decodedURI += static_cast<char>(c);
+            i += 2;
+        }
+        else
+            decodedURI += encodedURI[i];
+    }
+    return decodedURI;
+}

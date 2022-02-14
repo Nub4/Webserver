@@ -48,6 +48,7 @@ class Utils
         bool            _shouldBeEscaped(char c);
         std::string     _getEscapedChar(char c);
         std::string     _encodeURIComponent(std::string src);
+        std::string     _decodeURIComponent(std::string encodedURI);
 };
 
 #endif
