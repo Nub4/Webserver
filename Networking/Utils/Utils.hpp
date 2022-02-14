@@ -43,6 +43,9 @@ class Utils
         std::string     _getLocation(std::string url);
         std::string     _getAutoindexHtml(std::string path, std::string uri, std::string *type);
         std::string     _getFileString(std::string path);
+        // bool            _shouldBeEscaped(char c);
+        // std::string     _getEscapedChar(char c);
+        // std::string     _encodeURIComponent(std::string src);
 };
 
 #endif
