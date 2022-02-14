@@ -29,10 +29,7 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     //     return ;
     // }
     if (oss.str().size() == 0)
-    {
-        std::cout << "recv" << std::endl;
         return ;
-    }
 	std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
