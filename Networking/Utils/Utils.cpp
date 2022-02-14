@@ -369,3 +369,39 @@ std::string Utils::_getAutoindexHtml(std::string path, std::string uri, std::str
     templateContent.replace(templateContent.find("$2"), 2, fileList);
     return templateContent;
 }
+
+bool Utils::_shouldBeEscaped(char c)
+{
+    std::string unescapedChars = UNESCAPED_CHARS;
+    if (unescapedChars.find(c) != std::string::npos ||
+        (c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9'))
+            return false;
+    return true;
+}
+
+std::string Utils::_getEscapedChar(char c)
+{
+    std::string result = "%";
+    std::stringstream stream;
+    stream << std::hex << std::setfill('0') << std::setw(2) << (int)c;
+    result += stream.str();
+    for (unsigned i = 0; i < result.size(); i++)
+        result[i] = std::toupper(result[i]);
+    return result;
+}
+
+std::string Utils::_encodeURIComponent(std::string src)
+{
+    std::string result;
+
+    for (unsigned i = 0; i < src.size(); i++)
+    {
+        if (_shouldBeEscaped(src[i]))
+            result += _getEscapedChar(src[i]);
+        else
+            result += src[i];
+    }
+    return result;
+}
