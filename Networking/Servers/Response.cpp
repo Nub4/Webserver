@@ -30,7 +30,7 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     if (s != NULL)
         if (_fileUpload(s, clientSocket) == 0)
             return ;
-    
+
     type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
     _setDefaultData(parsed[1]);
     _setBlockData(parsed, server, &type);

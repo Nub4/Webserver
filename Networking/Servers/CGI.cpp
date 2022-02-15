@@ -141,16 +141,14 @@ std::string CGI::_parseQueryString(std::vector<std::string> parsed)
 	std::string queryString;
 	if (parsed[0] == "GET")
 	{
-		queryString = parsed[1];
+		queryString = _decodeURIComponent(parsed[1]);
 		int pos = queryString.find("?");
 		if (pos == -1)
 			return std::string();
 		return queryString.substr(pos + 1);
 	}
 	else if (parsed[0] == "POST")
-	{
-		queryString = parsed[parsed.size() - 1];
-	}
+		queryString = _decodeURIComponent(parsed[parsed.size() - 1]);
 	return queryString;
 }
 
