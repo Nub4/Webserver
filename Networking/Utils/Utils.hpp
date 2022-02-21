@@ -20,6 +20,7 @@ class Utils
         std::map<int, std::string>  _error_page;
         std::string                 _autoindex;
         std::map<int, std::string>  _redirect;
+        std::string                 _upload;
 
         bool    _isCorrectHost(std::string host);
         void    _check_body_size(std::string *x);

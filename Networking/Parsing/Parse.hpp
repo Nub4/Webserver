@@ -14,6 +14,7 @@ class Parse : public Utils
             std::string                 name;
             std::string                 root;
             std::vector<std::string>    redirect;
+            std::string                 upload;
         };
 
         struct serverBlock

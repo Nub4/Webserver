@@ -25,15 +25,16 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::istringstream iss(buffer);
     std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
+    type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
+    _setDefaultData(parsed[1]);
+    _setBlockData(parsed, server, &type);
+
     char *s;
     s = strstr(buffer, "\r\n------");
     if (s != NULL)
         if (_fileUpload(s, clientSocket) == 0)
             return ;
 
-    type = parsed[1].substr(parsed[1].rfind(".") + 1, parsed[1].size() - parsed[1].rfind("."));
-    _setDefaultData(parsed[1]);
-    _setBlockData(parsed, server, &type);
     output = _getClientData(type, parsed, server);
     size = output.size();
     if (_sendall(clientSocket, output.c_str(), &size) == -1)
@@ -66,16 +67,29 @@ int     Response::_fileUpload(char *s, int clientSocket)
         lol.erase(n - 2, lol.size() - n);
 
         std::string header = "HTTP/1.1 200 OK\r\n\r\n";
-        header += "File was uploaded succesfully!";
-        int si = header.size();
-        if (_sendall(clientSocket, header.c_str(), &si) == -1)
+        if (_upload.empty())
         {
-            std::cerr << RED << "sendall\n" << RESET;
-            std::cout << YELLOW << "Only " << si << " bytes sended because of the error\n" << RESET;
+            header += "Couldn't upload the file, upload directive needed or correct path!";
+            int si = header.size();
+            if (_sendall(clientSocket, header.c_str(), &si) == -1)
+            {
+                std::cerr << RED << "sendall\n" << RESET;
+                std::cout << YELLOW << "Only " << si << " bytes sended because of the error\n" << RESET;
+            }
+            return 0;
         }
-
+        else
+        {
+            header += "File was uploaded succesfully!";
+            int si = header.size();
+            if (_sendall(clientSocket, header.c_str(), &si) == -1)
+            {
+                std::cerr << RED << "sendall\n" << RESET;
+                std::cout << YELLOW << "Only " << si << " bytes sended because of the error\n" << RESET;
+            }
+        }
         std::ofstream myfile;
-        myfile.open("./uploads/" + temp, std::ios::out | std::ios::binary);
+        myfile.open("." + _upload + temp, std::ios::out | std::ios::binary);
         myfile << lol;
         myfile.close();
         return 0;
@@ -96,6 +110,7 @@ void    Response::_setDefaultData(std::string location)
     _method.push_back("GET");
     _autoindex = "off";
     _location.clear();
+    _upload.clear();
 }
 
 void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
@@ -144,6 +159,8 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
                     _autoindex = it->autoindex;
                 if (!it->redirect.empty())
                     _redirect.insert(std::pair<int, std::string>(atoi(it->redirect[0].c_str()), it->redirect[1]));
+                if (!it->upload.empty())
+                    _upload = it->upload;
             }
         }
     }

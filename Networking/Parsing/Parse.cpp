@@ -13,6 +13,7 @@ Parse::Parse()
     _location_names.push_back("method");
     _location_names.push_back("root");
     _location_names.push_back("return");
+    _location_names.push_back("upload");
 }
 
 void    Parse::readConfFile(char *conf)
@@ -136,6 +137,8 @@ void    Parse::_get_location(int start, int end, std::string temp, struct locati
                     loct->redirect.push_back(*it);
                 loct->redirect.push_back(*it);
             }
+            else if (*(it - 1) == "upload")
+                loct->upload = *it;
         }
         else
             _msg_exit("configuration file error, location");
@@ -218,6 +221,8 @@ void    Parse::_checkServerValues()
                     _checkBackChar(&it4->root, "root");
                 if (!it4->redirect.empty())
                     _check_redirect(&it4->redirect);
+                if (!it4->upload.empty())
+                    _checkBackChar(&it4->upload, "upload");
             }
         }
     }
@@ -329,6 +334,8 @@ void    Parse::printStructs()
                         std::cout << *it7 << " ";
                     std::cout << std::endl;
                 }
+                if (!it4->upload.empty())
+                    std::cout << "     upload:               " << it4->upload << std::endl;
             }
         }
         count++;
