@@ -7,19 +7,19 @@ void    Response::_handler(int clientSocket, struct Parse::serverBlock server)
     std::string output;
     int size;
     std::string type;
-    int n;
     char buffer[BUFF_SIZE];
-    char bufferi[1];
-
-    memset(buffer, 0, BUFF_SIZE);
-    memset(bufferi, 0, 1);
-    while ((n = recv(clientSocket, bufferi, 1, 0)) == 1)
-    {
-        strncat(buffer, bufferi, 1);
-        memset(bufferi, 0, 1);
-    }
+    
+    bzero(&buffer, sizeof(buffer));
+    int ret_recv = 1;
+    while (ret_recv == 1)
+        if ((ret_recv = recv(clientSocket, buffer + strlen(buffer), 1, 0)) <= 0)
+            break ;
     if (strlen(buffer) == 0)
+    {
+        if (ret_recv == -1)
+            std::cerr << RED << "recv\n" << RESET;
         return ;
+    }
 
 	std::cout << buffer << std::endl;
     std::istringstream iss(buffer);
@@ -95,6 +95,7 @@ void    Response::_setDefaultData(std::string location)
     _errorCode = 200;
     _method.push_back("GET");
     _autoindex = "off";
+    _location.clear();
 }
 
 void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::serverBlock server, std::string *type)
@@ -112,6 +113,7 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
         {
             if (it->name == parsed[1])
             {
+                _location = it->name;
                 if (!it->root.empty())
                     _root = it->root;
                 if (!it->index.empty())
@@ -175,6 +177,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 			remove(path.c_str());
 			_errorCode = 400;
 			content = _getContent(parsed, &type);
+            content = _checkCorrectErrorPage(content, &type);
 			_createHeader(oss, _errorCode, type, content.size());
 			oss << content;
   			return oss.str();
@@ -192,6 +195,7 @@ std::string     Response::_getClientData(std::string type, std::vector<std::stri
 	else
 	{
     	content = _getContent(parsed, &type);
+        content = _checkCorrectErrorPage(content, &type);
 		_createHeader(oss, _errorCode, type, content.size());
 	}
     oss << content;
@@ -227,7 +231,10 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
                 std::ifstream f("." + _root + _index);
                 if (!f.good())
                 {
-                    _errorCode = 404;
+                    if (_location.empty())
+                        _errorCode = 404;
+                    else
+                        _errorCode = 403;
                     content = _getErrorPage(type);
                 }
                 else
@@ -281,4 +288,37 @@ bool Response::_typeIsPy(std::string type)
 		return true;
 	else
 		return false;
+}
+
+std::string     Response::_checkCorrectErrorPage(std::string original, std::string *type)
+{
+    std::string content;
+    std::map<int, std::string>::iterator it = _error_page.begin();
+    for (; it != _error_page.end(); it++)
+        if (it->first == _errorCode)
+            break ;
+    if (it != _error_page.end())
+    {
+        std::ifstream f("./www/" + it->second);
+        if (!f.good())
+        {
+            if (_location.empty())
+                _errorCode = 404;
+            else
+                _errorCode = 403;
+            content = _getErrorPage(type);
+        }
+        else
+            content = _getInsertedErrorPage(&f, it->first);
+        return content;
+    }
+    return original;
+}
+
+std::string     Response::_getInsertedErrorPage(std::ifstream *f, int errCode)
+{
+    std::string str((std::istreambuf_iterator<char>(*f)), std::istreambuf_iterator<char>());
+    std::string content = str;
+    _errorCode = errCode;
+    return content;
 }

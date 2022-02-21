@@ -11,6 +11,7 @@ class Utils
         Utils();
 
     protected:
+        std::string                 _location;
         int                         _errorCode;
         std::string                 _root;
         std::string                 _index;

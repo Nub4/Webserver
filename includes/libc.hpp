@@ -28,7 +28,7 @@
 
 # define PORT 3490
 # define BACKLOG 1024
-# define BUFF_SIZE 3000000
+# define BUFF_SIZE 8000000
 
 # define YELLOW "\033[33m"
 # define GREEN	"\033[32m"

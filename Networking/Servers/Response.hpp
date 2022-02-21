@@ -11,6 +11,8 @@ class Response : public Utils
         Response();
 
     protected:
+        std::string     _checkCorrectErrorPage(std::string original, std::string *type);
+        std::string     _getInsertedErrorPage(std::ifstream *f, int errCode);
         int             _fileUpload(char *s, int clientSocket);
         std::string     _getClientData(std::string type, std::vector<std::string> parsed, struct Parse::serverBlock server);
         std::string     _getContent(std::vector<std::string> parsed, std::string *type);

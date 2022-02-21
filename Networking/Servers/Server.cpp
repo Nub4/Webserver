@@ -25,6 +25,8 @@ Server::~Server()
 void    Server::_runServer()
 {
     fd_set master;
+    fd_set writefds;
+    fd_set readfds;
 
     FD_ZERO(&master);
     for (std::vector<int>::iterator it = _serverSockets.begin(); it != _serverSockets.end(); it++)
@@ -35,8 +37,12 @@ void    Server::_runServer()
     }
     while (1)
     {
-        fd_set readfds = master;
-        _check(select(_fdmax + 1, &readfds, NULL, NULL, NULL), "select");
+        readfds = writefds = master;
+        if (select(_fdmax + 1, &readfds, &writefds, NULL, NULL) < 0)
+        {
+            std::cerr << RED << "select\n" << RESET;
+            continue ;
+        }
         for (int i = 0; i <= _fdmax; i++)
         {
             if (FD_ISSET(i, &readfds))
