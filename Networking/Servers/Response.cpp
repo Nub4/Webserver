@@ -243,6 +243,13 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
     {
         if (_index != "/")
         {
+            if (_autoindex == "on")
+            {
+                std::ifstream f3(path);
+                if (!f3.good())
+                    _autoindex = "off";
+                f3.close();
+            }
             if (_autoindex == "off")
             {
                 std::ifstream f("." + _root + _index);
@@ -327,6 +334,7 @@ std::string     Response::_checkCorrectErrorPage(std::string original, std::stri
         }
         else
             content = _getInsertedErrorPage(&f, it->first);
+        f.close();
         return content;
     }
     return original;
