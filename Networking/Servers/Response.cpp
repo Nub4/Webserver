@@ -126,7 +126,9 @@ void    Response::_setBlockData(std::vector<std::string> parsed, struct Parse::s
     {
         for (std::vector<Parse::locationBlock>::iterator it = server.location.begin(); it != server.location.end(); it++)
         {
-            if (it->name == parsed[1])
+            if (it->name == "/")
+                it->name.clear();
+            if (it->name == parsed[1] || parsed[1].find(it->name + "/") != std::string::npos)
             {
                 _location = it->name;
                 if (!it->root.empty())
