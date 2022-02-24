@@ -268,7 +268,13 @@ std::string     Response::_getContent(std::vector<std::string> parsed, std::stri
                 f.close();
             }
             else
-                content = _getAutoindexHtml(path, url, type);
+            {
+                std::ifstream f4(path);
+                content = _getFile(&f4);
+                if (content == "" && *type != "html")
+                    content = _getAutoindexHtml(path, url, type);
+                f4.close();
+            }
         }
         else
         {
