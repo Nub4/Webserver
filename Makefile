@@ -35,18 +35,20 @@ $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 
 $(OBJ_DIR)/%.o: $(SRCS_DIR)/%.cpp
+	@echo "\033[1;33mCompiling $@"
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRCS_DIR2)/%.cpp
+	@echo "Compiling $@"
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRCS_DIR3)/%.cpp
+	@echo "Compiling $@"
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ_DIR) $(OBJECTS) $(OBJECTS2) $(OBJECTS3)
-	@echo "\033[1;33mBuilding Webserv..\033[0m"
-	@${CXX} ${CXXFLAGS} -o server $(OBJECTS) $(OBJECTS2) $(OBJECTS3)
 	@echo "\033[1;32mDONE!\033[0m"
+	@${CXX} ${CXXFLAGS} -o server $(OBJECTS) $(OBJECTS2) $(OBJECTS3)
 
 clean:
 	@echo "\033[1;31mRemoving object files..\033[0m"
